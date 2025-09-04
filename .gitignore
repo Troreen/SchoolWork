@@ -1,28 +1,49 @@
-# OS
-*.DS_Store
-Thumbs.db
+# Build artifacts
+*.exe
+*.dll
+*.lib
+*.obj
+*.o
+*.so
+*.a
+*.out
+*.app
 
-# Editors
-.vscode/
-.idea/
-
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-.pytest_cache/
-
-# Swift/Xcode
-DerivedData/
-*.xcworkspace/xcuserdata/
-*.xcuserdatad/
-
-# Node
-node_modules/
-dist/
+# Debug / Release folders (Visual Studio, MSVC, MinGW, etc.)
+[Bb]in/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
 build/
+Build/
+[Cc]MakeFiles/
+CMakeCache.txt
+CMakeScripts/
 
-# Misc
-.env
+# IDE files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs / temp
 *.log
+*.tlog
+*.pdb
+*.idb
+*.ilk
+*.tmp
+*.cache
+*.pch
+
+# Backup / system
+*.bak
+*.swp
+*.db
+.DS_Store
+Thumbs.db
+desktop.ini
