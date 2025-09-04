@@ -47,3 +47,9 @@ CMakeScripts/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# VS caches
+.vs/
+*.ipch
+*.VC.db
+*.opendb
