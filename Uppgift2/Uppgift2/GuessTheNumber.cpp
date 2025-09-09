@@ -4,6 +4,8 @@
 #include <random>
 #include <array>
 
+namespace GuessTheNumber {
+
 GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsGuessTheNumber, std::array<signed int, 5>& globalStatHistory)
 {
     int aSeeInstructions = GetInput(
@@ -56,7 +58,7 @@ GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& pl
         {
             lossStreak = 0;
             ++winCounter;
-            int payout = playerBet * PAYOUT_MULTIPLIER;
+            int payout = (playerBet * 3) / 2;
             HandlePlayerMoney(playerMoney, playerBet, payout);
             winningsGuessTheNumber += payout;
             UpdatePlayerStatHistory(globalStatHistory, payout);
@@ -96,3 +98,5 @@ GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& pl
     }
     return GameState::Menu;
 }
+
+} // namespace GuessTheNumber

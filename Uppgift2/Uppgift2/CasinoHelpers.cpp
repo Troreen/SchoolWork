@@ -193,7 +193,8 @@ void ShowMenu()
     std::cout << "\n1. Slide over to the Guessing Game table";
     std::cout << "\n2. Take a shot at Odd or Even";
     std::cout << "\n3. Try your luck in Blackjack";
-    std::cout << "\n4. Leave while your shoes still match";
+    std::cout << "\n4. Spin the Slot Machine";
+    std::cout << "\n5. Leave while your shoes still match";
     std::cout << "\n---------------------\n";
 }
 
@@ -205,7 +206,7 @@ GameState MenuState(int& playerMoney, int& playerBet, std::array<signed int, 5>&
     }
     DrawHUD(playerMoney, globalStatHistory);
     ShowMenu();
-    int choiceInt = GetInput(1, 4, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
+    int choiceInt = GetInput(1, 5, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
     MenuOption choice = static_cast<MenuOption>(choiceInt);
     switch (choice)
     {
@@ -221,6 +222,10 @@ GameState MenuState(int& playerMoney, int& playerBet, std::array<signed int, 5>&
         DrawHUD(playerMoney, globalStatHistory);
         std::cout << "Entering blackjack table.\n";
         return GameState::BlackJack;
+    case MenuOption::SlotMachine:
+        DrawHUD(playerMoney, globalStatHistory);
+        std::cout << "Slot Machine spins up...\n";
+        return GameState::SlotMachine;
     case MenuOption::Exit:
         std::cout << "Smart legs take smart exits. Door's that way.";
         return GameState::Exit;

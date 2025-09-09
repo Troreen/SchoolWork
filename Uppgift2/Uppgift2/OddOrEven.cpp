@@ -62,7 +62,7 @@ GameState PlayOddOrEven(std::mt19937& aGenerator, int& playerMoney, int& playerB
         {
             lossStreak = 0;
             ++winCounter;
-            int payout = playerBet * PAYOUT_MULTIPLIER;
+            int payout = playerBet * 3;
             HandlePlayerMoney(playerMoney, playerBet, payout);
             UpdatePlayerStatHistory(globalStatHistory, payout);
             winningsOddOrEven += payout;

@@ -219,7 +219,7 @@ GameState PlayBlackJack(std::mt19937& aGenerator, int& playerMoney, int& playerB
             ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
             lossStreak = 0;
             ++winCounter;
-            int payout = playerBet * PAYOUT_MULTIPLIER;
+            int payout = playerBet * 2;
             winningsBlackJack += payout;
             HandlePlayerMoney(playerMoney, playerBet, payout);
             UpdatePlayerStatHistory(globalStatHistory, payout);
@@ -249,7 +249,7 @@ GameState PlayBlackJack(std::mt19937& aGenerator, int& playerMoney, int& playerB
             {
                 lossStreak = 0;
                 ++winCounter;
-                int payout = playerBet * PAYOUT_MULTIPLIER;
+                int payout = playerBet * 2;
                 winningsBlackJack += payout;
                 HandlePlayerMoney(playerMoney, playerBet, payout);
                 UpdatePlayerStatHistory(globalStatHistory, payout);

@@ -16,6 +16,7 @@ enum class GameState {
     GuessTheNumber,
     OddOrEven,
     BlackJack,
+    SlotMachine,
     Exit
 };
 
@@ -23,7 +24,8 @@ enum class MenuOption {
     GuessTheNumber = 1,
     OddOrEven = 2,
     BlackJack = 3,
-    Exit = 4
+    SlotMachine = 4,
+    Exit = 5
 };
 
 void DrawHUD(int playerMoney, const std::array<signed int, 5>& globalStatHistory);
@@ -39,3 +41,4 @@ GameState MenuState(int& playerMoney, int& playerBet, std::array<signed int, 5>&
 void ShowInstructions(GameState aState);
 const char* GetLossTaunt(int aStreak);
 const char* GetWinTaunt(int aWinCounter);
+GameState PlaySlotMachine(std::mt19937& generator, int& playerMoney, int& playerBet, std::array<signed int, 5>& statHistory);
