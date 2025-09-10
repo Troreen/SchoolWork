@@ -17,7 +17,7 @@ namespace Poker
 	const int smallBlind;
 	const int bigBlind;
 	const int raiseCap;
-	
+
 	std::array<int, 52> deck;
 	int topCard;
 

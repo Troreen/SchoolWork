@@ -30,7 +30,7 @@
     <ClCompile Include="BlackJack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Poker.cpp">
+    <ClCompile Include="SlotMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClInclude Include="BlackJack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Poker.h">
+    <ClInclude Include="SlotMachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

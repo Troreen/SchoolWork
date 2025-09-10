@@ -189,48 +189,49 @@ namespace CasinoHelpers
         return distribution(aGenerator);
     }
 
-    void ShowMenu()
-    {
-        std::cout << "\n--- The Casino ---";
-        std::cout << "\n1. Slide over to the Guessing Game table";
-        std::cout << "\n2. Take a shot at Odd or Even";
-        std::cout << "\n3. Try your luck in Blackjack";
-        std::cout << "\n4. Leave while your shoes still match";
-        std::cout << "\n---------------------\n";
-    }
+void ShowMenu()
+{
+    std::cout << "\n--- The Casino ---";
+    std::cout << "\n1. Slide over to the Guessing Game table";
+    std::cout << "\n2. Take a shot at Odd or Even";
+    std::cout << "\n3. Try your luck in Blackjack";
+    std::cout << "\n4. Spin the Slot Machine";
+    std::cout << "\n5. Leave while your shoes still match";
+    std::cout << "\n---------------------\n";
+}
 
-    GameState MenuState(int& playerMoney, int& playerBet, std::array<signed int, 5>& globalStatHistory)
+GameState MenuState(int& playerMoney, int& playerBet, std::array<signed int, 5>& globalStatHistory)
+{
+    if (playerMoney <= 0)
     {
-        if (playerMoney <= 0)
-        {
-            return HandleBankruptcy(playerMoney, globalStatHistory);
-        }
-        DrawHUD(playerMoney, globalStatHistory);
-        ShowMenu();
-        int choiceInt = GetInput(1, 4, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
-        MenuOption choice = static_cast<MenuOption>(choiceInt);
-        switch (choice)
-        {
-        case MenuOption::GuessTheNumber:
-            DrawHUD(playerMoney, globalStatHistory);
-            std::cout << "\nGuessing Game table it is. Bones are hungry tonight.";
-            return GameState::GuessTheNumber;
-        case MenuOption::OddOrEven:
-            DrawHUD(playerMoney, globalStatHistory);
-            std::cout << "Odd/Even corner, huh? Grease twirls his toothpick: pick a side.\n";
-            return GameState::OddOrEven;
-        case MenuOption::BlackJack:
-            DrawHUD(playerMoney, globalStatHistory);
-            std::cout << "Entering blackjack table.\n";
-            return GameState::BlackJack;
-        case MenuOption::Exit:
-            std::cout << "Smart legs take smart exits. Door's that way.";
-            return GameState::Exit;
-        default:
-            std::cout << "That choice ain't on the menu, friend.";
-            return GameState::Menu;
-        }
+        return HandleBankruptcy(playerMoney, globalStatHistory);
     }
+    DrawHUD(playerMoney, globalStatHistory);
+    ShowMenu();
+    int choiceInt = GetInput(1, 4, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
+    MenuOption choice = static_cast<MenuOption>(choiceInt);
+    switch (choice)
+    {
+    case MenuOption::GuessTheNumber:
+        DrawHUD(playerMoney, globalStatHistory);
+        std::cout << "\nGuessing Game table it is. Bones are hungry tonight.";
+        return GameState::GuessTheNumber;
+    case MenuOption::OddOrEven:
+        DrawHUD(playerMoney, globalStatHistory);
+        std::cout << "Odd/Even corner, huh? Grease twirls his toothpick: pick a side.\n";
+        return GameState::OddOrEven;
+    case MenuOption::BlackJack:
+        DrawHUD(playerMoney, globalStatHistory);
+        std::cout << "Entering blackjack table.\n";
+        return GameState::BlackJack;
+    case MenuOption::Exit:
+        std::cout << "Smart legs take smart exits. Door's that way.";
+        return GameState::Exit;
+    default:
+        std::cout << "That choice ain't on the menu, friend.";
+        return GameState::Menu;
+    }
+}
 
     void ShowInstructions(GameState aState)
     {

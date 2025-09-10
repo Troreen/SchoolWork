@@ -128,14 +128,14 @@
     <ClCompile Include="GuessTheNumber.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="OddOrEven.cpp" />
-    <ClCompile Include="Poker.cpp" />
+    <ClCompile Include="SlotMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlackJack.h" />
     <ClInclude Include="CasinoHelpers.h" />
     <ClInclude Include="GuessTheNumber.h" />
     <ClInclude Include="OddOrEven.h" />
-    <ClInclude Include="Poker.h" />
+    <ClInclude Include="SlotMachine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
