@@ -1,9 +1,12 @@
 #pragma once
 #include <random>
 #include <array>
+using namespace CasinoHelpers;
 
-const int PAYOUT_MULTIPLIER = 3 / 2;
+namespace GuessTheNumber 
+{
+	const int PAYOUT_MULTIPLIER = 3 / 2;
 
-GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsGuessTheNumber, std::array<signed int, 5>& globalStatHistory);
-const char* GetLossTaunt(int aStreak);
-const char* GetWinTaunt(int aWinCounter);
+	GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsGuessTheNumber, std::array<signed int, 5>& globalStatHistory);
+
+}
