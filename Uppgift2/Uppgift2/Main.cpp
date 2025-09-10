@@ -2,6 +2,7 @@
 #include "GuessTheNumber.h"
 #include "OddOrEven.h"
 #include "BlackJack.h"
+#include "SlotMachine.h"
 #include <random>
 #include <iostream>
 #include <array>
@@ -36,11 +37,15 @@ int main()
             std::cout << "Fair enough, kid. The alley's always open if you change your mind...\n";
             break;
         case GameState::OddOrEven:
-            currentState = PlayOddOrEven(generator, playerMoney, playerBet, winningsOddOrEven, statHistory);
+            currentState = OddOrEven::PlayOddOrEven(generator, playerMoney, playerBet, winningsOddOrEven, statHistory);
             std::cout << "\nStreet's that way, hotshot.\n";
             break;
         case GameState::BlackJack:
-            currentState = PlayBlackJack(generator, playerMoney, playerBet, winningsBlackJack, statHistory);
+            currentState = BlackJack::PlayBlackJack(generator, playerMoney, playerBet, winningsBlackJack, statHistory);
+            std::cout << "\nStreet's that way, hotshot.\n";
+            break;
+        case GameState::SlotMachine:
+            currentState = SlotMachine::PlaySlotMachine(generator, playerMoney, playerBet, statHistory);
             std::cout << "\nStreet's that way, hotshot.\n";
             break;
         case GameState::Exit:

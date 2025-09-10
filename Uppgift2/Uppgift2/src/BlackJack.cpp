@@ -5,11 +5,10 @@
 #include <iostream>
 #include <Windows.h>
 #include <string>
-using namespace CasinoHelpers;  
+using namespace CasinoHelpers;
 
 namespace BlackJack
 {
-
     static const char* RANKS[14] = { "", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
     static const char* SUITS[4] = { "S", "H", "D", "C" };
 
@@ -23,7 +22,7 @@ namespace BlackJack
         return deck;
     }
 
-    void ShuffleDeck(std::array<int, 52>& aDeck, std::mt19937& aGenerator)
+    void ShuffleDeck(std::array<int, 52>&aDeck, std::mt19937 & aGenerator)
     {
         for (int i = static_cast<int>(aDeck.size()) - 1; i > 0; i--)
         {
@@ -53,7 +52,7 @@ namespace BlackJack
         return rank;
     }
 
-    int GetHandValue(std::array<int, 12>& aHand, int aCardCount)
+    int GetHandValue(std::array<int, 12>&aHand, int aCardCount)
     {
         int total = 0;
         int aceCount = 0;
@@ -74,7 +73,7 @@ namespace BlackJack
         return total;
     }
 
-    int DealOneCard(const std::array<int, 52>& aDeck, int& aDeckTop)
+    int DealOneCard(const std::array<int, 52>&aDeck, int& aDeckTop)
     {
         int card = aDeck[aDeckTop];
         ++aDeckTop;
@@ -88,7 +87,7 @@ namespace BlackJack
         return std::string(RANKS[rank]) + SUITS[suit];
     }
 
-    void ShowHands(const std::array<int, 12>& aPlayerHand, int aPlayerCardCount, const std::array<int, 12>& aDealerHand, int aDealerCardCount, bool aRevealDealer, int playerMoney, const std::array<signed int, 5>& globalStatHistory)
+    void ShowHands(const std::array<int, 12>&aPlayerHand, int aPlayerCardCount, const std::array<int, 12>&aDealerHand, int aDealerCardCount, bool aRevealDealer, int playerMoney, const std::array<signed int, 5>&globalStatHistory)
     {
         DrawHUD(playerMoney, globalStatHistory);
         std::cout << "\nYour hand: ";
@@ -122,7 +121,7 @@ namespace BlackJack
         std::cout << "\n";
     }
 
-    GameState PlayBlackJack(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsBlackJack, std::array<signed int, 5>& globalStatHistory)
+    GameState PlayBlackJack(std::mt19937 & aGenerator, int& playerMoney, int& playerBet, int& winningsBlackJack, std::array<signed int, 5>&globalStatHistory)
     {
         int seeInstructions = GetInput(
             CHOICE_NO, CHOICE_YES,
@@ -133,6 +132,7 @@ namespace BlackJack
         {
             ShowInstructions(GameState::BlackJack);
         }
+
         int acceptRules = GetInput(
             CHOICE_NO, CHOICE_YES,
             "Do you still want to play knowing the stakes? (0: No, 1: Yes)",
@@ -142,6 +142,7 @@ namespace BlackJack
         {
             return GameState::Menu;
         }
+
         int playAgain = PLAY_AGAIN_YES;
         int lossStreak = 0;
         int winCounter = 0;
@@ -280,4 +281,3 @@ namespace BlackJack
         return GameState::Menu;
     }
 }
-
