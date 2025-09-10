@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{bd65bf06-d3fc-4202-b330-90ef29fdf7cc}</ProjectGuid>
+    <ProjectGuid>{862c2f7d-d679-48cd-9598-acaf1e0fb503}</ProjectGuid>
     <RootNamespace>Uppgift3</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -123,7 +123,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Uppgift3.cpp" />
+    <ClCompile Include="BlackJack.cpp" />
+    <ClCompile Include="CasinoHelpers.cpp" />
+    <ClCompile Include="GuessTheNumber.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="OddOrEven.cpp" />
+    <ClCompile Include="Roulette.cpp" />
+    <ClCompile Include="SlotMachine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BlackJack.h" />
+    <ClInclude Include="CasinoHelpers.h" />
+    <ClInclude Include="GuessTheNumber.h" />
+    <ClInclude Include="OddOrEven.h" />
+    <ClInclude Include="Roulette.h" />
+    <ClInclude Include="SlotMachine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
