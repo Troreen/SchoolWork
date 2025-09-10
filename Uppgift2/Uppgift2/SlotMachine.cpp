@@ -8,7 +8,7 @@ using namespace CasinoHelpers;
 
 namespace SlotMachine
 {
-    GameState PlaySlotMachine(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory)
+    GameState PlaySlotMachine(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsSlot, std::array<signed int, 5>& aStatHistory)
     {
     int seeInstructions = GetInput(
         CHOICE_NO, CHOICE_YES,
@@ -33,15 +33,19 @@ namespace SlotMachine
     int playAgain = PLAY_AGAIN_YES;
     while (playAgain)
     {
-            if (somePlayerMoney <= 0)
+        if (RecognizePlayer(GameState::SlotMachine, 0, 0, 0, someWinningsSlot))
         {
-                return HandleBankruptcy(somePlayerMoney, aStatHistory);
+            return GameState::Menu;
         }
-            Bet(somePlayerMoney, aPlayerBet);
-            DrawHUD(somePlayerMoney, aStatHistory);
+        if (somePlayerMoney <= 0)
+        {
+            return HandleBankruptcy(somePlayerMoney, aStatHistory);
+        }
+        Bet(somePlayerMoney, aPlayerBet);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "Spinning the reels...\n";
-        std::uniform_int_distribution<int> symbolDist(1, 5); // 5 symbols
-            int reels[3] = { symbolDist(aGenerator), symbolDist(aGenerator), symbolDist(aGenerator) };
+        std::uniform_int_distribution<int> symbolDist(1, 5); 
+        int reels[3] = { symbolDist(aGenerator), symbolDist(aGenerator), symbolDist(aGenerator) };
         std::cout << "[ " << reels[0] << " | " << reels[1] << " | " << reels[2] << " ]\n";
         int payout = 0;
         if (reels[0] == reels[1] && reels[1] == reels[2])

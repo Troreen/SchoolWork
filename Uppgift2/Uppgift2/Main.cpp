@@ -14,6 +14,7 @@ int main()
     int winningsGuessTheNumber = 0;
     int winningsOddOrEven = 0;
     int winningsBlackJack = 0;
+    int winningsSlot = 0;
     std::array<signed int, STAT_HISTORY_SIZE> statHistory = {};
 
     std::random_device randomDevice;
@@ -45,7 +46,7 @@ int main()
             std::cout << "\nStreet's that way, hotshot.\n";
             break;
         case GameState::SlotMachine:
-            currentState = SlotMachine::PlaySlotMachine(generator, playerMoney, playerBet, statHistory);
+            currentState = SlotMachine::PlaySlotMachine(generator, playerMoney, playerBet, winningsSlot, statHistory);
             std::cout << "\nStreet's that way, hotshot.\n";
             break;
         case GameState::Exit:

@@ -88,9 +88,9 @@ namespace BlackJack
         return std::string(RANKS[rank]) + SUITS[suit];
     }
 
-    void ShowHands(const std::array<int, 12>& aPlayerHand, int aPlayerCardCount, const std::array<int, 12>& aDealerHand, int aDealerCardCount, bool aRevealDealer, int playerMoney, const std::array<signed int, 5>& globalStatHistory)
+    void ShowHands(const std::array<int, 12>& aPlayerHand, int aPlayerCardCount, const std::array<int, 12>& aDealerHand, int aDealerCardCount, bool aRevealDealer, int somePlayerMoney, const std::array<signed int, 5>& aStatHistory)
     {
-        DrawHUD(playerMoney, globalStatHistory);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "\nYour hand: ";
         for (int i = 0; i < aPlayerCardCount; ++i)
         {
@@ -122,7 +122,7 @@ namespace BlackJack
         std::cout << "\n";
     }
 
-    GameState PlayBlackJack(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsBlackJack, std::array<signed int, 5>& globalStatHistory)
+    GameState PlayBlackJack(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsBlackJack, std::array<signed int, 5>& aStatHistory)
     {
         int seeInstructions = GetInput(
             CHOICE_NO, CHOICE_YES,
@@ -156,20 +156,20 @@ namespace BlackJack
             dealer[dealerCount++] = DealOneCard(deck, topCard);
             player[playerCount++] = DealOneCard(deck, topCard);
             dealer[dealerCount++] = DealOneCard(deck, topCard);
-            if (playerMoney <= 0)
+            if (somePlayerMoney <= 0)
             {
-                return HandleBankruptcy(playerMoney, globalStatHistory);
+                return HandleBankruptcy(somePlayerMoney, aStatHistory);
             }
-            if (RecognizePlayer(GameState::BlackJack, 0, 0, winningsBlackJack))
+            if (RecognizePlayer(GameState::BlackJack, 0, 0, someWinningsBlackJack, 0))
             {
                 return GameState::Menu;
             }
-            Bet(playerMoney, playerBet);
+            Bet(somePlayerMoney, aPlayerBet);
             bool ongoingRound = true;
             bool revealDealerCard = false;
             while (ongoingRound && GetHandValue(player, playerCount) < 21)
             {
-                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                 int guess = GetInput(
                     CHOICE_NO, CHOICE_YES,
                     "Whisper it to me, pal: stay (0) or hit (1)",
@@ -181,7 +181,7 @@ namespace BlackJack
                     if (GetHandValue(player, playerCount) > 21)
                     {
                         revealDealerCard = true;
-                        ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                        ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                         ongoingRound = false;
                     }
                 }
@@ -194,72 +194,72 @@ namespace BlackJack
             if (ongoingRound)
             {
                 revealDealerCard = true;
-                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                 while (GetHandValue(dealer, dealerCount) < 17)
                 {
                     dealer[dealerCount++] = DealOneCard(deck, topCard);
-                    ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                    ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                 }
                 ongoingRound = false;
             }
             if (GetHandValue(player, playerCount) > 21)
             {
-                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                 winCounter = 0;
                 ++lossStreak;
-                UpdatePlayerStatHistory(globalStatHistory, -playerBet);
-                winningsBlackJack -= playerBet;
+                UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                someWinningsBlackJack -= aPlayerBet;
                 std::cout << "You busted" << "\n";
-                std::cout << "You have lost: -" << playerBet << ".\n";
-                playerBet = 0;
+                std::cout << "You have lost: -" << aPlayerBet << ".\n";
+                aPlayerBet = 0;
                 system("pause");
-                if (playerMoney <= 0)
+                if (somePlayerMoney <= 0)
                 {
-                    return HandleBankruptcy(playerMoney, globalStatHistory);
+                    return HandleBankruptcy(somePlayerMoney, aStatHistory);
                 }
             }
             else if (GetHandValue(dealer, dealerCount) > 21)
             {
-                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                 lossStreak = 0;
                 ++winCounter;
-                int payout = playerBet * PAYOUT_MULTIPLIER;
-                winningsBlackJack += payout;
-                HandlePlayerMoney(playerMoney, playerBet, payout);
-                UpdatePlayerStatHistory(globalStatHistory, payout);
+                int payout = aPlayerBet * PAYOUT_MULTIPLIER;
+                someWinningsBlackJack += payout;
+                HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+                UpdatePlayerStatHistory(aStatHistory, payout);
                 std::cout << "The Dealer bust you win.""\n";
                 std::cout << GetWinTaunt(winCounter);
-                std::cout << "You win: +" << (payout - playerBet) << ".\n";
+                std::cout << "You win: +" << (payout - aPlayerBet) << ".\n";
             }
             else
             {
-                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, playerMoney, globalStatHistory);
+                ShowHands(player, playerCount, dealer, dealerCount, revealDealerCard, somePlayerMoney, aStatHistory);
                 if (GetHandValue(player, playerCount) <= GetHandValue(dealer, dealerCount))
                 {
                     winCounter = 0;
                     ++lossStreak;
-                    winningsBlackJack -= playerBet;
-                    UpdatePlayerStatHistory(globalStatHistory, -playerBet);
+                    someWinningsBlackJack -= aPlayerBet;
+                    UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
                     std::cout << "The dealer has a higher hand, you've lost" << "\n";
-                    std::cout << "You have lost: -" << playerBet << ".\n";
-                    playerBet = 0;
+                    std::cout << "You have lost: -" << aPlayerBet << ".\n";
+                    aPlayerBet = 0;
                     system("pause");
-                    if (playerMoney <= 0)
+                    if (somePlayerMoney <= 0)
                     {
-                        return HandleBankruptcy(playerMoney, globalStatHistory);
+                        return HandleBankruptcy(somePlayerMoney, aStatHistory);
                     }
                 }
                 else
                 {
                     lossStreak = 0;
                     ++winCounter;
-                    int payout = playerBet * PAYOUT_MULTIPLIER;
-                    winningsBlackJack += payout;
-                    HandlePlayerMoney(playerMoney, playerBet, payout);
-                    UpdatePlayerStatHistory(globalStatHistory, payout);
+                    int payout = aPlayerBet * PAYOUT_MULTIPLIER;
+                    someWinningsBlackJack += payout;
+                    HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+                    UpdatePlayerStatHistory(aStatHistory, payout);
                     std::cout << "You have the higher hand, you win." << "\n";
                     std::cout << GetWinTaunt(winCounter);
-                    std::cout << "You win: +" << (payout - playerBet) << ".\n";
+                    std::cout << "You win: +" << (payout - aPlayerBet) << ".\n";
                 }
             }
             playAgain = GetInput(
@@ -269,7 +269,7 @@ namespace BlackJack
             );
             if (playAgain)
             {
-                DrawHUD(playerMoney, globalStatHistory);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 std::cout << "Grease taps the rail. \"Again.\"\n\n";
             }
             else

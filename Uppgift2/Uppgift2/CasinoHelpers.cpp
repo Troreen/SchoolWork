@@ -23,7 +23,7 @@ namespace CasinoHelpers
         SetConsoleTextAttribute(aConsoleHandle, someDefaultTextAttributes);
     }
 
-    void DrawHUD(int playerMoney, const std::array<signed int, 5>& globalStatHistory)
+    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory)
     {
         system("cls");
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -33,51 +33,51 @@ namespace CasinoHelpers
             defaultTextAttributes = screenInfo.wAttributes;
         }
         std::cout << "  ";
-        for (size_t index = 0; index < globalStatHistory.size(); ++index) {
-            int currentValue = globalStatHistory[index];
+        for (size_t index = 0; index < aStatHistory.size(); ++index) {
+            int currentValue = aStatHistory[index];
             PrintIntegerBySign(currentValue, consoleHandle, defaultTextAttributes);
             std::cout << '\t';
         }
-        std::cout << "\t\t\t\t\t\tYour current money: " << playerMoney << '\n';
+        std::cout << "\t\t\t\t\t\tYour current money: " << somePlayerMoney << '\n';
     }
 
-    void UpdatePlayerStatHistory(std::array<signed int, 5>& globalStatHistory, int anAmount)
+    void UpdatePlayerStatHistory(std::array<signed int, 5>& aStatHistory, int anAmount)
     {
-        for (size_t i = globalStatHistory.size(); i > 1; i--)
+        for (size_t i = aStatHistory.size(); i > 1; i--)
         {
-            globalStatHistory[i - 1] = globalStatHistory[i - 2];
+            aStatHistory[i - 1] = aStatHistory[i - 2];
         }
-        globalStatHistory[0] = anAmount;
+        aStatHistory[0] = anAmount;
     }
 
-    void HandlePlayerMoney(int& playerMoney, int& playerBet, int aMoney)
+    void HandlePlayerMoney(int& somePlayerMoney, int& aPlayerBet, int aMoney)
     {
-        playerMoney += aMoney;
-        playerBet = 0;
+        somePlayerMoney += aMoney;
+        aPlayerBet = 0;
     }
 
-    GameState HandleBankruptcy(int playerMoney, const std::array<signed int, 5>& globalStatHistory)
+    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory)
     {
-        DrawHUD(playerMoney, globalStatHistory);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "\nYour pockets echo like an empty alley, kid. Not a chip left to your name.";
         std::cout << "\nThe house grins, the bones go quiet. Come back when your luck grows legs... and brings cash.\n\n";
         system("pause");
         return GameState::Exit;
     }
 
-    void Bet(int& playerMoney, int& playerBet)
+    void Bet(int& somePlayerMoney, int& aPlayerBet)
     {
-        DrawHUD(playerMoney, std::array<signed int, 5>{}); // stat history not needed for bet HUD
+        DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
         std::cout << "\nSlide your stake across the felt, slick. The house is listening...";
-        playerBet = GetInput(
-            1, playerMoney,
+        aPlayerBet = GetInput(
+            1, somePlayerMoney,
             "How much do you wanna bet?",
             "You don't have the scratch for that. Pick a number you can actually cover."
         );
-        int playerOldMoney = playerMoney;
-        playerMoney -= playerBet;
-        DrawHUD(playerMoney, std::array<signed int, 5>{});
-        if (playerBet == playerOldMoney)
+        int playerOldMoney = somePlayerMoney;
+        somePlayerMoney -= aPlayerBet;
+        DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
+        if (aPlayerBet == playerOldMoney)
         {
             std::cout << "Woah, feeling lucky are you?.. We'll see about that hotshot..";
         }
@@ -87,22 +87,21 @@ namespace CasinoHelpers
         }
     }
 
-    bool RecognizePlayer(GameState aState, int winningsGuessTheNumber, int winningsOddOrEven, int winningsBlackJack)
+    bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot)
     {
         system("cls");
-        // stat history not needed for HUD here
         bool shouldBan = false;
         switch (aState)
         {
         case GameState::GuessTheNumber:
         {
-            if (winningsGuessTheNumber > 500)
+            if (someWinningsGuessTheNumber > 500)
             {
                 std::cout << "You have earned too much at this table, you are banned\n";
                 shouldBan = true;
                 system("pause");
             }
-            else if (winningsGuessTheNumber < -150)
+            else if (someWinningsGuessTheNumber < -150)
             {
                 std::cout << "Come right on.\n";
                 system("pause");
@@ -116,13 +115,13 @@ namespace CasinoHelpers
         }
         case GameState::OddOrEven:
         {
-            if (winningsOddOrEven > 500)
+            if (someWinningsOddOrEven > 500)
             {
                 std::cout << "You have earned too much at this table, you are banned\n";
                 shouldBan = true;
                 system("pause");
             }
-            else if (winningsOddOrEven < -150)
+            else if (someWinningsOddOrEven < -150)
             {
                 std::cout << "Come right on.\n";
                 system("pause");
@@ -136,13 +135,33 @@ namespace CasinoHelpers
         }
         case GameState::BlackJack:
         {
-            if (winningsBlackJack > 1000)
+            if (someWinningsBlackJack > 1000)
             {
                 std::cout << "You have earned too much at this table, you are banned\n";
                 shouldBan = true;
                 system("pause");
             }
-            else if (winningsBlackJack < -150)
+            else if (someWinningsBlackJack < -150)
+            {
+                std::cout << "Come right on.\n";
+                system("pause");
+            }
+            else
+            {
+                std::cout << "Welcome, the night is young..\n";
+                system("pause");
+            }
+            break;
+        }
+        case GameState::SlotMachine:
+        {
+            if (someWinningsSlot> 1000)
+            {
+                std::cout << "You have earned too much at this table, you are banned\n";
+                shouldBan = true;
+                system("pause");
+            }
+            else if (someWinningsBlackJack < -150)
             {
                 std::cout << "Come right on.\n";
                 system("pause");
@@ -200,32 +219,32 @@ void ShowMenu()
     std::cout << "\n---------------------\n";
 }
 
-GameState MenuState(int& playerMoney, int& playerBet, std::array<signed int, 5>& globalStatHistory)
+GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory)
 {
-    if (playerMoney <= 0)
+    if (somePlayerMoney <= 0)
     {
-        return HandleBankruptcy(playerMoney, globalStatHistory);
+        return HandleBankruptcy(somePlayerMoney, aStatHistory);
     }
-    DrawHUD(playerMoney, globalStatHistory);
+    DrawHUD(somePlayerMoney, aStatHistory);
     ShowMenu();
     int choiceInt = GetInput(0, 4, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
     MenuOption choice = static_cast<MenuOption>(choiceInt);
     switch (choice)
     {
     case MenuOption::GuessTheNumber:
-        DrawHUD(playerMoney, globalStatHistory);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "\nGuessing Game table it is. Bones are hungry tonight.";
         return GameState::GuessTheNumber;
     case MenuOption::OddOrEven:
-        DrawHUD(playerMoney, globalStatHistory);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "Odd/Even corner, huh? Grease twirls his toothpick: pick a side.\n";
         return GameState::OddOrEven;
     case MenuOption::BlackJack:
-        DrawHUD(playerMoney, globalStatHistory);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "Entering blackjack table.\n";
         return GameState::BlackJack;
     case MenuOption::SlotMachine:
-        DrawHUD(playerMoney, globalStatHistory);
+        DrawHUD(somePlayerMoney, aStatHistory);
         std::cout << "Entering the slot machines.\n";
         return GameState::SlotMachine;
     case MenuOption::Exit:

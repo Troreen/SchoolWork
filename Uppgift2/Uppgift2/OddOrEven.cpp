@@ -7,7 +7,7 @@ using namespace CasinoHelpers;
 
 namespace OddOrEven
 {
-    GameState PlayOddOrEven(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsOddOrEven, std::array<signed int, 5>& globalStatHistory)
+    GameState PlayOddOrEven(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsOddOrEven, std::array<signed int, 5>& aStatHistory)
     {
         int seeInstructions = GetInput(
                 CHOICE_NO, CHOICE_YES,
@@ -32,22 +32,22 @@ namespace OddOrEven
         int winCounter = 0;
         while (playAgain)
         {
-            if (playerMoney <= 0)
+            if (somePlayerMoney <= 0)
             {
-                return HandleBankruptcy(playerMoney, globalStatHistory);
+                return HandleBankruptcy(somePlayerMoney, aStatHistory);
             }
-            if (RecognizePlayer(GameState::OddOrEven, 0, winningsOddOrEven, 0))
+            if (RecognizePlayer(GameState::OddOrEven, 0, someWinningsOddOrEven, 0, 0))
             {
                 return GameState::Menu;
             }
-            Bet(playerMoney, playerBet);
+            Bet(somePlayerMoney, aPlayerBet);
             int guess = GetInput(
                 CHOICE_NO, CHOICE_YES,
                 "Whisper it to me, pal: odd (1) or even (2)  -  both bones gotta match",
                 "Use your fingers if you gotta - 1 for odd, 2 for even."
             );
         
-            DrawHUD(playerMoney, globalStatHistory);
+            DrawHUD(somePlayerMoney, aStatHistory);
 
             std::cout << "Hands off the felt. Let the bones breathe...\n";
             int die1 = RollDie(aGenerator);
@@ -65,42 +65,42 @@ namespace OddOrEven
             {
                 lossStreak = 0;
                 ++winCounter;
-                int payout = playerBet * PAYOUT_MULTIPLIER;
-                HandlePlayerMoney(playerMoney, playerBet, payout);
-                UpdatePlayerStatHistory(globalStatHistory, payout);
-                winningsOddOrEven += payout;
+                int payout = aPlayerBet * PAYOUT_MULTIPLIER;
+                HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+                UpdatePlayerStatHistory(aStatHistory, payout);
+                someWinningsOddOrEven += payout;
                 std::cout << "Grease whistles low: \"" << (bothEven ? "Both even" : "Both odd") << ". You threaded it.\"\n";
                 std::cout << GetWinTaunt(winCounter);
-                std::cout << "He shoves your stack over: +" << (payout - playerBet) << ".\n";
+                std::cout << "He shoves your stack over: +" << (payout - aPlayerBet) << ".\n";
             }
             else if (split1 || split2)
             {
                 winCounter = 0;
                 ++lossStreak;
-                UpdatePlayerStatHistory(globalStatHistory, -playerBet);
-                winningsOddOrEven -= playerBet;
+                UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                someWinningsOddOrEven -= aPlayerBet;
                 std::cout << "Grease shrugs: \"Split shoes - one odd, one even. House eats.\"\n";
-                std::cout << "He pockets your bet like it owed him money: -" << playerBet << ".\n";
-                playerBet = 0;
+                std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";
+                aPlayerBet = 0;
                 system("pause");
-                if (playerMoney <= 0)
+                if (somePlayerMoney <= 0)
                 {
-                    return HandleBankruptcy(playerMoney, globalStatHistory);
+                    return HandleBankruptcy(somePlayerMoney, aStatHistory);
                 }
             }
             else
             {
                 winCounter = 0;
                 ++lossStreak;
-                UpdatePlayerStatHistory(globalStatHistory, -playerBet);
-                winningsOddOrEven -= playerBet;
+                UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                someWinningsOddOrEven -= aPlayerBet;
                 std::cout << "Grease shrugs: \"Hah! Not your day is it? House eats.\"\n";
-                std::cout << "He pockets your bet like it owed him money: -" << playerBet << ".\n";
-                playerBet = 0;
+                std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";
+                aPlayerBet = 0;
                 system("pause");
-                if (playerMoney <= 0)
+                if (somePlayerMoney <= 0)
                 {
-                    return HandleBankruptcy(playerMoney, globalStatHistory);
+                    return HandleBankruptcy(somePlayerMoney, aStatHistory);
                 }
             }
             playAgain = GetInput(
@@ -110,7 +110,7 @@ namespace OddOrEven
             );
             if (playAgain)
             {
-                DrawHUD(playerMoney, globalStatHistory);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 std::cout << "Grease taps the rail. \"Again.\"\n\n";
             }
             else

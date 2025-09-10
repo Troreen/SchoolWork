@@ -7,5 +7,5 @@ namespace GuessTheNumber
 {
 	const int PAYOUT_MULTIPLIER = 3 / 2;
 
-	GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsGuessTheNumber, std::array<signed int, 5>& globalStatHistory);
+	GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsGuessTheNumber, std::array<signed int, 5>& aStatHistory);
 }

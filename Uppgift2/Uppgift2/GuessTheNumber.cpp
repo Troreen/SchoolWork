@@ -7,7 +7,7 @@ using namespace CasinoHelpers;
 
 namespace GuessTheNumber
 {
-    GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& playerMoney, int& playerBet, int& winningsGuessTheNumber, std::array<signed int, 5>& globalStatHistory)
+    GameState PlayGuessTheNumber(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsGuessTheNumber, std::array<signed int, 5>& aStatHistory)
     {
         int aSeeInstructions = GetInput(
             CHOICE_NO, CHOICE_YES,
@@ -32,21 +32,21 @@ namespace GuessTheNumber
         int winCounter = 0;
         while (playAgain)
         {
-            if (playerMoney <= 0)
+            if (somePlayerMoney <= 0)
             {
-                return HandleBankruptcy(playerMoney, globalStatHistory);
+                return HandleBankruptcy(somePlayerMoney, aStatHistory);
             }
-            if (RecognizePlayer(GameState::GuessTheNumber, winningsGuessTheNumber, 0, 0))
+            if (RecognizePlayer(GameState::GuessTheNumber, someWinningsGuessTheNumber, 0, 0, 0))
             {
                 return GameState::Menu;
             }
-            Bet(playerMoney, playerBet);
+            Bet(somePlayerMoney, aPlayerBet);
             int guess = GetInput(
                 2, 12,
                 "Lay your wager... what's the sum gonna be?",
                 "Heh, don't play me for a fool... pick a number between 2 and 12."
             );
-            DrawHUD(playerMoney, globalStatHistory);
+            DrawHUD(somePlayerMoney, aStatHistory);
             std::cout << "Hands off the table. Dice are talking now...";
             int die1 = RollDie(aGenerator);
             int die2 = RollDie(aGenerator);
@@ -59,12 +59,12 @@ namespace GuessTheNumber
             {
                 lossStreak = 0;
                 ++winCounter;
-                int payout = playerBet * PAYOUT_MULTIPLIER;
-                HandlePlayerMoney(playerMoney, playerBet, payout);
-                winningsGuessTheNumber += payout;
-                UpdatePlayerStatHistory(globalStatHistory, payout);
+                int payout = aPlayerBet * PAYOUT_MULTIPLIER;
+                HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+                someWinningsGuessTheNumber += payout;
+                UpdatePlayerStatHistory(aStatHistory, payout);
                 std::cout << GetWinTaunt(winCounter);
-                std::cout << "House peels off a stack and slides it back: +" << (payout - playerBet)
+                std::cout << "House peels off a stack and slides it back: +" << (payout - aPlayerBet)
                     << ". Don't get cocky.\n";
             }
             else
@@ -72,14 +72,14 @@ namespace GuessTheNumber
                 winCounter = 0;
                 ++lossStreak;
                 std::cout << GetLossTaunt(lossStreak);
-                std::cout << "House keeps your stake: -" << playerBet << ". Maybe the next alley's kinder.\n";
-                winningsGuessTheNumber -= playerBet;
-                UpdatePlayerStatHistory(globalStatHistory, -playerBet);
-                playerBet = 0;
+                std::cout << "House keeps your stake: -" << aPlayerBet << ". Maybe the next alley's kinder.\n";
+                someWinningsGuessTheNumber -= aPlayerBet;
+                UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                aPlayerBet = 0;
                 system("pause");
-                if (playerMoney <= 0)
+                if (somePlayerMoney <= 0)
                 {
-                    return HandleBankruptcy(playerMoney, globalStatHistory);
+                    return HandleBankruptcy(somePlayerMoney, aStatHistory);
                 }
             }
             playAgain = GetInput(
@@ -89,7 +89,7 @@ namespace GuessTheNumber
             );
             if (playAgain)
             {
-                DrawHUD(playerMoney, globalStatHistory);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 std::cout << "Back for more punishment? I like your style...\n\n";
             }
             else
