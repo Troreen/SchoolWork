@@ -7,6 +7,8 @@
 #include <iostream>
 #include <array>
 
+    
+
 int main()
 {
     int playerMoney = PLAYER_INITIAL_MONEY;
@@ -26,7 +28,8 @@ int main()
     system("cls");
     GameState currentState = GameState::Menu;
 
-    while (true)
+
+    /*while (true)
     {
         switch (currentState)
         {
@@ -76,6 +79,6 @@ int main()
         default:
             return 0;
         }
-    }
+    }*/
     return 0;
 }
