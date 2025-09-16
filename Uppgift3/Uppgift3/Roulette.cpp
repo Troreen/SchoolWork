@@ -7,18 +7,6 @@ using namespace CasinoHelpers;
 
 namespace Roulette
 {
-    enum class BetType
-    {
-        Straight,
-        Split,
-        Street,
-        Corner,
-        RedOrBlack,
-        OddOrEven,
-        Column,
-        None
-    };
-    
     static const int rouletteLayout[37] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 };
 
     void PrintRouletteCellWithColour(std::string aString, HANDLE aConsoleHandle, WORD someDefaultTextAttributes, std::string aColour)
@@ -47,7 +35,6 @@ namespace Roulette
 
     void DisplayRouletteBoard()
     {
-        //set default colours
         system("cls");
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO screenInfo{};
@@ -57,7 +44,6 @@ namespace Roulette
             defaultTextAttributes = screenInfo.wAttributes;
         }
 
-        //print loop
         for (int i = 0; i < 37; i++)
         {
             std::string cellToPrint = "";
@@ -143,6 +129,7 @@ namespace Roulette
         int playAgain = PLAY_AGAIN_YES;
         int lossStreak = 0;
         int winCounter = 0;
+        bool win = false; 
         while (playAgain)
         {
             if (somePlayerMoney <= 0)
@@ -154,75 +141,127 @@ namespace Roulette
                 return GameState::Menu;
             }
             Bet(somePlayerMoney, aPlayerBet);
+            DisplayRouletteBoard();
+
             int betTypeChoice = GetInput(
-                1, 10,
-                ("What type of bet do you want to place?\n1. Straight up \n2. Split \n3. Street \n4. Corner \n5. Line \n6. Red / Black \n7. Odd / Even \n8. Half \n9. Dozen \n10. Column"),
+                1, 6,
+                ("What type of bet do you want to place?\n1. Straight up \n2. Split \n3. Corner \n4. Red / Black \n5. Odd / Even \n6. Column\n\n"),
                 "invalid input."
             );
 
             std::uniform_int_distribution<int> rouletteDist(0, 36);
             int rouletteResult = rouletteDist(aGenerator);
 
+
+            DisplayRouletteBoard(); 
             switch (betTypeChoice)
             {
             case 1:
                 currentBetType = BetType::Straight;
-                int straightGuess = GetInput(
-                    0, 36,
-                    ("Which number do you want to bet on?"),
-                    "invalid input."
-                );
-                if (straightGuess == rouletteResult)
                 {
-                    //player wins
+                    int straightGuess = GetInput(
+                        0, 36,
+                        ("Which number do you want to bet on?"),
+                        "invalid input."
+                    );
+                    win = (straightGuess == rouletteResult);
                 }
-                else
-                {
-                    //player loses
-                }
+                break;
             case 2:
                 currentBetType = BetType::Split;
-                int straightBet1 = GetInput(
-                    0, 36,
-                    ("What is the first number you want to bet on?"),
-                    "invalid input."
-                );
-                int splitBet2 = GetInput(
-                    , ,
-                    ("What is the second number you want to bet on?"),
-                    "invalid input."
-                );
-                if (betTypeChoice == rouletteResult)
                 {
-                    //player wins
+                    int splitBet1 = GetInput(
+                        0, 36,
+                        ("What is the first number you want to bet on?"),
+                        "invalid input."
+                    );
+
+                    int splitBet2;
+                    while (true)
+                    {
+                        splitBet2 = GetInput(
+                            0, 36,
+                            ("What is the second number you want to bet on? (must be adjacent to the first number)"),
+                            "invalid input."
+                        );
+
+                        if (splitBet2 == splitBet1 - 1 || splitBet2 == splitBet1 + 1 ||
+                            splitBet2 == splitBet1 - 3 || splitBet2 == splitBet1 + 3)
+                        {
+                            break;
+                        }
+                        std::cout << "Invalid choice. The second number must be adjacent to the first number.\n";
+                    }
+
+                    win = (splitBet1 == rouletteResult || splitBet2 == rouletteResult);
                 }
-                else
-                {
-                    //player loses
-                }
+                break;
             case 3:
-                currentBetType = BetType::Street;
-            case 4:
                 currentBetType = BetType::Corner;
-            case 5:
+                {
+                    int cornerStart;
+                    while (true)
+                    {
+                        cornerStart = GetInput(
+                            1, 32,
+                            ("Enter the top-left number of the corner (1-32, excluding the rightmost column):"),
+                            "invalid input."
+                        );
+
+                        if (cornerStart % 3 != 0)
+                        {
+                            break;
+                        }
+                        std::cout << "Invalid choice. The top-left number cannot be in the rightmost column.\n";
+                    }
+
+                    win = (rouletteResult == cornerStart || rouletteResult == cornerStart + 1 ||
+                           rouletteResult == cornerStart + 3 || rouletteResult == cornerStart + 4);
+                }
+                break;
+            case 4:
                 currentBetType = BetType::RedOrBlack;
-            case 6:
+                {
+                    int colorChoice = GetInput(
+                        0, 1,
+                        ("Bet on color (0: Black, 1: Red):"),
+                        "invalid input."
+                    );
+                    bool isRed = (rouletteResult > 0 && ((rouletteResult <= 10 || (rouletteResult >= 19 && rouletteResult <= 28)) ? rouletteResult % 2 != 0 : rouletteResult % 2 == 0));
+                    win = (colorChoice == 1 && isRed) || (colorChoice == 0 && !isRed);
+                }
+                break;
+            case 5:
                 currentBetType = BetType::OddOrEven;
-            case 7:
+                {
+                    int oddEvenChoice = GetInput(
+                        0, 1,
+                        ("Bet on (0: Even, 1: Odd):"),
+                        "invalid input."
+                    );
+                    win = (rouletteResult != 0 && ((rouletteResult % 2 == 0 && oddEvenChoice == 0) || (rouletteResult % 2 != 0 && oddEvenChoice == 1)));
+                }
+                break;
+            case 6:
                 currentBetType = BetType::Column;
+                {
+                    int columnChoice = GetInput(
+                        1, 3,
+                        ("Bet on column (1, 2, or 3):"),
+                        "invalid input."
+                    );
+                    win = (rouletteResult != 0 && (rouletteResult - 1) % 3 == (columnChoice - 1));
+                }
+                break;
             default:
                 currentBetType = BetType::None;
+                win = false;
+                break;
             }
+
             DrawHUD(somePlayerMoney, aStatHistory);
+            std::cout << "\nThe roulette spin result is: " << rouletteResult << "\n";
 
-            //====================
-            //Game Logc
-            //====================
-            
-
-            //====================
-            //Lose Win handling
-            //====================
             if (win)
             {
                 lossStreak = 0;
@@ -231,17 +270,17 @@ namespace Roulette
                 HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
                 UpdatePlayerStatHistory(aStatHistory, payout);
                 someWinningsOddOrEven += payout;
-                std::cout << "Grease whistles low: \"" << (bothEven ? "Both even" : "Both odd") << ". You threaded it.\"\n";
+                std::cout << "You win\n";
                 std::cout << GetWinTaunt(winCounter);
                 std::cout << "He shoves your stack over: +" << (payout - aPlayerBet) << ".\n";
             }
-            else if (split1 || split2)
+            else if (!win)
             {
                 winCounter = 0;
                 ++lossStreak;
                 UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
                 someWinningsOddOrEven -= aPlayerBet;
-                std::cout << "Grease shrugs: \"Split shoes - one odd, one even. House eats.\"\n";
+                std::cout << "You lose\n";
                 std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";
                 aPlayerBet = 0;
                 system("pause");

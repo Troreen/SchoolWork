@@ -3,6 +3,7 @@
 #include "OddOrEven.h"
 #include "BlackJack.h"
 #include "SlotMachine.h"
+#include "Roulette.h"
 #include <random>
 #include <iostream>
 #include <array>
@@ -29,7 +30,7 @@ int main()
     GameState currentState = GameState::Menu;
 
 
-    /*while (true)
+    while (true)
     {
         switch (currentState)
         {
@@ -65,7 +66,7 @@ int main()
         }
         case GameState::Roulette:
         {
-            currentState = SlotMachine::PlaySlotMachine(generator, playerMoney, playerBet, winningsRoulette, statHistory);
+            currentState = Roulette::Roulette(generator, playerMoney, playerBet, winningsRoulette, statHistory);
             std::cout << "\nStreet's that way, hotshot.\n";
             break;
         }
@@ -79,6 +80,6 @@ int main()
         default:
             return 0;
         }
-    }*/
+    }
     return 0;
 }

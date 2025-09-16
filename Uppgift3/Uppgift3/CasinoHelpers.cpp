@@ -240,6 +240,7 @@ namespace CasinoHelpers
         std::cout << "\n2. Take a shot at Odd or Even";
         std::cout << "\n3. Try your luck in Blackjack";
         std::cout << "\n4. Spin the Slot Machine";
+        std::cout << "\n5. Lose some money on roulette.";
         std::cout << "\n0. Leave while your shoes still match";
         std::cout << "\n---------------------\n";
     }
@@ -252,7 +253,7 @@ namespace CasinoHelpers
         }
         DrawHUD(somePlayerMoney, aStatHistory);
         ShowMenu();
-        int choiceInt = GetInput(0, 4, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
+        int choiceInt = GetInput(0, 5, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
         MenuOption choice = static_cast<MenuOption>(choiceInt);
         switch (choice)
         {
@@ -272,6 +273,10 @@ namespace CasinoHelpers
             DrawHUD(somePlayerMoney, aStatHistory);
             std::cout << "Entering the slot machines.\n";
             return GameState::SlotMachine;
+        case MenuOption::Roulette:
+            DrawHUD(somePlayerMoney, aStatHistory);
+            std::cout << "Entering the roulette table.\n";
+            return GameState::Roulette;
         case MenuOption::Exit:
             std::cout << "Smart legs take smart exits. Door's that way.";
             return GameState::Exit;
@@ -306,6 +311,19 @@ namespace CasinoHelpers
             std::cout << "Cards on the felt, nerves on edge. Your job: get as close to 21 as you dare.\n";
             std::cout << "Draw more cards if you're feeling lucky, but bust over 21 and the house grins.\n";
             std::cout << "Stay put if you think you've got the edge. Dealer plays to 17-higher hand wins, but don't get greedy...\n\n";
+            break;
+        }
+        case GameState::Roulette:
+        {
+            system("cls");
+            std::cout << "Welcome to Roulette! Here are the instructions:\n";
+            std::cout << "1. Straight: Bet on a single number.\n";
+            std::cout << "2. Split: Bet on two adjacent numbers.\n";
+            std::cout << "3. Corner: Bet on four numbers forming a square.\n";
+            std::cout << "4. Red/Black: Bet on the color of the number.\n";
+            std::cout << "5. Odd/Even: Bet on whether the number is odd or even.\n";
+            std::cout << "6. Column: Bet on one of the three vertical columns.\n";
+            std::cout << "Good luck!\n";
             break;
         }
         default:
