@@ -1,4 +1,4 @@
-﻿#include "CasinoHelpers.h"
+#include "CasinoHelpers.h"
 #include "Roulette.h"
 #include <iostream>
 #include <random>
@@ -187,7 +187,7 @@ namespace Roulette
                             "invalid input."
                         );
 
-                        if (splitBet2 == splitBet1 - 1 || splitBet2 == splitBet1 + 1 ||
+                            if (splitBet2 == splitBet1 - 1 || splitBet2 == splitBet1 + 1 ||
                             splitBet2 == splitBet1 - 3 || splitBet2 == splitBet1 + 3)
                         {
                             valid = true;
