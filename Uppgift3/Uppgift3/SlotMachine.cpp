@@ -65,6 +65,7 @@ namespace SlotMachine
             }
             HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
             UpdatePlayerStatHistory(aStatHistory, payout - aPlayerBet);
+            DrawHUD(somePlayerMoney, aStatHistory);
             playAgain = GetInput(
                 PLAY_AGAIN_NO, PLAY_AGAIN_YES,
                 "Spin again? (0: No, 1: Yes): ",

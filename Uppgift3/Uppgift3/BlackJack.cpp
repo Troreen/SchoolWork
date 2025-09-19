@@ -209,6 +209,7 @@ namespace BlackJack
                 winCounter = 0;
                 ++lossStreak;
                 UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 someWinningsBlackJack -= aPlayerBet;
                 std::cout << "You busted" << "\n";
                 std::cout << "You have lost: -" << aPlayerBet << ".\n";
@@ -227,6 +228,7 @@ namespace BlackJack
                 int payout = aPlayerBet * PAYOUT_MULTIPLIER;
                 someWinningsBlackJack += payout;
                 HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 UpdatePlayerStatHistory(aStatHistory, payout);
                 std::cout << "The Dealer bust you win.""\n";
                 std::cout << GetWinTaunt(winCounter);
@@ -241,6 +243,7 @@ namespace BlackJack
                     ++lossStreak;
                     someWinningsBlackJack -= aPlayerBet;
                     UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                    DrawHUD(somePlayerMoney, aStatHistory);
                     std::cout << "The dealer has a higher hand, you've lost" << "\n";
                     std::cout << "You have lost: -" << aPlayerBet << ".\n";
                     aPlayerBet = 0;
@@ -258,6 +261,7 @@ namespace BlackJack
                     someWinningsBlackJack += payout;
                     HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
                     UpdatePlayerStatHistory(aStatHistory, payout);
+                    DrawHUD(somePlayerMoney, aStatHistory);
                     std::cout << "You have the higher hand, you win." << "\n";
                     std::cout << GetWinTaunt(winCounter);
                     std::cout << "You win: +" << (payout - aPlayerBet) << ".\n";

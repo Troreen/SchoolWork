@@ -270,7 +270,6 @@ namespace Roulette
             }
 
             DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "\nThe roulette spin result is: " << rouletteResult << "\n";
 
             if (win)
             {
@@ -280,6 +279,7 @@ namespace Roulette
                 HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
                 UpdatePlayerStatHistory(aStatHistory, payout);
                 DrawHUD(somePlayerMoney, aStatHistory);
+                std::cout << "\nThe roulette spin result is: " << rouletteResult << "\n";   
                 someWinningsOddOrEven += payout;
                 std::cout << "You win\n";
                 std::cout << GetWinTaunt(winCounter);
@@ -291,6 +291,7 @@ namespace Roulette
                 ++lossStreak;
                 UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
                 DrawHUD(somePlayerMoney, aStatHistory);
+                std::cout << "\nThe roulette spin result is: " << rouletteResult << "\n";
                 someWinningsOddOrEven -= aPlayerBet;
                 std::cout << "You lose\n";
                 std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";

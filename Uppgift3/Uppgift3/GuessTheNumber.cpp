@@ -64,6 +64,7 @@ namespace GuessTheNumber
                 HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
                 someWinningsGuessTheNumber += payout;
                 UpdatePlayerStatHistory(aStatHistory, payout);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 std::cout << GetWinTaunt(winCounter);
                 std::cout << "House peels off a stack and slides it back: +" << (payout - aPlayerBet)
                     << ". Don't get cocky.\n";
@@ -76,6 +77,7 @@ namespace GuessTheNumber
                 std::cout << "House keeps your stake: -" << aPlayerBet << ". Maybe the next alley's kinder.\n";
                 someWinningsGuessTheNumber -= aPlayerBet;
                 UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 aPlayerBet = 0;
                 system("pause");
                 if (somePlayerMoney <= 0)

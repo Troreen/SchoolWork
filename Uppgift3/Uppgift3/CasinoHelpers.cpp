@@ -72,7 +72,6 @@ namespace CasinoHelpers
 
     void Bet(int& somePlayerMoney, int& aPlayerBet)
     {
-        DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
         std::cout << "\nSlide your stake across the felt, slick. The house is listening...";
         aPlayerBet = GetInput(
             1, somePlayerMoney,
@@ -81,7 +80,6 @@ namespace CasinoHelpers
         );
         int playerOldMoney = somePlayerMoney;
         somePlayerMoney -= aPlayerBet;
-        DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
         if (aPlayerBet == playerOldMoney)
         {
             std::cout << "Woah, feeling lucky are you?.. We'll see about that hotshot..";
@@ -90,6 +88,7 @@ namespace CasinoHelpers
         {
             std::cout << "Chips down. The room leans in. Let's see if the night likes you.";
         }
+        
     }
 
     bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot, int someWinningsRoulette)

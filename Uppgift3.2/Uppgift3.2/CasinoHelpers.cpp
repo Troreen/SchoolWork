@@ -73,22 +73,21 @@ namespace CasinoHelpers
     void Bet(int& somePlayerMoney, int& aPlayerBet)
     {
         DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
-        std::cout << "\nSlide your stake across the felt, slick. The house is listening...";
-        aPlayerBet = GetInput(
-            1, somePlayerMoney,
-            "How much do you wanna bet?",
-            "You don't have the scratch for that. Pick a number you can actually cover."
+        std::cout << "\nEnter the amount you want to bet (minimum 1, maximum " << somePlayerMoney << "): ";
+        aPlayerBet = GetInput(1, somePlayerMoney,
+            "How much do you want to bet?",
+            "You do not have enough money for that bet. Please enter a valid amount."
         );
         int playerOldMoney = somePlayerMoney;
         somePlayerMoney -= aPlayerBet;
         DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
         if (aPlayerBet == playerOldMoney)
         {
-            std::cout << "Woah, feeling lucky are you?.. We'll see about that hotshot..";
+            std::cout << "You have bet all your remaining money.\n";
         }
         else
         {
-            std::cout << "Chips down. The room leans in. Let's see if the night likes you.";
+            std::cout << "Bet placed: " << aPlayerBet << ".\n";
         }
     }
 
@@ -235,54 +234,33 @@ namespace CasinoHelpers
 
     void ShowMenu()
     {
-        std::cout << "\n--- The Casino ---";
-        std::cout << "\n1. Slide over to the Guessing Game table";
-        std::cout << "\n2. Take a shot at Odd or Even";
-        std::cout << "\n3. Try your luck in Blackjack";
-        std::cout << "\n4. Spin the Slot Machine";
-        std::cout << "\n5. Lose some money on roulette.";
-        std::cout << "\n0. Leave while your shoes still match";
-        std::cout << "\n---------------------\n";
+        std::cout << "\n--- Casino Menu ---\n";
+        std::cout << "1. Guess The Number\n";
+        std::cout << "2. Odd Or Even\n";
+        std::cout << "3. BlackJack\n";
+        std::cout << "4. Slot Machine\n";
+        std::cout << "5. Roulette\n";
+        std::cout << "0. Exit\n";
     }
 
     GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory)
     {
-        if (somePlayerMoney <= 0)
-        {
-            return HandleBankruptcy(somePlayerMoney, aStatHistory);
-        }
-        DrawHUD(somePlayerMoney, aStatHistory);
-        ShowMenu();
-        int choiceInt = GetInput(0, 5, "Pick your poison", "Keep it tidy, pal - choose a valid option.");
-        MenuOption choice = static_cast<MenuOption>(choiceInt);
+        int choice = GetInput(0, 5, "Select a game by entering its number:", "Please enter a number between 0 and 5.");
         switch (choice)
         {
-        case MenuOption::GuessTheNumber:
-            DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "\nGuessing Game table it is. Bones are hungry tonight.";
+        case 1:
             return GameState::GuessTheNumber;
-        case MenuOption::OddOrEven:
-            DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "Odd/Even corner, huh? Grease twirls his toothpick: pick a side.\n";
+        case 2:
             return GameState::OddOrEven;
-        case MenuOption::BlackJack:
-            DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "Entering blackjack table.\n";
+        case 3:
             return GameState::BlackJack;
-        case MenuOption::SlotMachine:
-            DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "Entering the slot machines.\n";
+        case 4:
             return GameState::SlotMachine;
-        case MenuOption::Roulette:
-            DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "Entering the roulette table.\n";
+        case 5:
             return GameState::Roulette;
-        case MenuOption::Exit:
-            std::cout << "Smart legs take smart exits. Door's that way.";
-            return GameState::Exit;
+        case 0:
         default:
-            std::cout << "That choice ain't on the menu, friend.";
-            return GameState::Menu;
+            return GameState::Exit;
         }
     }
 

@@ -69,6 +69,7 @@ namespace OddOrEven
                 int payout = aPlayerBet * PAYOUT_MULTIPLIER;
                 HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
                 UpdatePlayerStatHistory(aStatHistory, payout);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 someWinningsOddOrEven += payout;
                 std::cout << "Grease whistles low: \"" << (bothEven ? "Both even" : "Both odd") << ". You threaded it.\"\n";
                 std::cout << GetWinTaunt(winCounter);
@@ -79,6 +80,7 @@ namespace OddOrEven
                 winCounter = 0;
                 ++lossStreak;
                 UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 someWinningsOddOrEven -= aPlayerBet;
                 std::cout << "Grease shrugs: \"Split shoes - one odd, one even. House eats.\"\n";
                 std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";
@@ -94,6 +96,7 @@ namespace OddOrEven
                 winCounter = 0;
                 ++lossStreak;
                 UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+                DrawHUD(somePlayerMoney, aStatHistory);
                 someWinningsOddOrEven -= aPlayerBet;
                 std::cout << "Grease shrugs: \"Hah! Not your day is it? House eats.\"\n";
                 std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";
