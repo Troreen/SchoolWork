@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="DamagableComponent.cpp" />
     <ClCompile Include="DiabloUppgift.cpp" />
+    <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -132,10 +133,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DamagableComponent.h" />
+    <ClInclude Include="Direction.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EquippableComponent.h" />
     <ClInclude Include="GameManager.h" />
+    <ClInclude Include="InteractableComponent.h" />
+    <ClInclude Include="InventoryComponent.h" />
+    <ClInclude Include="LockableComponent.h" />
+    <ClInclude Include="LootableComponent.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="UsableComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ComponentSystem.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

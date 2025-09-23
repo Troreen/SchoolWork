@@ -14,12 +14,11 @@ public:
 
 private:
 	Player player;
-	Room rooms[5];
-	int currentRoomIndex;
-	std::string roomNames[5];
-	int roomConnections[5][4]; // 0: North, 1: East, 2: South, 3: West
-	void PrintCurrentRoomAndPrompt();
-	int GetDirectionInput();
-	void PrintRoomContents();
-	void PrintEnemiesWithStats(const std::vector<Enemy>& enemies);
+	std::vector<Room> rooms;
+	Room* currentRoom;
+
+	void PrintCurrentRoomAndPrompt() const;
+	int GetDirectionInput() const;
+	void PrintRoomContents() const;
+	void PrintEnemiesWithStats(const std::vector<Enemy>& enemies) const;
 };

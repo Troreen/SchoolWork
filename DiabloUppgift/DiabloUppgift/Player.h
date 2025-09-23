@@ -10,10 +10,9 @@ public:
     int GetStrength() const;
     int GetDexterity() const;
     int GetBody() const;
-    DamagableComponent& GetDamagable();
     const DamagableComponent& GetDamagable() const;
-	std::string PrintStats() const;
-	void TakeDamage(int amount);
+    std::string PrintStats() const;
+    void TakeDamage(int amount);
 
 private:
     std::string myName;
