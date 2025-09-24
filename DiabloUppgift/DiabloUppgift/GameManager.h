@@ -10,15 +10,16 @@ class GameManager
 {
 public:
 	GameManager();
-	void MainLoop();
+	~GameManager();
+	void Run();
 
 private:
 	Player player;
 	std::vector<Room> rooms;
 	Room* currentRoom;
+	std::vector<Door*> doors;
 
-	void PrintCurrentRoomAndPrompt() const;
-	int GetDirectionInput() const;
-	void PrintRoomContents() const;
-	void PrintEnemiesWithStats(const std::vector<Enemy>& enemies) const;
+	
+	int HandleInput();
+	bool StartCombat();
 };

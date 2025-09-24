@@ -1,9 +1,10 @@
 #pragma once
 #include "Enemy.h"
 #include <vector>
-#include "Door.h"
 #include "Direction.h"
 #include <string>
+
+class Door; 
 
 class Room
 {
@@ -35,7 +36,7 @@ public:
 
 	bool HasEnemies() const;
 
-
+	void DisplayOptions();
 
 private:
 	std::vector<Enemy> enemies;
@@ -45,4 +46,4 @@ private:
 	std::string name;
 	std::string description;
 	std::vector<Door*> doors;
-};};
+};

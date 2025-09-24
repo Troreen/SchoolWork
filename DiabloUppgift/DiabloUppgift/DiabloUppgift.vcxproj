@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CombatComponent.cpp" />
     <ClCompile Include="DamagableComponent.cpp" />
     <ClCompile Include="DiabloUppgift.cpp" />
     <ClCompile Include="Door.cpp" />
@@ -132,6 +133,7 @@
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CombatComponent.h" />
     <ClInclude Include="DamagableComponent.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Door.h" />

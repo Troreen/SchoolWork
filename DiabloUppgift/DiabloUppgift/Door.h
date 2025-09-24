@@ -1,7 +1,7 @@
 #pragma once
-#include "Room.h"
 #include "Direction.h"
 
+class Room;
 class Door
 {
 public:

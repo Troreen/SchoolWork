@@ -5,7 +5,7 @@
 int main()
 {
 	GameManager game;
-	game.MainLoop();
+	game.Run();
 
 	return 0;
 }
