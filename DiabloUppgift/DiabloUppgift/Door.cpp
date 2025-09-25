@@ -1,49 +1,75 @@
 #include "Door.h"
-#include "Room.h"	
+#include "Room.h"
 #include <cassert>
 
-Door::Door(Room* a, Room* b, Direction dirA, Direction dirB, bool locked, bool breakable)
-	: roomA(a), roomB(b), directionFromA(dirA), directionFromB(dirB), isLocked(locked), isBreakable(breakable)
+Door::Door(Room* aRoomA,
+           Room* aRoomB,
+           Direction aDirectionFromA,
+           Direction aDirectionFromB,
+           bool aIsLocked,
+           bool aIsBreakable)
+    : myRoomA(aRoomA),
+      myRoomB(aRoomB),
+      myDirectionFromA(aDirectionFromA),
+      myDirectionFromB(aDirectionFromB),
+      myIsLocked(aIsLocked),
+      myIsBreakable(aIsBreakable)
 {
 }
 
-Room* Door::GetOtherRoom(Room* fromRoom) const
+Room* Door::GetOtherRoom(Room* aFromRoom) const
 {
-	if (fromRoom == roomA) return roomB;
-	if (fromRoom == roomB) return roomA;
-	assert(false && "Invalid room provided to GetOtherRoom");
-	return nullptr;
+    if (aFromRoom == myRoomA)
+    {
+        return myRoomB;
+    }
+
+    if (aFromRoom == myRoomB)
+    {
+        return myRoomA;
+    }
+
+    assert(false && "Invalid room provided to GetOtherRoom");
+    return nullptr;
 }
 
-Direction Door::GetDirectionFromRoom(const Room* fromRoom) const
+Direction Door::GetDirectionFromRoom(const Room* aFromRoom) const
 {
-	if (fromRoom == roomA) return directionFromA;
-	if (fromRoom == roomB) return directionFromB;
-	assert(false && "Invalid room provided to GetDirectionFromRoom"); 
-	return directionFromA; 
+    if (aFromRoom == myRoomA)
+    {
+        return myDirectionFromA;
+    }
+
+    if (aFromRoom == myRoomB)
+    {
+        return myDirectionFromB;
+    }
+
+    assert(false && "Invalid room provided to GetDirectionFromRoom");
+    return Direction::DirectionCount;
 }
 
 bool Door::CanPass() const
 {
-	return !isLocked;
+    return !myIsLocked;
 }
 
 bool Door::IsLocked() const
 {
-	return isLocked;
+    return myIsLocked;
 }
 
-void Door::SetLocked(bool locked)
+void Door::SetLocked(bool aIsLocked)
 {
-	isLocked = locked;
+    myIsLocked = aIsLocked;
 }
 
 bool Door::IsBreakableDoor() const
 {
-	return isBreakable;
+    return myIsBreakable;
 }
 
-void Door::SetBreakable(bool breakable)
+void Door::SetBreakable(bool aIsBreakable)
 {
-	isBreakable = breakable;
+    myIsBreakable = aIsBreakable;
 }

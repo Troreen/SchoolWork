@@ -3,11 +3,12 @@
 class DamagableComponent
 {
 public:
-    DamagableComponent(int maxHealth, int defense);
+    DamagableComponent(int aMaxHealth, int aDefense);
     void TakeDamage(int anIncomingDamage);
     int GetHealth() const;
     int GetMaxHealth() const;
     int GetDefense() const;
+
 private:
     int myHealth;
     int myMaxHealth;

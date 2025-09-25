@@ -1,86 +1,158 @@
 #include "CombatComponent.h"
+#include <iostream>
 
-CombatComponent::CombatComponent(Player& player, std::vector<Enemy>& enemies)
-	: player(player), enemies(enemies),currentEnemyIndex(1), result(Result::ONGOING)
+CombatComponent::CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies)
+    : myPlayer(aPlayer),
+      myEnemies(someEnemies),
+      myCurrentEnemyIndex(0),
+      myResult(Result::ResultOngoing)
 {
-	if (enemies.empty())
-	{
-		result = Result::PLAYER_WON;
-	}
+    if (myEnemies.empty())
+    {
+        myResult = Result::ResultPlayerWon;
+    }
 }
 
 CombatComponent::Result CombatComponent::GetResult() const
 {
-	return result;
+    return myResult;
 }
 
 const Enemy* CombatComponent::GetCurrentEnemy() const
 {
-	if (enemies.empty() || currentEnemyIndex >= enemies.size())
-	{
-		return nullptr;
-	}
-	return &enemies[currentEnemyIndex];
+    if (myEnemies.empty() || myCurrentEnemyIndex >= myEnemies.size())
+    {
+        return nullptr;
+    }
+
+    return &myEnemies[myCurrentEnemyIndex];
 }
 
-void CombatComponent::PerformPlayerAction(Action action)
+const std::vector<Enemy>& CombatComponent::GetEnemies() const
 {
-	if (result != Result::ONGOING || enemies.empty())
-	{
-		return;
-	}
-
-	Enemy& enemy = enemies[currentEnemyIndex];
-
-	switch (action)
-	{
-	case Action::ATTACK:
-		enemy.TakeDamage(player.GetStrength() * 2); // TODO: Implement dmg calc with weapons
-		if (enemy.GetDamagable().GetHealth() <= 0)
-		{
-			enemies.erase(enemies.begin() + currentEnemyIndex);
-			if (enemies.empty())
-			{
-				result = Result::PLAYER_WON;
-				return;
-			}
-		}
-		break;
-
-	case Action::DEFEND:
-		// Implement defend logic in future
-		break;
-	case Action::USE_ITEM:
-		// Implement item usage logic in future
-		break;
-	}
+    return myEnemies;
 }
-	void CombatComponent::PerformEnemyTurn()
-	{
-		if (result != Result::ONGOING || enemies.empty())
-		{
-			return;
-		}
 
-		Enemy& enemy = enemies[currentEnemyIndex];
-		player.TakeDamage(enemy.GetStrength() * 2); // TODO: Implement dmg calc with weapons
+bool CombatComponent::SelectEnemy(size_t anIndex)
+{
+    if (myResult != Result::ResultOngoing)
+    {
+        return false;
+    }
 
-		if (player.GetDamagable().GetHealth() <= 0)
-		{
-			result = Result::PLAYER_LOST;
-		}
+    if (myEnemies.empty() || anIndex >= myEnemies.size())
+    {
+        return false;
+    }
 
+    myCurrentEnemyIndex = anIndex;
+    return true;
+}
 
-	}
+void CombatComponent::PerformPlayerAction(Action anAction)
+{
+    std::system("cls"); 
+    if (myResult != Result::ResultOngoing || myEnemies.empty() || myCurrentEnemyIndex >= myEnemies.size())
+    {
+        return;
+    }
 
-	void CombatComponent::CheckCombatEnd()
-	{
-		if (player.GetDamagable().GetHealth() <= 0)
-		{
-			result = Result::PLAYER_LOST;
-		}
-		else if (enemies.empty())
-		{
-			result = Result::PLAYER_WON;
-		}
-	}
+    Enemy& enemy = myEnemies[myCurrentEnemyIndex];
+
+    switch (anAction)
+    {
+    case Action::ActionAttack:
+    {
+        const std::string enemyName = enemy.GetName();
+        const int enemyMaxHealth = enemy.GetDamagable().GetMaxHealth();
+        const int enemyHealthBefore = enemy.GetDamagable().GetHealth();
+        const int attackPower = myPlayer.GetStrength() * 2;
+        enemy.TakeDamage(attackPower);
+        const int enemyHealthAfter = enemy.GetDamagable().GetHealth();
+        const int damageDealt = enemyHealthBefore - enemyHealthAfter;
+        std::cout << "You attack " << enemyName << " and deal " << damageDealt << " damage.\n";
+
+        if (enemyHealthAfter <= 0)
+        {
+            std::cout << "This kills the " << enemyName << ".\n";
+            myEnemies.erase(myEnemies.begin() + static_cast<int>(myCurrentEnemyIndex));
+            if (myEnemies.empty())
+            {
+                myResult = Result::ResultPlayerWon;
+                return;
+            }
+
+            if (myCurrentEnemyIndex >= myEnemies.size())
+            {
+                myCurrentEnemyIndex = 0;
+            }
+        }
+        else
+        {
+            std::cout << enemyName << " has " << enemyHealthAfter << "/" << enemyMaxHealth << " health left.\n";
+        }
+        break;
+    }
+    case Action::ActionDefend:
+        std::cout << "You brace for the incoming attacks.\n";
+        break;
+    case Action::ActionUseItem:
+        std::cout << "You search for an item, but nothing happens yet.\n";
+        break;
+    case Action::ActionCount:
+        // ActionCount is not a playable option.
+        break;
+    }
+
+    CheckCombatEnd();
+}
+
+void CombatComponent::PerformEnemyTurn()
+{
+    if (myResult != Result::ResultOngoing || myEnemies.empty())
+    {
+        return;
+    }
+
+    for (Enemy& enemy : myEnemies)
+    {
+        const std::string enemyName = enemy.GetName();
+        const int attackPower = enemy.GetStrength() * 2;
+        const int playerHealthBefore = myPlayer.GetDamagable().GetHealth();
+        myPlayer.TakeDamage(attackPower);
+        const int playerHealthAfter = myPlayer.GetDamagable().GetHealth();
+        const int damageTaken = playerHealthBefore - playerHealthAfter;
+
+        if (damageTaken > 0)
+        {
+            std::cout << enemyName << " attacks you and deals " << damageTaken << " damage.\n";
+        }
+        else
+        {
+            std::cout << enemyName << " attacks you but fails to hurt you.\n";
+        }
+
+        std::cout << "Your health: " << playerHealthAfter << "/" << myPlayer.GetDamagable().GetMaxHealth() << "\n";
+
+        if (playerHealthAfter <= 0)
+        {
+            myResult = Result::ResultPlayerLost;
+            std::cout << "You collapse from your wounds.\n";
+            return;
+        }
+    }
+
+    CheckCombatEnd();
+}
+
+void CombatComponent::CheckCombatEnd()
+{
+    if (myPlayer.GetDamagable().GetHealth() <= 0)
+    {
+        myResult = Result::ResultPlayerLost;
+    }
+    else if (myEnemies.empty())
+    {
+        myResult = Result::ResultPlayerWon;
+    }
+}

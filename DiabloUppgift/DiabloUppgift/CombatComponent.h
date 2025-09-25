@@ -6,30 +6,36 @@
 class CombatComponent
 {
 public:
-	enum class Action
-	{
-		ATTACK,
-		DEFEND,
-		USE_ITEM,
-	};
-	enum class Result
-	{
-		ONGOING,
-		PLAYER_WON,
-		PLAYER_LOST
-	};
+    enum class Action
+    {
+        ActionAttack,
+        ActionDefend,
+        ActionUseItem,
+        ActionCount
+    };
 
-	CombatComponent(Player& player, std::vector<Enemy>& enemies);
+    enum class Result
+    {
+        ResultOngoing,
+        ResultPlayerWon,
+        ResultPlayerLost,
+        ResultCount
+    };
 
-	Result GetResult() const;
-	const Enemy* GetCurrentEnemy() const;
-	void PerformPlayerAction(Action action);
-	void PerformEnemyTurn();
+    CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies);
+
+    Result GetResult() const;
+    const Enemy* GetCurrentEnemy() const;
+    const std::vector<Enemy>& GetEnemies() const;
+    bool SelectEnemy(size_t anIndex);
+    void PerformPlayerAction(Action anAction);
+    void PerformEnemyTurn();
 
 private:
-	Player& player;
-	std::vector<Enemy>& enemies;
-	size_t currentEnemyIndex = 0;
-	Result result;
-	void CheckCombatEnd();
+    Player& myPlayer;
+    std::vector<Enemy>& myEnemies;
+    size_t myCurrentEnemyIndex;
+    Result myResult;
+
+    void CheckCombatEnd();
 };

@@ -3,23 +3,39 @@
 #include "Room.h"
 #include <vector>
 #include <string>
-#include <iostream>
-#include <random>
+
+class Door;
 
 class GameManager
 {
 public:
-	GameManager();
-	~GameManager();
-	void Run();
+    GameManager();
+    ~GameManager();
+    void Run();
 
 private:
-	Player player;
-	std::vector<Room> rooms;
-	Room* currentRoom;
-	std::vector<Door*> doors;
+    enum class PlayerCommand
+    {
+        PlayerCommandQuit,
+        PlayerCommandFight,
+        PlayerCommandMove,
+        PlayerCommandInspect,
+        PlayerCommandInvalid,
+        PlayerCommandCount
+    };
 
-	
-	int HandleInput();
-	bool StartCombat();
+    Player myPlayer;
+    std::vector<Room> myRooms;
+    Room* myCurrentRoom;
+    std::vector<Door*> myDoors;
+
+    bool HandleInput();
+    PlayerCommand GetCommandWhenEnemies() const;
+    PlayerCommand GetCommandInSafeRoom() const;
+    bool ExecuteCommand(PlayerCommand aCommand);
+    bool HandleMove();
+    void InspectRoom() const;
+    void DescribeCurrentRoom() const;
+    int ReadInt(const std::string& aPrompt) const;
+    bool StartCombat();
 };

@@ -5,23 +5,27 @@ class Room;
 class Door
 {
 public:
-	Door(Room* a, Room* b, Direction dirA, Direction dirB, bool locked = false, bool breakable = false);
+    Door(Room* aRoomA,
+         Room* aRoomB,
+         Direction aDirectionFromA,
+         Direction aDirectionFromB,
+         bool aIsLocked = false,
+         bool aIsBreakable = false);
 
-	Room* GetOtherRoom(Room* fromRoom) const;
-	Direction GetDirectionFromRoom(const Room* fromRoom) const;
+    Room* GetOtherRoom(Room* aFromRoom) const;
+    Direction GetDirectionFromRoom(const Room* aFromRoom) const;
 
-	bool CanPass() const;
-	bool IsLocked() const;
-	void SetLocked(bool locked);
-	bool IsBreakableDoor() const;
-	void SetBreakable(bool breakable);
+    bool CanPass() const;
+    bool IsLocked() const;
+    void SetLocked(bool aIsLocked);
+    bool IsBreakableDoor() const;
+    void SetBreakable(bool aIsBreakable);
 
 private:
-	Room* roomA;
-	Room* roomB;
-	Direction directionFromA;
-	Direction directionFromB;
-	bool isLocked;
-	bool isBreakable;
-
+    Room* myRoomA;
+    Room* myRoomB;
+    Direction myDirectionFromA;
+    Direction myDirectionFromB;
+    bool myIsLocked;
+    bool myIsBreakable;
 };

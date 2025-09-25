@@ -2,8 +2,9 @@
 
 enum class Direction
 {
-	NORTH,
-	EAST,
-	SOUTH,
-	WEST
+    DirectionNorth,
+    DirectionEast,
+    DirectionSouth,
+    DirectionWest,
+    DirectionCount
 };

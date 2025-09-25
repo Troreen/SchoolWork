@@ -1,9 +1,2 @@
 #pragma once
-
-enum Direction
-{
-    NORTH,
-    EAST,
-    SOUTH,
-    WEST
-};
+#include "DiabloUppgift/Direction.h"

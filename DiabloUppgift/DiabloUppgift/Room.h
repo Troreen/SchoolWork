@@ -4,46 +4,44 @@
 #include "Direction.h"
 #include <string>
 
-class Door; 
+class Door;
 
 class Room
 {
-
 public:
-	Room(const std::string& name);
+    Room(const std::string& aName);
 
+    std::vector<Enemy>& Enemies();
+    const std::vector<Enemy>& Enemies() const;
+    bool IsPlayerInRoom() const;
+    bool IsRoomCleared() const;
 
-	std::vector<Enemy>& Enemies();
-	const std::vector<Enemy>& Enemies() const;
-	bool IsPlayerInRoom() const;
-	bool IsRoomCleared() const;
+    void EnterRoom();
+    void AddEnemy(const Enemy& anEnemy);
+    void AddItem();
 
-	void EnterRoom();
-	void AddEnemy(const Enemy& enemy);
-	void AddItem(); // Placeholder
+    Door* GetDoor(Direction aDirection);
+    const Door* GetDoor(Direction aDirection) const;
+    const std::vector<Door*>& GetDoors() const;
+    void AddDoor(Door* aDoor);
 
-	Door* GetDoor(Direction dir);
-	const Door* GetDoor(Direction dir) const;
-	const std::vector<Door*>& GetDoors() const; 
-	void AddDoor(Door* door);
+    const std::string& GetName() const;
+    void SetDescription(const std::string& aDescription);
+    const std::string& GetDescription() const;
 
-	const std::string& GetName() const;
-	void SetDescription(const std::string& desc);
-	const std::string& GetDescription() const;
+    void SetPlayerInRoom(bool aIsPlayerInRoom);
+    void SetRoomCleared(bool aIsCleared);
 
-	void SetPlayerInRoom(bool inRoom);
-	void SetRoomCleared(bool cleared);
+    bool HasEnemies() const;
 
-	bool HasEnemies() const;
-
-	void DisplayOptions();
+    void DisplayOptions();
 
 private:
-	std::vector<Enemy> enemies;
-	bool isPlayerInRoom = false;
-	bool isRoomCleared = false;
+    std::vector<Enemy> myEnemies;
+    bool myIsPlayerInRoom = false;
+    bool myIsRoomCleared = false;
 
-	std::string name;
-	std::string description;
-	std::vector<Door*> doors;
+    std::string myName;
+    std::string myDescription;
+    std::vector<Door*> myDoors;
 };

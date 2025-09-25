@@ -4,8 +4,8 @@
 
 int main()
 {
-	GameManager game;
-	game.Run();
+    GameManager gameManager;
+    gameManager.Run();
 
-	return 0;
+    return 0;
 }
