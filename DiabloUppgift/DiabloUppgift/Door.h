@@ -1,5 +1,6 @@
 #pragma once
 #include "Direction.h"
+#include "Player.h"
 
 class Room;
 class Door
@@ -10,16 +11,22 @@ public:
          Direction aDirectionFromA,
          Direction aDirectionFromB,
          bool aIsLocked = false,
-         bool aIsBreakable = false);
+         int aDexterityToUnlock = 0,
+         int aStrengthToBreak = 0
+        );
 
     Room* GetOtherRoom(Room* aFromRoom) const;
     Direction GetDirectionFromRoom(const Room* aFromRoom) const;
+    
+    int GetDexterityToUnlock() const;
+    int GetStrengthToBreak() const;
 
     bool CanPass() const;
     bool IsLocked() const;
     void SetLocked(bool aIsLocked);
-    bool IsBreakableDoor() const;
-    void SetBreakable(bool aIsBreakable);
+
+    const bool TryUnlock(const Player &aPlayer);
+    const bool TryBreak(const Player &aPlayer);
 
 private:
     Room* myRoomA;
@@ -27,5 +34,6 @@ private:
     Direction myDirectionFromA;
     Direction myDirectionFromB;
     bool myIsLocked;
-    bool myIsBreakable;
+    int myDexterityToUnlock;
+    int myStrengthToBreak; 
 };

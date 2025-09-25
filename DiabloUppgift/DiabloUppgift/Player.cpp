@@ -4,7 +4,7 @@ Player::Player(const std::string& aName, int aStrength, int aDexterity, int aPhy
     : myName(aName),
       myStrength(aStrength),
       myDexterity(aDexterity),
-      myBody(aPhysique),
+      myPhysique(aPhysique),
       myDamagable(aPhysique * 4 + aStrength * 6 + aDexterity * 3, aStrength + aPhysique)
 {
 }
@@ -24,9 +24,29 @@ int Player::GetDexterity() const
     return myDexterity;
 }
 
-int Player::GetBody() const
+int Player::GetPhysique() const
 {
-    return myBody;
+    return myPhysique;
+}
+
+int Player::GetHealth() const
+{
+    return myDamagable.GetHealth();
+}
+
+int Player::GetMaxHealth() const
+{
+    return myDamagable.GetMaxHealth();
+}
+
+int Player::GetDefense() const
+{
+    return myDamagable.GetDefense();
+}
+
+void Player::TakeDamage(int anAmount)
+{
+    myDamagable.TakeDamage(anAmount);
 }
 
 const DamagableComponent& Player::GetDamagable() const
@@ -39,13 +59,8 @@ std::string Player::PrintStats() const
     std::string stats = "Name: " + myName + "\n";
     stats += "STR: " + std::to_string(myStrength) + "\n";
     stats += "DXT: " + std::to_string(myDexterity) + "\n";
-    stats += "PHY: " + std::to_string(myBody) + "\n";
-    stats += "DEF: " + std::to_string(myDamagable.GetDefense()) + "\n";
-    stats += "HP: " + std::to_string(myDamagable.GetHealth()) + "/" + std::to_string(myDamagable.GetMaxHealth()) + "\n";
+    stats += "PHY: " + std::to_string(myPhysique) + "\n";
+    stats += "DEF: " + std::to_string(GetDefense()) + "\n";
+    stats += "HP: " + std::to_string(GetHealth()) + "/" + std::to_string(GetMaxHealth()) + "\n";
     return stats;
-}
-
-void Player::TakeDamage(int anAmount)
-{
-    myDamagable.TakeDamage(anAmount);
 }

@@ -7,13 +7,15 @@ Door::Door(Room* aRoomA,
            Direction aDirectionFromA,
            Direction aDirectionFromB,
            bool aIsLocked,
-           bool aIsBreakable)
+           int aDexterityToUnlock,
+           int aStrengthToBreak)
     : myRoomA(aRoomA),
       myRoomB(aRoomB),
       myDirectionFromA(aDirectionFromA),
       myDirectionFromB(aDirectionFromB),
       myIsLocked(aIsLocked),
-      myIsBreakable(aIsBreakable)
+      myDexterityToUnlock(aDexterityToUnlock),
+      myStrengthToBreak(aStrengthToBreak)
 {
 }
 
@@ -49,6 +51,16 @@ Direction Door::GetDirectionFromRoom(const Room* aFromRoom) const
     return Direction::DirectionCount;
 }
 
+int Door::GetDexterityToUnlock() const
+{
+    return myDexterityToUnlock;
+}
+
+int Door::GetStrengthToBreak() const
+{
+    return myStrengthToBreak;
+}
+
 bool Door::CanPass() const
 {
     return !myIsLocked;
@@ -64,12 +76,22 @@ void Door::SetLocked(bool aIsLocked)
     myIsLocked = aIsLocked;
 }
 
-bool Door::IsBreakableDoor() const
+const bool Door::TryUnlock(const Player& aPlayer)
 {
-    return myIsBreakable;
+    if (aPlayer.GetDexterity() >= myDexterityToUnlock)
+    {
+        myIsLocked = false;
+        return true;
+    }
+    return false;
 }
 
-void Door::SetBreakable(bool aIsBreakable)
+const bool Door::TryBreak(const Player& aPlayer)
 {
-    myIsBreakable = aIsBreakable;
+    if (aPlayer.GetStrength() >= myStrengthToBreak)
+    {
+        myIsLocked = false;
+        return true;
+    }
+    return false;
 }

@@ -9,15 +9,20 @@ public:
     const std::string& GetName() const;
     int GetStrength() const;
     int GetDexterity() const;
-    int GetBody() const;
+    int GetPhysique() const;
+    int GetHealth() const;
+    int GetMaxHealth() const;
+    int GetDefense() const;
+
     const DamagableComponent& GetDamagable() const;
-    std::string PrintStats() const;
     void TakeDamage(int anAmount);
 
-private:
+    std::string PrintStats() const;
+
+    private:
     std::string myName;
     int myStrength;
     int myDexterity;
-    int myBody;
+    int myPhysique;
     DamagableComponent myDamagable;
 };

@@ -40,37 +40,34 @@ GameManager::GameManager()
     myRooms.emplace_back("Fourth Room");
 
     const bool isLocked = true;
-    const bool isBreakable = true;
 
-    Door* doorToNorth = new Door(&myRooms[0],
+    Door* doorFromRoom1ToRoom2 = new Door(&myRooms[0],
                                  &myRooms[1],
                                  Direction::DirectionNorth,
                                  Direction::DirectionSouth,
-                                 !isLocked,
-                                 !isBreakable);
-    Door* doorToEast = new Door(&myRooms[1],
+                                 !isLocked, 0, 0);
+    Door* doorFromRoom2ToRoom3 = new Door(&myRooms[1],
                                 &myRooms[2],
                                 Direction::DirectionEast,
                                 Direction::DirectionWest,
-                                isLocked,
-                                !isBreakable);
-    Door* doorToSouth = new Door(&myRooms[2],
+                                isLocked, 3, 10);
+    Door* doorFromRoom3ToRoom4 = new Door(&myRooms[2],
                                  &myRooms[3],
                                  Direction::DirectionSouth,
                                  Direction::DirectionNorth,
-                                 !isLocked,
-                                 isBreakable);
+                                 isLocked, 7, 2);
 
-    myDoors.push_back(doorToNorth);
-    myDoors.push_back(doorToEast);
-    myDoors.push_back(doorToSouth);
+    myDoors.push_back(doorFromRoom1ToRoom2);
 
-    myRooms[0].AddDoor(doorToNorth);
-    myRooms[1].AddDoor(doorToNorth);
-    myRooms[1].AddDoor(doorToEast);
-    myRooms[2].AddDoor(doorToEast);
-    myRooms[2].AddDoor(doorToSouth);
-    myRooms[3].AddDoor(doorToSouth);
+    myDoors.push_back(doorFromRoom2ToRoom3);
+    myDoors.push_back(doorFromRoom3ToRoom4);
+
+    myRooms[0].AddDoor(doorFromRoom1ToRoom2);
+    myRooms[1].AddDoor(doorFromRoom1ToRoom2);
+    myRooms[1].AddDoor(doorFromRoom2ToRoom3);
+    myRooms[2].AddDoor(doorFromRoom2ToRoom3);
+    myRooms[2].AddDoor(doorFromRoom3ToRoom4);
+    myRooms[3].AddDoor(doorFromRoom3ToRoom4);
 
     myRooms[1].AddEnemy(Enemy("Goblin", 15, 3, 2));
     myRooms[1].AddEnemy(Enemy("Goblin Archer", 6, 4, 1));
@@ -194,12 +191,7 @@ bool GameManager::HandleMove()
         std::cout << index + 1 << ". " << DirectionToString(door->GetDirectionFromRoom(myCurrentRoom));
         if (door->IsLocked())
         {
-            std::cout << " (locked";
-            if (door->IsBreakableDoor())
-            {
-                std::cout << ", breakable";
-            }
-            std::cout << ")";
+            std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
         }
         std::cout << "\n";
     }
@@ -214,7 +206,49 @@ bool GameManager::HandleMove()
     Door* chosenDoor = doorsInRoom[static_cast<size_t>(choice - 1)];
     if (!chosenDoor->CanPass())
     {
-        std::cout << "The door is locked.\n";
+        std::cout << "The door is locked.\nDo you want to try to pick the lock (l) or break the door down (b)? [DEX to unlock: " << chosenDoor->GetDexterityToUnlock() << ", STR to break: " << chosenDoor->GetStrengthToBreak() << "] (l/b/n): ";
+        char choice = ' ';
+        while (choice != 'l' && choice != 'L' && choice != 'b' && choice != 'B' && choice != 'n' && choice != 'N')
+        {
+            std::cout << "Invalid choice. Please enter (l/b/n): ";
+            std::cin >> choice;
+            std::cin.ignore(100000, '\n');
+        }
+        if (choice == 'l' || choice == 'L')
+        {
+            if (chosenDoor->TryUnlock(myPlayer))
+            {
+                std::cout << "You successfully picked the lock!\n";
+                chosenDoor->SetLocked(false);
+                myCurrentRoom = chosenDoor->GetOtherRoom(myCurrentRoom);
+                myCurrentRoom->EnterRoom();
+                return true;
+            }
+            else
+            {
+                std::cout << "You failed to pick the lock.\n";
+            }
+        }
+        else if (choice == 'b' || choice == 'B')
+        {
+               if (chosenDoor->TryBreak(myPlayer))
+            {
+                std::cout << "You successfully broke down the door!\n";
+                chosenDoor->SetLocked(false);
+                myCurrentRoom = chosenDoor->GetOtherRoom(myCurrentRoom);
+                myCurrentRoom->EnterRoom();
+                return true;
+            }
+            else
+            {
+                std::cout << "You failed to break down the door.\n";
+            }
+        }
+        else if (choice == 'n' || choice == 'N')
+        {
+            std::cout << "You decided not to attempt to open the door.\n";
+            return true;
+        }
         return true;
     }
 
@@ -251,12 +285,7 @@ void GameManager::InspectRoom() const
                 std::cout << "- " << DirectionToString(door->GetDirectionFromRoom(myCurrentRoom));
                 if (door->IsLocked())
                 {
-                    std::cout << " (locked";
-                    if (door->IsBreakableDoor())
-                    {
-                        std::cout << ", breakable";
-                    }
-                    std::cout << ")";
+                    std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
                 }
                 std::cout << "\n";
             }
@@ -297,12 +326,7 @@ void GameManager::DescribeCurrentRoom() const
                 std::cout << "- " << DirectionToString(door->GetDirectionFromRoom(myCurrentRoom));
                 if (door->IsLocked())
                 {
-                    std::cout << " (locked";
-                    if (door->IsBreakableDoor())
-                    {
-                        std::cout << ", breakable";
-                    }
-                    std::cout << ")";
+                    std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
                 }
                 std::cout << "\n";
             }

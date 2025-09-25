@@ -33,9 +33,6 @@ public:
     void SetRoomCleared(bool aIsCleared);
 
     bool HasEnemies() const;
-
-    void DisplayOptions();
-
 private:
     std::vector<Enemy> myEnemies;
     bool myIsPlayerInRoom = false;

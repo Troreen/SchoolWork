@@ -4,7 +4,7 @@ Enemy::Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysi
     : myName(aName),
       myStrength(aStrength),
       myDexterity(aDexterity),
-      myBody(aPhysique),
+      myPhysique(aPhysique),
       myDamagable(aPhysique * 3, aDexterity)
 {
 }
@@ -24,9 +24,24 @@ int Enemy::GetDexterity() const
     return myDexterity;
 }
 
-int Enemy::GetBody() const
+int Enemy::GetPhysique() const
 {
-    return myBody;
+    return myPhysique;
+}
+
+int Enemy::GetHealth() const
+{
+    return myDamagable.GetHealth();
+}
+
+int Enemy::GetMaxHealth() const
+{
+    return myDamagable.GetMaxHealth();
+}
+
+int Enemy::GetDefense() const
+{
+    return myDamagable.GetDefense();
 }
 
 const DamagableComponent& Enemy::GetDamagable() const
@@ -34,12 +49,12 @@ const DamagableComponent& Enemy::GetDamagable() const
     return myDamagable;
 }
 
-std::string Enemy::PrintStats() const
-{
-    return myName + " (STR: " + std::to_string(myStrength) + ", DEX: " + std::to_string(myDexterity) + ", PHY: " + std::to_string(myBody) + ")";
-}
-
 void Enemy::TakeDamage(int anAmount)
 {
     myDamagable.TakeDamage(anAmount);
+}
+
+std::string Enemy::PrintStats() const
+{
+    return myName + " (STR: " + std::to_string(myStrength) + ", DEX: " + std::to_string(myDexterity) + ", PHY: " + std::to_string(myPhysique) + ")";
 }

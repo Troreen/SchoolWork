@@ -64,11 +64,11 @@ void CombatComponent::PerformPlayerAction(Action anAction)
     case Action::ActionAttack:
     {
         const std::string enemyName = enemy.GetName();
-        const int enemyMaxHealth = enemy.GetDamagable().GetMaxHealth();
-        const int enemyHealthBefore = enemy.GetDamagable().GetHealth();
+        const int enemyMaxHealth = enemy.GetMaxHealth();
+        const int enemyHealthBefore = enemy.GetHealth();
         const int attackPower = myPlayer.GetStrength() * 2;
         enemy.TakeDamage(attackPower);
-        const int enemyHealthAfter = enemy.GetDamagable().GetHealth();
+        const int enemyHealthAfter = enemy.GetHealth();
         const int damageDealt = enemyHealthBefore - enemyHealthAfter;
         std::cout << "You attack " << enemyName << " and deal " << damageDealt << " damage.\n";
 
@@ -100,7 +100,6 @@ void CombatComponent::PerformPlayerAction(Action anAction)
         std::cout << "You search for an item, but nothing happens yet.\n";
         break;
     case Action::ActionCount:
-        // ActionCount is not a playable option.
         break;
     }
 
@@ -118,9 +117,9 @@ void CombatComponent::PerformEnemyTurn()
     {
         const std::string enemyName = enemy.GetName();
         const int attackPower = enemy.GetStrength() * 2;
-        const int playerHealthBefore = myPlayer.GetDamagable().GetHealth();
+        const int playerHealthBefore = myPlayer.GetHealth();
         myPlayer.TakeDamage(attackPower);
-        const int playerHealthAfter = myPlayer.GetDamagable().GetHealth();
+        const int playerHealthAfter = myPlayer.GetHealth();
         const int damageTaken = playerHealthBefore - playerHealthAfter;
 
         if (damageTaken > 0)
@@ -132,7 +131,7 @@ void CombatComponent::PerformEnemyTurn()
             std::cout << enemyName << " attacks you but fails to hurt you.\n";
         }
 
-        std::cout << "Your health: " << playerHealthAfter << "/" << myPlayer.GetDamagable().GetMaxHealth() << "\n";
+        std::cout << "Your health: " << playerHealthAfter << "/" << myPlayer.GetMaxHealth() << "\n";
 
         if (playerHealthAfter <= 0)
         {
@@ -147,7 +146,7 @@ void CombatComponent::PerformEnemyTurn()
 
 void CombatComponent::CheckCombatEnd()
 {
-    if (myPlayer.GetDamagable().GetHealth() <= 0)
+    if (myPlayer.GetHealth() <= 0)
     {
         myResult = Result::ResultPlayerLost;
     }
