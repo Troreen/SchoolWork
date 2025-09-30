@@ -1,5 +1,3 @@
-#include <iostream>
-#include "Player.h"
 #include "GameManager.h"
 
 int main()
@@ -9,3 +7,4 @@ int main()
 
     return 0;
 }
+

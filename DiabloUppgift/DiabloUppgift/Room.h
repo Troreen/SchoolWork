@@ -35,8 +35,8 @@ public:
     bool HasEnemies() const;
 private:
     std::vector<Enemy> myEnemies;
-    bool myIsPlayerInRoom = false;
-    bool myIsRoomCleared = false;
+    bool myIsPlayerInRoom;
+    bool myIsRoomCleared;
 
     std::string myName;
     std::string myDescription;

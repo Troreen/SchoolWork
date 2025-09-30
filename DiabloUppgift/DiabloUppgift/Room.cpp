@@ -1,6 +1,5 @@
 #include "Room.h"
 #include "Door.h"
-#include <iostream>
 
 Room::Room(const std::string& aName)
     : myEnemies(),

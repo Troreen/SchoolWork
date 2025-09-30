@@ -22,6 +22,21 @@ void DamagableComponent::TakeDamage(int anIncomingDamage)
     }
 }
 
+void DamagableComponent::Heal(int anAmount)
+{
+
+    if (anAmount < 0)
+    {
+        return;
+    }
+    myHealth += anAmount;
+    if (myHealth > myMaxHealth)
+    {
+        myHealth = myMaxHealth;
+    }
+}
+
+
 int DamagableComponent::GetHealth() const
 {
     return myHealth;

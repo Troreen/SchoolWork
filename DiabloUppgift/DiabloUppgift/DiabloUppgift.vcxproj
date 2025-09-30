@@ -129,6 +129,7 @@
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="InventoryTypes.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
@@ -138,15 +139,10 @@
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EquippableComponent.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="InteractableComponent.h" />
-    <ClInclude Include="InventoryComponent.h" />
-    <ClInclude Include="LockableComponent.h" />
-    <ClInclude Include="LootableComponent.h" />
+    <ClInclude Include="InventoryTypes.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Room.h" />
-    <ClInclude Include="UsableComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ComponentSystem.md" />

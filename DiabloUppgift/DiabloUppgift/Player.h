@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "DamagableComponent.h"
+#include "InventoryTypes.h"
 
 class Player
 {
@@ -14,6 +15,17 @@ public:
     int GetMaxHealth() const;
     int GetDefense() const;
 
+    InventoryState& Inventory();
+    const InventoryState& Inventory() const;
+    EquipmentState& Equipment();
+    const EquipmentState& Equipment() const;
+
+    int GetAttackBonusFromEquipment() const;
+    int GetDefenseBonusFromEquipment() const;
+    bool AddItem(const ItemInstance& anItem);
+    bool UseHealthPotion();
+
+
     void TakeDamage(int anAmount);
     const DamagableComponent& GetDamagable() const;
     
@@ -25,4 +37,7 @@ private:
     int myDexterity;
     int myPhysique;
     DamagableComponent myDamagable;
+
+    InventoryState myInventory;
+    EquipmentState myEquipment;
 };

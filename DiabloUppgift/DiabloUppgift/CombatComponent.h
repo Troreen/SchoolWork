@@ -28,7 +28,7 @@ public:
     const Enemy* GetCurrentEnemy() const;
     const std::vector<Enemy>& GetEnemies() const;
     bool SelectEnemy(size_t anIndex);
-    void PerformPlayerAction(Action anAction);
+    bool PerformPlayerAction(Action anAction);
     void PerformEnemyTurn();
 
 private:

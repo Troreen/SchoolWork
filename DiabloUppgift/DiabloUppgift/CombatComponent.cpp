@@ -49,15 +49,16 @@ bool CombatComponent::SelectEnemy(size_t anIndex)
     return true;
 }
 
-void CombatComponent::PerformPlayerAction(Action anAction)
+bool CombatComponent::PerformPlayerAction(Action anAction)
 {
     std::system("cls"); 
     if (myResult != Result::ResultOngoing || myEnemies.empty() || myCurrentEnemyIndex >= myEnemies.size())
     {
-        return;
+        return false;
     }
 
     Enemy& enemy = myEnemies[myCurrentEnemyIndex];
+    bool actionConsumed = false;
 
     switch (anAction)
     {
@@ -66,7 +67,7 @@ void CombatComponent::PerformPlayerAction(Action anAction)
         const std::string enemyName = enemy.GetName();
         const int enemyMaxHealth = enemy.GetMaxHealth();
         const int enemyHealthBefore = enemy.GetHealth();
-        const int attackPower = myPlayer.GetStrength() * 2;
+        const int attackPower = myPlayer.GetStrength() * 2 + myPlayer.GetAttackBonusFromEquipment();
         enemy.TakeDamage(attackPower);
         const int enemyHealthAfter = enemy.GetHealth();
         const int damageDealt = enemyHealthBefore - enemyHealthAfter;
@@ -76,10 +77,11 @@ void CombatComponent::PerformPlayerAction(Action anAction)
         {
             std::cout << "This kills the " << enemyName << ".\n";
             myEnemies.erase(myEnemies.begin() + static_cast<int>(myCurrentEnemyIndex));
+            actionConsumed = true;
             if (myEnemies.empty())
             {
                 myResult = Result::ResultPlayerWon;
-                return;
+                return true;
             }
 
             if (myCurrentEnemyIndex >= myEnemies.size())
@@ -90,20 +92,40 @@ void CombatComponent::PerformPlayerAction(Action anAction)
         else
         {
             std::cout << enemyName << " has " << enemyHealthAfter << "/" << enemyMaxHealth << " health left.\n";
+            actionConsumed = true;
         }
         break;
     }
     case Action::ActionDefend:
         std::cout << "You brace for the incoming attacks.\n";
+        actionConsumed = true;
         break;
     case Action::ActionUseItem:
-        std::cout << "You search for an item, but nothing happens yet.\n";
+    {
+        if (myPlayer.UseHealthPotion())
+        {
+            std::cout << "You drink a health potion.\n";
+            std::cout << "Your health: " << myPlayer.GetHealth() << "/" << myPlayer.GetMaxHealth() << "\n";
+            actionConsumed = true;
+        }
+        else
+        {
+            std::cout << "You have no health potions.\n";
+            return false;
+        }
         break;
+    }
     case Action::ActionCount:
-        break;
+        return false;
+    }
+
+    if (!actionConsumed)
+    {
+        return false;
     }
 
     CheckCombatEnd();
+    return true;
 }
 
 void CombatComponent::PerformEnemyTurn()

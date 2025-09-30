@@ -20,6 +20,7 @@ private:
         PlayerCommandFight,
         PlayerCommandMove,
         PlayerCommandInspect,
+        PlayerCommandInventory,
         PlayerCommandInvalid,
         PlayerCommandCount
     };
@@ -35,6 +36,7 @@ private:
     bool ExecuteCommand(PlayerCommand aCommand);
     bool HandleMove();
     void InspectRoom() const;
+    void ShowInventory() const;
     void DescribeCurrentRoom() const;
     int ReadInt(const std::string& aPrompt) const;
     bool StartCombat();

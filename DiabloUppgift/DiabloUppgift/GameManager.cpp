@@ -76,6 +76,18 @@ GameManager::GameManager()
 
     myCurrentRoom = &myRooms[0];
     myCurrentRoom->EnterRoom();
+
+    ItemInstance sword { ItemId::ShortSword, 1, 0, 0, true };
+    myPlayer.Equipment().hasMainHand = true;
+    myPlayer.Equipment().mainHand = sword;
+
+    ItemInstance armor { ItemId::LeatherArmor, 1, 0, 0, true };
+    myPlayer.Equipment().hasChest = true;
+    myPlayer.Equipment().chest = armor;
+    
+    ItemInstance pot { ItemId::HealthPotion, 2, 0, 0, false };
+    myPlayer.Inventory().maxSlots = 5;
+    myPlayer.AddItem(pot);
 }
 
 GameManager::~GameManager()
@@ -133,7 +145,7 @@ GameManager::PlayerCommand GameManager::GetCommandInSafeRoom() const
 {
     while (true)
     {
-        std::cout << "\nOptions:\n1. Move to another room\n2. Inspect room\n0. Exit game\n";
+        std::cout << "\nOptions:\n1. Move to another room\n2. Inspect room\n3. View inventory\n0. Exit game\n";
         const int choice = ReadInt("Choice: ");
 
         switch (choice)
@@ -142,6 +154,8 @@ GameManager::PlayerCommand GameManager::GetCommandInSafeRoom() const
             return PlayerCommand::PlayerCommandMove;
         case 2:
             return PlayerCommand::PlayerCommandInspect;
+        case 3:
+            return PlayerCommand::PlayerCommandInventory;
         case 0:
             return PlayerCommand::PlayerCommandQuit;
         default:
@@ -163,6 +177,9 @@ bool GameManager::ExecuteCommand(PlayerCommand aCommand)
         return HandleMove();
     case PlayerCommand::PlayerCommandInspect:
         InspectRoom();
+        return true;
+    case PlayerCommand::PlayerCommandInventory:
+        ShowInventory();
         return true;
     case PlayerCommand::PlayerCommandInvalid:
     case PlayerCommand::PlayerCommandCount:
@@ -298,6 +315,60 @@ void GameManager::InspectRoom() const
     }
 }
 
+void GameManager::ShowInventory() const
+{
+    std::cout << "\n=== Equipment ===\n";
+    const EquipmentState& equipment = myPlayer.Equipment();
+
+    const auto printSlot = [](const char* aLabel, bool aHasItem, const ItemInstance& anItem)
+    {
+        std::cout << aLabel << ": ";
+        if (aHasItem && anItem.equipped)
+        {
+            const ItemSpec& spec = GetItemSpec(anItem.id);
+            std::cout << spec.name;
+            if (spec.attackBonus != 0 || spec.defenseBonus != 0)
+            {
+                std::cout << " (ATK +" << spec.attackBonus << ", DEF +" << spec.defenseBonus << ")";
+            }
+            std::cout << "\n";
+        }
+        else
+        {
+            std::cout << "Empty\n";
+        }
+    };
+
+    printSlot("Main Hand", equipment.hasMainHand, equipment.mainHand);
+    printSlot("Chest", equipment.hasChest, equipment.chest);
+
+    const InventoryState& inventory = myPlayer.Inventory();
+    std::cout << "\n=== Backpack (" << inventory.items.size() << "/" << inventory.maxSlots << ") ===\n";
+
+    if (inventory.items.empty())
+    {
+        std::cout << "Empty\n";
+    }
+    else
+    {
+        for (size_t index = 0; index < inventory.items.size(); ++index)
+        {
+            const ItemInstance& instance = inventory.items[index];
+            const ItemSpec& spec = GetItemSpec(instance.id);
+
+            std::cout << index + 1 << ". " << spec.name;
+            if (spec.maxStack > 1)
+            {
+                std::cout << " x" << instance.count;
+            }
+            std::cout << "\n";
+        }
+    }
+
+    std::cout << "\nPress enter to continue...";
+    std::cin.ignore(1000000, '\n');
+}
+
 void GameManager::DescribeCurrentRoom() const
 {
     std::cout << "\nYou are in: " << myCurrentRoom->GetName() << "\n";
@@ -425,7 +496,12 @@ bool GameManager::StartCombat()
             }
         }
 
-        combat.PerformPlayerAction(action);
+        const bool actionPerformed = combat.PerformPlayerAction(action);
+
+        if (!actionPerformed)
+        {
+            continue;
+        }
 
         if (combat.GetResult() != CombatComponent::Result::ResultOngoing)
         {
