@@ -1,5 +1,7 @@
 #pragma once
 #include "Enemy.h"
+#include "InventoryTypes.h"
+#include "Chest.h"
 #include <vector>
 #include "Direction.h"
 #include <string>
@@ -18,7 +20,17 @@ public:
 
     void EnterRoom();
     void AddEnemy(const Enemy& anEnemy);
-    void AddItem();
+
+    std::vector<ItemInstance>& FloorItems();
+    const std::vector<ItemInstance>& FloorItems() const;
+    void AddFloorItem(const ItemInstance& anItem);
+    void RemoveFloorItem(size_t anIndex);
+    bool HasFloorItems() const;
+
+    std::vector<Chest>& Chests();
+    const std::vector<Chest>& Chests() const;
+    void AddChest(const Chest& aChest);
+    bool HasUnopenedChest() const;
 
     Door* GetDoor(Direction aDirection);
     const Door* GetDoor(Direction aDirection) const;
@@ -41,4 +53,6 @@ private:
     std::string myName;
     std::string myDescription;
     std::vector<Door*> myDoors;
+    std::vector<ItemInstance> myFloorItems;
+    std::vector<Chest> myChests;
 };

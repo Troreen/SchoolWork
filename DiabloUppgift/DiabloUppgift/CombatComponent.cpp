@@ -1,9 +1,23 @@
 #include "CombatComponent.h"
+#include "InventoryTypes.h"
+#include "Room.h"
 #include <iostream>
+#include <random>
 
-CombatComponent::CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies)
+namespace
+{
+    int RollPercent()
+    {
+        static std::mt19937 rng(std::random_device{}());
+        static std::uniform_int_distribution<int> dist(0, 99);
+        return dist(rng);
+    }
+}
+
+CombatComponent::CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies, Room& aRoom)
     : myPlayer(aPlayer),
       myEnemies(someEnemies),
+      myRoom(aRoom),
       myCurrentEnemyIndex(0),
       myResult(Result::ResultOngoing)
 {
@@ -67,17 +81,60 @@ bool CombatComponent::PerformPlayerAction(Action anAction)
         const std::string enemyName = enemy.GetName();
         const int enemyMaxHealth = enemy.GetMaxHealth();
         const int enemyHealthBefore = enemy.GetHealth();
-        const int attackPower = myPlayer.GetStrength() * 2 + myPlayer.GetAttackBonusFromEquipment();
+        const int attackPower = myPlayer.GetStrength() * 2
+            + myPlayer.GetAttackBonusFromEquipment()
+            + myPlayer.GetAttackBonusFromEnchantments();
         enemy.TakeDamage(attackPower);
         const int enemyHealthAfter = enemy.GetHealth();
         const int damageDealt = enemyHealthBefore - enemyHealthAfter;
         std::cout << "You attack " << enemyName << " and deal " << damageDealt << " damage.\n";
 
+        actionConsumed = true;
+
         if (enemyHealthAfter <= 0)
         {
             std::cout << "This kills the " << enemyName << ".\n";
+
+            const std::vector<Enemy::LootDrop>& lootDrops = enemy.GetLootDrops();
+            bool droppedAny = false;
+            for (const Enemy::LootDrop& drop : lootDrops)
+            {
+                if (drop.probability <= 0)
+                {
+                    continue;
+                }
+
+                const int roll = RollPercent();
+                if (roll < drop.probability)
+                {
+                    ItemInstance dropped = drop.item;
+                    dropped.equipped = false;
+                    myRoom.AddFloorItem(dropped);
+
+                    const ItemSpec& spec = GetItemSpec(dropped.id);
+                    if (!droppedAny)
+                    {
+                        std::cout << "It drops: ";
+                        droppedAny = true;
+                    }
+                    else
+                    {
+                        std::cout << ", ";
+                    }
+
+                    std::cout << spec.name;
+                    if (spec.maxStack > 1 && dropped.count > 1)
+                    {
+                        std::cout << " x" << dropped.count;
+                    }
+                }
+            }
+            if (droppedAny)
+            {
+                std::cout << "\n";
+            }
+
             myEnemies.erase(myEnemies.begin() + static_cast<int>(myCurrentEnemyIndex));
-            actionConsumed = true;
             if (myEnemies.empty())
             {
                 myResult = Result::ResultPlayerWon;
@@ -92,7 +149,6 @@ bool CombatComponent::PerformPlayerAction(Action anAction)
         else
         {
             std::cout << enemyName << " has " << enemyHealthAfter << "/" << enemyMaxHealth << " health left.\n";
-            actionConsumed = true;
         }
         break;
     }

@@ -3,6 +3,8 @@
 #include "Enemy.h"
 #include <vector>
 
+class Room;
+
 class CombatComponent
 {
 public:
@@ -22,7 +24,7 @@ public:
         ResultCount
     };
 
-    CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies);
+    CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies, Room& aRoom);
 
     Result GetResult() const;
     const Enemy* GetCurrentEnemy() const;
@@ -34,6 +36,7 @@ public:
 private:
     Player& myPlayer;
     std::vector<Enemy>& myEnemies;
+    Room& myRoom;
     size_t myCurrentEnemyIndex;
     Result myResult;
 

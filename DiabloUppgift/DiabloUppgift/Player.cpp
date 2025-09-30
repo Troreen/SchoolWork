@@ -1,5 +1,42 @@
 #include "Player.h"
 
+namespace
+{
+    int MinInt(int a, int b)
+    {
+        return (a < b) ? a : b;
+    }
+
+    int MaxInt(int a, int b)
+    {
+        return (a > b) ? a : b;
+    }
+
+    std::string FormatSignedValue(int aValue)
+    {
+        return (aValue >= 0 ? std::string("+") : std::string("")) + std::to_string(aValue);
+    }
+
+    std::string BuildStatLine(const std::string& aLabel, int aBase, int anEquipmentBonus, int anEnchantmentBonus)
+    {
+        const int total = aBase + anEquipmentBonus + anEnchantmentBonus;
+        std::string line = aLabel + ": " + std::to_string(total);
+
+        if (anEquipmentBonus != 0)
+        {
+            line += " (" + FormatSignedValue(anEquipmentBonus) + ")";
+        }
+
+        if (anEnchantmentBonus != 0)
+        {
+            line += " [" + FormatSignedValue(anEnchantmentBonus) + "]";
+        }
+
+        line += "\n";
+        return line;
+    }
+}
+
 Player::Player(const std::string& aName, int aStrength, int aDexterity, int aPhysique)
     : myName(aName),
       myStrength(aStrength),
@@ -7,6 +44,7 @@ Player::Player(const std::string& aName, int aStrength, int aDexterity, int aPhy
       myPhysique(aPhysique),
       myDamagable(aPhysique * 4 + aStrength * 6 + aDexterity * 3, aStrength + aPhysique)
 {
+    RecalculateDerivedStats();
 }
 
 const std::string& Player::GetName() const
@@ -16,17 +54,17 @@ const std::string& Player::GetName() const
 
 int Player::GetStrength() const
 {
-    return myStrength;
+    return myStrength + GetStrengthBonusFromEquipment() + GetStrengthBonusFromEnchantments();
 }
 
 int Player::GetDexterity() const
 {
-    return myDexterity;
+    return myDexterity + GetDexterityBonusFromEquipment() + GetDexterityBonusFromEnchantments();
 }
 
 int Player::GetPhysique() const
 {
-    return myPhysique;
+    return myPhysique + GetPhysiqueBonusFromEquipment() + GetPhysiqueBonusFromEnchantments();
 }
 
 int Player::GetHealth() const
@@ -94,9 +132,266 @@ int Player::GetDefenseBonusFromEquipment() const
     return bonus;
 }
 
+int Player::GetAttackBonusFromEnchantments() const
+{
+    int bonus = 0;
+    for (const ActiveEnchantment& enchantment : myActiveEnchantments)
+    {
+        bonus += GetItemSpec(enchantment.id).attackBonus;
+    }
+
+    return bonus;
+}
+
+int Player::GetDefenseBonusFromEnchantments() const
+{
+    int bonus = 0;
+    for (const ActiveEnchantment& enchantment : myActiveEnchantments)
+    {
+        bonus += GetItemSpec(enchantment.id).defenseBonus;
+    }
+
+    return bonus;
+}
+
+int Player::GetStrengthBonusFromEquipment() const
+{
+    int bonus = 0;
+    if (myEquipment.hasMainHand && myEquipment.mainHand.equipped)
+    {
+        bonus += GetItemSpec(myEquipment.mainHand.id).strengthModifier;
+    }
+    if (myEquipment.hasChest && myEquipment.chest.equipped)
+    {
+        bonus += GetItemSpec(myEquipment.chest.id).strengthModifier;
+    }
+    return bonus;
+}
+
+int Player::GetStrengthBonusFromEnchantments() const
+{
+    int bonus = 0;
+    for (const ActiveEnchantment& enchantment : myActiveEnchantments)
+    {
+        bonus += GetItemSpec(enchantment.id).strengthModifier;
+    }
+    return bonus;
+}
+
+int Player::GetDexterityBonusFromEquipment() const
+{
+    int bonus = 0;
+    if (myEquipment.hasMainHand && myEquipment.mainHand.equipped)
+    {
+        bonus += GetItemSpec(myEquipment.mainHand.id).dexterityModifier;
+    }
+    if (myEquipment.hasChest && myEquipment.chest.equipped)
+    {
+        bonus += GetItemSpec(myEquipment.chest.id).dexterityModifier;
+    }
+    return bonus;
+}
+
+int Player::GetDexterityBonusFromEnchantments() const
+{
+    int bonus = 0;
+    for (const ActiveEnchantment& enchantment : myActiveEnchantments)
+    {
+        bonus += GetItemSpec(enchantment.id).dexterityModifier;
+    }
+    return bonus;
+}
+
+int Player::GetPhysiqueBonusFromEquipment() const
+{
+    int bonus = 0;
+    if (myEquipment.hasMainHand && myEquipment.mainHand.equipped)
+    {
+        bonus += GetItemSpec(myEquipment.mainHand.id).physiqueModifier;
+    }
+    if (myEquipment.hasChest && myEquipment.chest.equipped)
+    {
+        bonus += GetItemSpec(myEquipment.chest.id).physiqueModifier;
+    }
+    return bonus;
+}
+
+int Player::GetPhysiqueBonusFromEnchantments() const
+{
+    int bonus = 0;
+    for (const ActiveEnchantment& enchantment : myActiveEnchantments)
+    {
+        bonus += GetItemSpec(enchantment.id).physiqueModifier;
+    }
+    return bonus;
+}
+
+bool Player::HasActiveEnchantments() const
+{
+    return !myActiveEnchantments.empty();
+}
+
+std::vector<ActiveEnchantment>& Player::ActiveEnchantments()
+{
+    return myActiveEnchantments;
+}
+
+const std::vector<ActiveEnchantment>& Player::ActiveEnchantments() const
+{
+    return myActiveEnchantments;
+}
+
+void Player::AddActiveEnchantment(const ActiveEnchantment& anEnchantment)
+{
+    const ItemSpec& spec = GetItemSpec(anEnchantment.id);
+    int duration = anEnchantment.remainingActions > 0 ? anEnchantment.remainingActions : spec.actionsDuration;
+    if (duration <= 0)
+    {
+        duration = spec.actionsDuration;
+    }
+
+    for (auto& active : myActiveEnchantments)
+    {
+        if (active.id == anEnchantment.id)
+        {
+            active.remainingActions = MaxInt(active.remainingActions, duration);
+            RecalculateDerivedStats();
+            return;
+        }
+    }
+
+    myActiveEnchantments.push_back({ anEnchantment.id, duration });
+    RecalculateDerivedStats();
+}
+
+std::string Player::GetActiveEnchantmentsSummary() const
+{
+    if (myActiveEnchantments.empty())
+    {
+        return {};
+    }
+
+    std::string summary;
+    for (const ActiveEnchantment& enchantment : myActiveEnchantments)
+    {
+        const ItemSpec& spec = GetItemSpec(enchantment.id);
+        if (!summary.empty())
+        {
+            summary += ", ";
+        }
+
+        summary += spec.name;
+        if (enchantment.remainingActions > 0)
+        {
+            summary += " (" + std::to_string(enchantment.remainingActions) + " actions left)";
+        }
+    }
+
+    return summary;
+}
+
+void Player::RecalculateDerivedStats()
+{
+    const int totalStrength = GetStrength();
+    const int totalDexterity = GetDexterity();
+    const int totalPhysique = GetPhysique();
+
+    int maxHealth = totalPhysique * 4 + totalStrength * 6 + totalDexterity * 3;
+    if (maxHealth < 0)
+    {
+        maxHealth = 0;
+    }
+
+    myDamagable.SetMaxHealth(maxHealth);
+
+    const int defenseFromStats = totalStrength + totalPhysique;
+    const int defenseBonus = GetDefenseBonusFromEquipment() + GetDefenseBonusFromEnchantments();
+    int totalDefense = defenseFromStats + defenseBonus;
+    if (totalDefense < 0)
+    {
+        totalDefense = 0;
+    }
+
+    myDamagable.SetDefense(totalDefense);
+}
+
+float Player::GetCarryWeight() const
+{
+    return CalculateCarryWeight();
+}
+
+float Player::GetRemainingCarryWeight() const
+{
+    float remaining = myInventory.maxCarryWeight - CalculateCarryWeight();
+    return remaining < 0.0f ? 0.0f : remaining;
+}
+
+float Player::GetMaxCarryWeight() const
+{
+    return myInventory.maxCarryWeight;
+}
+
+bool Player::CanCarryAdditionalWeight(float aWeight) const
+{
+    const float newWeight = CalculateCarryWeight() + aWeight;
+    if (newWeight < 0.0f)
+    {
+        return true;
+    }
+    return newWeight <= myInventory.maxCarryWeight + 0.0001f;
+}
+
+bool Player::CanCarryItem(const ItemInstance& anItem) const
+{
+    return CanCarryAdditionalWeight(GetItemWeight(anItem));
+}
+
+float Player::ComputeItemWeight(const ItemInstance& anItem) const
+{
+    return GetItemWeight(anItem);
+}
+
+float Player::CalculateCarryWeight() const
+{
+    float totalWeight = 0.0f;
+
+    for (const ItemInstance& item : myInventory.items)
+    {
+        totalWeight += GetItemWeight(item);
+    }
+
+    if (myEquipment.hasMainHand && myEquipment.mainHand.equipped)
+    {
+        totalWeight += GetItemWeight(myEquipment.mainHand);
+    }
+
+    if (myEquipment.hasChest && myEquipment.chest.equipped)
+    {
+        totalWeight += GetItemWeight(myEquipment.chest);
+    }
+
+    return totalWeight;
+}
+
+float Player::GetItemWeight(const ItemInstance& anItem) const
+{
+    const ItemSpec& spec = GetItemSpec(anItem.id);
+    int count = anItem.count;
+    if (count <= 0)
+    {
+        count = 1;
+    }
+    return spec.weight * static_cast<float>(count);
+}
+
 bool Player::AddItem(const ItemInstance &anItem)
 {
     const ItemSpec& spec = GetItemSpec(anItem.id);
+
+    if (!CanCarryItem(anItem))
+    {
+        return false;
+    }
 
     if (spec.maxStack > 1)
     {
@@ -105,25 +400,21 @@ bool Player::AddItem(const ItemInstance &anItem)
             if (item.id == anItem.id && item.count < spec.maxStack)
             {
                 int space = spec.maxStack - item.count;
-                int toMove = std::min(space, anItem.count);
+                int toMove = MinInt(space, anItem.count);
                 item.count += toMove;
                 if (toMove == anItem.count)
                 {
                     return true;
                 } 
-                
-                break;
+                ItemInstance remaining = anItem;
+                remaining.count -= toMove;
+                return AddItem(remaining);
             }
         }
     }
 
-    if ((int)myInventory.items.size() < myInventory.maxSlots)
-    {
-        myInventory.items.push_back(anItem);
-        return true;
-    }
-
-    return false;
+    myInventory.items.push_back(anItem);
+    return true;
 }
 
 bool Player::UseHealthPotion()
@@ -150,15 +441,12 @@ bool Player::UseHealthPotion()
 
 void Player::TakeDamage(int anAmount)
 {
-    int equipmentDefense = GetDefenseBonusFromEquipment();
-    int adjustedAmount = anAmount - equipmentDefense;
-    
-    if (adjustedAmount < 0)
+    if (anAmount < 0)
     {
-        adjustedAmount = 0;
+        anAmount = 0;
     }
 
-    myDamagable.TakeDamage(adjustedAmount);
+    myDamagable.TakeDamage(anAmount);
 }
 
 const DamagableComponent& Player::GetDamagable() const
@@ -169,10 +457,28 @@ const DamagableComponent& Player::GetDamagable() const
 std::string Player::PrintStats() const
 {
     std::string stats = "Name: " + myName + "\n";
-    stats += "STR: " + std::to_string(myStrength) + "\n";
-    stats += "DXT: " + std::to_string(myDexterity) + "\n";
-    stats += "PHY: " + std::to_string(myPhysique) + "\n";
-    stats += "DEF: " + std::to_string(GetDefense()) + "\n";
+    const int strengthEquipment = GetStrengthBonusFromEquipment();
+    const int strengthEnchantment = GetStrengthBonusFromEnchantments();
+    stats += BuildStatLine("STR", myStrength, strengthEquipment, strengthEnchantment);
+
+    const int dexEquipment = GetDexterityBonusFromEquipment();
+    const int dexEnchantment = GetDexterityBonusFromEnchantments();
+    stats += BuildStatLine("DEX", myDexterity, dexEquipment, dexEnchantment);
+
+    const int physEquipment = GetPhysiqueBonusFromEquipment();
+    const int physEnchantment = GetPhysiqueBonusFromEnchantments();
+    stats += BuildStatLine("PHY", myPhysique, physEquipment, physEnchantment);
+
+    const int baseAttack = myStrength * 2;
+    const int equipmentAttack = strengthEquipment * 2 + GetAttackBonusFromEquipment();
+    const int enchantmentAttack = strengthEnchantment * 2 + GetAttackBonusFromEnchantments();
+    stats += BuildStatLine("ATK", baseAttack, equipmentAttack, enchantmentAttack);
+
+    const int baseDefense = myStrength + myPhysique;
+    const int equipmentDefense = strengthEquipment + physEquipment + GetDefenseBonusFromEquipment();
+    const int enchantmentDefense = strengthEnchantment + physEnchantment + GetDefenseBonusFromEnchantments();
+    stats += BuildStatLine("DEF", baseDefense, equipmentDefense, enchantmentDefense);
+
     stats += "HP: " + std::to_string(GetHealth()) + "/" + std::to_string(GetMaxHealth()) + "\n";
     return stats;
 }

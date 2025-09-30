@@ -1,38 +1,18 @@
 #include "GameManager.h"
-#include "Enemy.h"
-#include "Room.h"
+
 #include "Door.h"
 #include "Direction.h"
-#include "CombatComponent.h"
+#include "Enemy.h"
+#include "InteractionController.h"
+#include "InventoryTypes.h"
+#include "Chest.h"
 #include <iostream>
 
-namespace
-{
-    std::string DirectionToString(Direction aDirection)
-    {
-        switch (aDirection)
-        {
-        case Direction::DirectionNorth:
-            return "North";
-        case Direction::DirectionEast:
-            return "East";
-        case Direction::DirectionSouth:
-            return "South";
-        case Direction::DirectionWest:
-            return "West";
-        case Direction::DirectionCount:
-            return "Unknown";
-        }
-
-        return "Unknown";
-    }
-}
-
 GameManager::GameManager()
-    : myPlayer("Hero", 5, 5, 5),
-      myRooms(),
-      myCurrentRoom(nullptr),
-      myDoors()
+    : myPlayer("Hero", 5, 5, 5)
+    , myRooms()
+    , myCurrentRoom(nullptr)
+    , myDoors()
 {
     myRooms.emplace_back("First Room");
     myRooms.emplace_back("Second Room");
@@ -42,23 +22,28 @@ GameManager::GameManager()
     const bool isLocked = true;
 
     Door* doorFromRoom1ToRoom2 = new Door(&myRooms[0],
-                                 &myRooms[1],
-                                 Direction::DirectionNorth,
-                                 Direction::DirectionSouth,
-                                 !isLocked, 0, 0);
+                                          &myRooms[1],
+                                          Direction::DirectionNorth,
+                                          Direction::DirectionSouth,
+                                          !isLocked,
+                                          0,
+                                          0);
     Door* doorFromRoom2ToRoom3 = new Door(&myRooms[1],
-                                &myRooms[2],
-                                Direction::DirectionEast,
-                                Direction::DirectionWest,
-                                isLocked, 3, 10);
+                                          &myRooms[2],
+                                          Direction::DirectionEast,
+                                          Direction::DirectionWest,
+                                          isLocked,
+                                          3,
+                                          10);
     Door* doorFromRoom3ToRoom4 = new Door(&myRooms[2],
-                                 &myRooms[3],
-                                 Direction::DirectionSouth,
-                                 Direction::DirectionNorth,
-                                 isLocked, 7, 2);
+                                          &myRooms[3],
+                                          Direction::DirectionSouth,
+                                          Direction::DirectionNorth,
+                                          isLocked,
+                                          7,
+                                          2);
 
     myDoors.push_back(doorFromRoom1ToRoom2);
-
     myDoors.push_back(doorFromRoom2ToRoom3);
     myDoors.push_back(doorFromRoom3ToRoom4);
 
@@ -77,22 +62,58 @@ GameManager::GameManager()
     myCurrentRoom = &myRooms[0];
     myCurrentRoom->EnterRoom();
 
-    ItemInstance sword { ItemId::ShortSword, 1, 0, 0, true };
+    ItemInstance sword{ ItemId::ShortSword, 1, 0, 0, true };
     myPlayer.Equipment().hasMainHand = true;
     myPlayer.Equipment().mainHand = sword;
 
-    ItemInstance armor { ItemId::LeatherArmor, 1, 0, 0, true };
+    ItemInstance armor{ ItemId::LeatherArmor, 1, 0, 0, true };
     myPlayer.Equipment().hasChest = true;
     myPlayer.Equipment().chest = armor;
-    
-    ItemInstance pot { ItemId::HealthPotion, 2, 0, 0, false };
-    myPlayer.Inventory().maxSlots = 5;
+
+    ItemInstance pot{ ItemId::HealthPotion, 2, 0, 0, false };
+    myPlayer.Inventory().maxCarryWeight = 50.0f;
     myPlayer.AddItem(pot);
+    myPlayer.RecalculateDerivedStats();
+
+    myRooms[0].AddFloorItem({ ItemId::LongBow, 1, 0, 0, false });
+    myRooms[0].AddFloorItem({ ItemId::ChainmailArmor, 1, 0, 0, false });
+    myRooms[0].AddFloorItem({ ItemId::HealthPotion, 2, 0, 0, false });
+
+    myRooms[1].AddFloorItem({ ItemId::BattleAxe, 1, 0, 0, false });
+    myRooms[1].AddFloorItem({ ItemId::HealthPotion, 1, 0, 0, false });
+    myRooms[2].AddFloorItem({ ItemId::FuryEnchant, 1, 0, 5, false });
+
+    Chest entranceChest("Wooden Chest", "A small wooden chest sits in the corner.");
+    entranceChest.AddItem({ ItemId::HealthPotion, 1, 0, 0, false });
+    entranceChest.AddItem({ ItemId::ShortSword, 1, 0, 0, false });
+    myRooms[0].AddChest(entranceChest);
+
+    Chest treasureChest("Ironbound Chest", "A sturdy chest bound in iron.");
+    treasureChest.AddItem({ ItemId::ChainmailArmor, 1, 0, 0, false });
+    treasureChest.AddItem({ ItemId::HealthPotion, 1, 0, 0, false });
+    myRooms[2].AddChest(treasureChest);
+
+    if (!myRooms[1].Enemies().empty())
+    {
+        myRooms[1].Enemies()[0].AddLoot({ ItemId::HealthPotion, 1, 0, 0, false }, 60);
+        if (myRooms[1].Enemies().size() > 1)
+        {
+            myRooms[1].Enemies()[1].AddLoot({ ItemId::LongBow, 1, 0, 0, false }, 50);
+        }
+    }
+    if (!myRooms[2].Enemies().empty())
+    {
+        myRooms[2].Enemies()[0].AddLoot({ ItemId::ChainmailArmor, 1, 0, 0, false }, 40);
+    }
+    if (!myRooms[3].Enemies().empty())
+    {
+        myRooms[3].Enemies()[0].AddLoot({ ItemId::FuryEnchant, 1, 0, 5, false }, 30);
+    }
 }
 
 GameManager::~GameManager()
 {
-    for (auto* door : myDoors)
+    for (Door* door : myDoors)
     {
         delete door;
     }
@@ -100,433 +121,13 @@ GameManager::~GameManager()
 
 void GameManager::Run()
 {
+    InteractionController interaction(myPlayer, myRooms, myCurrentRoom, myDoors);
     bool isRunning = true;
 
     while (isRunning)
     {
-        DescribeCurrentRoom();
-        isRunning = HandleInput();
+        isRunning = interaction.HandleTurn();
     }
 
     std::cout << "\nThanks for playing!\n";
 }
-
-bool GameManager::HandleInput()
-{
-    const PlayerCommand command = myCurrentRoom->HasEnemies()
-                                      ? GetCommandWhenEnemies()
-                                      : GetCommandInSafeRoom();
-
-    std::system("cls"); 
-    return ExecuteCommand(command);
-}
-
-GameManager::PlayerCommand GameManager::GetCommandWhenEnemies() const
-{
-    while (true)
-    {
-        std::cout << "\nOptions:\n1. Fight enemies\n0. Exit game\n";
-        const int choice = ReadInt("Choice: ");
-
-        switch (choice)
-        {
-        case 1:
-            return PlayerCommand::PlayerCommandFight;
-        case 0:
-            return PlayerCommand::PlayerCommandQuit;
-        default:
-            std::cout << "Invalid choice, try again.\n";
-            break;
-        }
-    }
-}
-
-GameManager::PlayerCommand GameManager::GetCommandInSafeRoom() const
-{
-    while (true)
-    {
-        std::cout << "\nOptions:\n1. Move to another room\n2. Inspect room\n3. View inventory\n0. Exit game\n";
-        const int choice = ReadInt("Choice: ");
-
-        switch (choice)
-        {
-        case 1:
-            return PlayerCommand::PlayerCommandMove;
-        case 2:
-            return PlayerCommand::PlayerCommandInspect;
-        case 3:
-            return PlayerCommand::PlayerCommandInventory;
-        case 0:
-            return PlayerCommand::PlayerCommandQuit;
-        default:
-            std::cout << "Invalid choice, try again.\n";
-            break;
-        }
-    }
-}
-
-bool GameManager::ExecuteCommand(PlayerCommand aCommand)
-{
-    switch (aCommand)
-    {
-    case PlayerCommand::PlayerCommandQuit:
-        return false;
-    case PlayerCommand::PlayerCommandFight:
-        return StartCombat();
-    case PlayerCommand::PlayerCommandMove:
-        return HandleMove();
-    case PlayerCommand::PlayerCommandInspect:
-        InspectRoom();
-        return true;
-    case PlayerCommand::PlayerCommandInventory:
-        ShowInventory();
-        return true;
-    case PlayerCommand::PlayerCommandInvalid:
-    case PlayerCommand::PlayerCommandCount:
-        std::cout << "Invalid command.\n";
-        return true;
-    }
-
-    std::cout << "Invalid command.\n";
-    return true;
-}
-
-bool GameManager::HandleMove()
-{
-    const std::vector<Door*>& doorsInRoom = myCurrentRoom->GetDoors();
-
-    if (doorsInRoom.empty())
-    {
-        std::cout << "There are no exits from this room.\n";
-        return true;
-    }
-
-    std::cout << "\nAvailable exits:\n";
-    for (size_t index = 0; index < doorsInRoom.size(); ++index)
-    {
-        const Door* door = doorsInRoom[index];
-        std::cout << index + 1 << ". " << DirectionToString(door->GetDirectionFromRoom(myCurrentRoom));
-        if (door->IsLocked())
-        {
-            std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
-        }
-        std::cout << "\n";
-    }
-
-    const int choice = ReadInt("Choose a door: ");
-    if (choice <= 0 || choice > static_cast<int>(doorsInRoom.size()))
-    {
-        std::cout << "Invalid choice.\n";
-        return true;
-    }
-
-    Door* chosenDoor = doorsInRoom[static_cast<size_t>(choice - 1)];
-    if (!chosenDoor->CanPass())
-    {
-        std::cout << "The door is locked.\nDo you want to try to pick the lock (l) or break the door down (b)? [DEX to unlock: " << chosenDoor->GetDexterityToUnlock() << ", STR to break: " << chosenDoor->GetStrengthToBreak() << "] (l/b/n): ";
-        char choice = ' ';
-        while (choice != 'l' && choice != 'L' && choice != 'b' && choice != 'B' && choice != 'n' && choice != 'N')
-        {
-            std::cout << "Invalid choice. Please enter (l/b/n): ";
-            std::cin >> choice;
-            std::cin.ignore(100000, '\n');
-        }
-        if (choice == 'l' || choice == 'L')
-        {
-            if (chosenDoor->TryUnlock(myPlayer))
-            {
-                std::cout << "You successfully picked the lock!\n";
-                chosenDoor->SetLocked(false);
-                myCurrentRoom = chosenDoor->GetOtherRoom(myCurrentRoom);
-                myCurrentRoom->EnterRoom();
-                return true;
-            }
-            else
-            {
-                std::cout << "You failed to pick the lock.\n";
-            }
-        }
-        else if (choice == 'b' || choice == 'B')
-        {
-               if (chosenDoor->TryBreak(myPlayer))
-            {
-                std::cout << "You successfully broke down the door!\n";
-                chosenDoor->SetLocked(false);
-                myCurrentRoom = chosenDoor->GetOtherRoom(myCurrentRoom);
-                myCurrentRoom->EnterRoom();
-                return true;
-            }
-            else
-            {
-                std::cout << "You failed to break down the door.\n";
-            }
-        }
-        else if (choice == 'n' || choice == 'N')
-        {
-            std::cout << "You decided not to attempt to open the door.\n";
-            return true;
-        }
-        return true;
-    }
-
-    myCurrentRoom = chosenDoor->GetOtherRoom(myCurrentRoom);
-    myCurrentRoom->EnterRoom();
-    return true;
-}
-
-void GameManager::InspectRoom() const
-{
-    std::cout << "\nYou inspect the room carefully.\n";
-    std::cout << myCurrentRoom->GetDescription() << "\n";
-
-    if (myCurrentRoom->HasEnemies())
-    {
-        std::cout << "Enemies present:\n";
-        for (const auto& enemy : myCurrentRoom->Enemies())
-        {
-            std::cout << "- " << enemy.GetName() << "\n";
-        }
-    }
-    else
-    {
-        const auto& doorsInRoom = myCurrentRoom->GetDoors();
-        if (doorsInRoom.empty())
-        {
-            std::cout << "There are no exits from this room.\n";
-        }
-        else
-        {
-            std::cout << "Available exits:\n";
-            for (const auto* door : doorsInRoom)
-            {
-                std::cout << "- " << DirectionToString(door->GetDirectionFromRoom(myCurrentRoom));
-                if (door->IsLocked())
-                {
-                    std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
-                }
-                std::cout << "\n";
-            }
-        }
-
-        if (myCurrentRoom->IsRoomCleared())
-        {
-            std::cout << "The room is cleared.\n";
-        }
-    }
-}
-
-void GameManager::ShowInventory() const
-{
-    std::cout << "\n=== Equipment ===\n";
-    const EquipmentState& equipment = myPlayer.Equipment();
-
-    const auto printSlot = [](const char* aLabel, bool aHasItem, const ItemInstance& anItem)
-    {
-        std::cout << aLabel << ": ";
-        if (aHasItem && anItem.equipped)
-        {
-            const ItemSpec& spec = GetItemSpec(anItem.id);
-            std::cout << spec.name;
-            if (spec.attackBonus != 0 || spec.defenseBonus != 0)
-            {
-                std::cout << " (ATK +" << spec.attackBonus << ", DEF +" << spec.defenseBonus << ")";
-            }
-            std::cout << "\n";
-        }
-        else
-        {
-            std::cout << "Empty\n";
-        }
-    };
-
-    printSlot("Main Hand", equipment.hasMainHand, equipment.mainHand);
-    printSlot("Chest", equipment.hasChest, equipment.chest);
-
-    const InventoryState& inventory = myPlayer.Inventory();
-    std::cout << "\n=== Backpack (" << inventory.items.size() << "/" << inventory.maxSlots << ") ===\n";
-
-    if (inventory.items.empty())
-    {
-        std::cout << "Empty\n";
-    }
-    else
-    {
-        for (size_t index = 0; index < inventory.items.size(); ++index)
-        {
-            const ItemInstance& instance = inventory.items[index];
-            const ItemSpec& spec = GetItemSpec(instance.id);
-
-            std::cout << index + 1 << ". " << spec.name;
-            if (spec.maxStack > 1)
-            {
-                std::cout << " x" << instance.count;
-            }
-            std::cout << "\n";
-        }
-    }
-
-    std::cout << "\nPress enter to continue...";
-    std::cin.ignore(1000000, '\n');
-}
-
-void GameManager::DescribeCurrentRoom() const
-{
-    std::cout << "\nYou are in: " << myCurrentRoom->GetName() << "\n";
-    std::cout << myCurrentRoom->GetDescription() << "\n";
-
-    if (myCurrentRoom->HasEnemies())
-    {
-        std::cout << "Enemies present:\n";
-        for (const auto& enemy : myCurrentRoom->Enemies())
-        {
-            std::cout << "- " << enemy.GetName() << "\n";
-        }
-    }
-    else
-    {
-        const auto& doorsInRoom = myCurrentRoom->GetDoors();
-        if (doorsInRoom.empty())
-        {
-            std::cout << "There are no exits from this room.\n";
-        }
-        else
-        {
-            std::cout << "Available exits:\n";
-            for (const auto* door : doorsInRoom)
-            {
-                std::cout << "- " << DirectionToString(door->GetDirectionFromRoom(myCurrentRoom));
-                if (door->IsLocked())
-                {
-                    std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
-                }
-                std::cout << "\n";
-            }
-        }
-
-        if (myCurrentRoom->IsRoomCleared())
-        {
-            std::cout << "The room is cleared.\n";
-        }
-    }
-}
-
-int GameManager::ReadInt(const std::string& aPrompt) const
-{
-    while (true)
-    {
-        std::cout << aPrompt;
-        int value = 0;
-        if (std::cin >> value)
-        {
-            std::cin.ignore(100000, '\n');
-            return value;
-        }
-
-        std::cin.clear();
-        std::cin.ignore(100000, '\n');
-        std::cout << "Please enter a number.\n";
-    }
-}
-
-bool GameManager::StartCombat()
-{
-    CombatComponent combat(myPlayer, myCurrentRoom->Enemies());
-
-    while (combat.GetResult() == CombatComponent::Result::ResultOngoing)
-    {
-        const std::vector<Enemy>& enemies = combat.GetEnemies();
-
-        if (!enemies.empty())
-        {
-            std::cout << "\nEnemies in the room:\n";
-            for (size_t index = 0; index < enemies.size(); ++index)
-            {
-                const Enemy& enemy = enemies[index];
-                std::cout << index + 1 << ". " << enemy.PrintStats();
-                std::cout << " | HP: " << enemy.GetDamagable().GetHealth() << "/" << enemy.GetDamagable().GetMaxHealth() << "\n";
-            }
-        }
-
-        std::cout << "\nYour stats:\n" << myPlayer.PrintStats();
-        std::cout << "\nChoose your action:\n";
-        std::cout << "1. Attack\n";
-        std::cout << "2. Defend\n";
-        std::cout << "3. Use item\n";
-
-        const int actionInput = ReadInt("Choice: ");
-
-        CombatComponent::Action action = CombatComponent::Action::ActionAttack;
-
-        switch (actionInput)
-        {
-        case 1:
-            action = CombatComponent::Action::ActionAttack;
-            break;
-        case 2:
-            action = CombatComponent::Action::ActionDefend;
-            break;
-        case 3:
-            action = CombatComponent::Action::ActionUseItem;
-            break;
-        default:
-            std::cout << "Invalid action. Try again.\n";
-            continue;
-        }
-
-        if (action == CombatComponent::Action::ActionAttack)
-        {
-            if (enemies.empty())
-            {
-                std::cout << "There are no enemies to attack.\n";
-                continue;
-            }
-
-            const int enemyChoice = ReadInt("Choose enemy to attack: ");
-            if (enemyChoice <= 0 || enemyChoice > static_cast<int>(enemies.size()))
-            {
-                std::cout << "Invalid enemy choice.\n";
-                continue;
-            }
-
-            const size_t enemyIndex = static_cast<size_t>(enemyChoice - 1);
-            if (!combat.SelectEnemy(enemyIndex))
-            {
-                std::cout << "Invalid enemy choice.\n";
-                continue;
-            }
-        }
-
-        const bool actionPerformed = combat.PerformPlayerAction(action);
-
-        if (!actionPerformed)
-        {
-            continue;
-        }
-
-        if (combat.GetResult() != CombatComponent::Result::ResultOngoing)
-        {
-            break;
-        }
-
-        combat.PerformEnemyTurn();
-    }
-
-    switch (combat.GetResult())
-    {
-    case CombatComponent::Result::ResultPlayerWon:
-        std::cout << "All enemies defeated!\n";
-        myCurrentRoom->SetRoomCleared(true);
-        return true;
-    case CombatComponent::Result::ResultPlayerLost:
-        std::cout << "You have been slain!\n";
-        return false;
-    case CombatComponent::Result::ResultOngoing:
-    case CombatComponent::Result::ResultCount:
-        return true;
-    }
-
-    return true;
-}
-
-
-

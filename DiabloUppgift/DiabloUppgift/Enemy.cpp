@@ -5,7 +5,8 @@ Enemy::Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysi
       myStrength(aStrength),
       myDexterity(aDexterity),
       myPhysique(aPhysique),
-      myDamagable(aPhysique * 3, aDexterity)
+      myDamagable(aPhysique * 3, aDexterity),
+      myLoot()
 {
 }
 
@@ -52,6 +53,30 @@ const DamagableComponent& Enemy::GetDamagable() const
 void Enemy::TakeDamage(int anAmount)
 {
     myDamagable.TakeDamage(anAmount);
+}
+
+void Enemy::AddLoot(const ItemInstance& anItem, int aProbability)
+{
+    if (aProbability < 0)
+    {
+        aProbability = 0;
+    }
+    else if (aProbability > 100)
+    {
+        aProbability = 100;
+    }
+
+    myLoot.push_back({ anItem, aProbability });
+}
+
+const std::vector<Enemy::LootDrop>& Enemy::GetLootDrops() const
+{
+    return myLoot;
+}
+
+void Enemy::ClearLoot()
+{
+    myLoot.clear();
 }
 
 std::string Enemy::PrintStats() const

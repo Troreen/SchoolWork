@@ -20,7 +20,11 @@ enum class EquipmentSlot
 enum class ItemId
 {
     ShortSword,
+    BattleAxe,
+    LongBow,
     LeatherArmor,
+    ChainmailArmor,
+    PlateArmor,
     HealthPotion,
     FuryEnchant
 };
@@ -31,11 +35,16 @@ struct ItemSpec
     const char* name;
     ItemType type;
     int maxStack;
+    float weight;
 
     bool hasSlot;
     EquipmentSlot slot;
     int attackBonus;
     int defenseBonus;
+
+    int strengthModifier;
+    int dexterityModifier;
+    int physiqueModifier;
 
     int healAmount;
 
@@ -58,7 +67,7 @@ struct ItemInstance
 
 struct InventoryState
 {
-    int maxSlots = 5;
+    float maxCarryWeight = 50.0f;
     std::vector<ItemInstance> items;
 };
 
@@ -69,4 +78,10 @@ struct EquipmentState
 
     bool hasChest = false;
     ItemInstance chest{};
+};
+
+struct ActiveEnchantment
+{
+    ItemId id;
+    int remainingActions = 0;
 };

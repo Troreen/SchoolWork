@@ -22,6 +22,20 @@ public:
 
     int GetAttackBonusFromEquipment() const;
     int GetDefenseBonusFromEquipment() const;
+    int GetAttackBonusFromEnchantments() const;
+    int GetDefenseBonusFromEnchantments() const;
+    bool HasActiveEnchantments() const;
+    std::vector<ActiveEnchantment>& ActiveEnchantments();
+    const std::vector<ActiveEnchantment>& ActiveEnchantments() const;
+    void AddActiveEnchantment(const ActiveEnchantment& anEnchantment);
+    std::string GetActiveEnchantmentsSummary() const;
+    void RecalculateDerivedStats();
+    float GetCarryWeight() const;
+    float GetRemainingCarryWeight() const;
+    float GetMaxCarryWeight() const;
+    bool CanCarryAdditionalWeight(float aWeight) const;
+    bool CanCarryItem(const ItemInstance& anItem) const;
+    float ComputeItemWeight(const ItemInstance& anItem) const;
     bool AddItem(const ItemInstance& anItem);
     bool UseHealthPotion();
 
@@ -40,4 +54,14 @@ private:
 
     InventoryState myInventory;
     EquipmentState myEquipment;
+    std::vector<ActiveEnchantment> myActiveEnchantments;
+
+    int GetStrengthBonusFromEquipment() const;
+    int GetStrengthBonusFromEnchantments() const;
+    int GetDexterityBonusFromEquipment() const;
+    int GetDexterityBonusFromEnchantments() const;
+    int GetPhysiqueBonusFromEquipment() const;
+    int GetPhysiqueBonusFromEnchantments() const;
+    float CalculateCarryWeight() const;
+    float GetItemWeight(const ItemInstance& anItem) const;
 };

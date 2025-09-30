@@ -124,22 +124,28 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CombatComponent.cpp" />
+    <ClCompile Include="Chest.cpp" />
+    <ClCompile Include="ConsoleView.cpp" />
     <ClCompile Include="DamagableComponent.cpp" />
     <ClCompile Include="DiabloUppgift.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="InteractionController.cpp" />
     <ClCompile Include="InventoryTypes.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CombatComponent.h" />
+    <ClInclude Include="Chest.h" />
+    <ClInclude Include="ConsoleView.h" />
     <ClInclude Include="DamagableComponent.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameManager.h" />
+    <ClInclude Include="InteractionController.h" />
     <ClInclude Include="InventoryTypes.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Room.h" />

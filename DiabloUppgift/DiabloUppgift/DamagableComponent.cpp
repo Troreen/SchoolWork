@@ -37,6 +37,25 @@ void DamagableComponent::Heal(int anAmount)
 }
 
 
+void DamagableComponent::SetMaxHealth(int aMaxHealth)
+{
+    if (aMaxHealth < 0)
+    {
+        aMaxHealth = 0;
+    }
+
+    myMaxHealth = aMaxHealth;
+    if (myHealth > myMaxHealth)
+    {
+        myHealth = myMaxHealth;
+    }
+}
+
+void DamagableComponent::SetDefense(int aDefense)
+{
+    myDefense = aDefense < 0 ? 0 : aDefense;
+}
+
 int DamagableComponent::GetHealth() const
 {
     return myHealth;
