@@ -16,6 +16,9 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="InventoryTypes.cpp" />
+    <ClCompile Include="Chest.cpp" />
+    <ClCompile Include="ConsoleView.cpp" />
+    <ClCompile Include="InteractionController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CombatComponent.h" />
@@ -27,8 +30,8 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="InventoryTypes.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ComponentSystem.md" />
+    <ClInclude Include="Chest.h" />
+    <ClInclude Include="ConsoleView.h" />
+    <ClInclude Include="InteractionController.h" />
   </ItemGroup>
 </Project>
