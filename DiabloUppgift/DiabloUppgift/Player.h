@@ -6,7 +6,9 @@
 class Player
 {
 public:
+    Player() = delete;
     Player(const std::string& aName, int aStrength, int aDexterity, int aPhysique);
+    ~Player();
     const std::string& GetName() const;
     int GetStrength() const;
     int GetDexterity() const;

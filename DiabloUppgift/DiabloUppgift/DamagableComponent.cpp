@@ -7,6 +7,8 @@ DamagableComponent::DamagableComponent(int aMaxHealth, int aDefense)
 {
 }
 
+DamagableComponent::~DamagableComponent() = default;
+
 void DamagableComponent::TakeDamage(int anIncomingDamage)
 {
     int damageTaken = anIncomingDamage - myDefense;

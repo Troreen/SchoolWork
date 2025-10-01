@@ -10,6 +10,8 @@ Enemy::Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysi
 {
 }
 
+Enemy::~Enemy() = default;
+
 const std::string& Enemy::GetName() const
 {
     return myName;

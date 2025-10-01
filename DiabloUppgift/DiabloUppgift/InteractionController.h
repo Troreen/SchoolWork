@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cstddef>
 #include <string>
 
 #include "Player.h"
@@ -10,10 +11,12 @@
 class InteractionController
 {
 public:
+    InteractionController() = delete;
     InteractionController(Player& aPlayer,
                           std::vector<Room>& someRooms,
                           Room*& aCurrentRoom,
                           std::vector<Door*>& someDoors);
+    ~InteractionController();
 
     bool HandleTurn();
 
@@ -25,6 +28,7 @@ private:
         Move,
         Inspect,
         Inventory,
+        Drop,
         Stats,
         Pickup,
         OpenChest,
@@ -42,10 +46,13 @@ private:
 
     bool HandleMove();
     void InspectRoom() const;
-    void ShowInventory() const;
+    void ShowInventory();
+    void DropItems();
     void PickUpItems();
     void OpenChest();
     bool StartCombat();
 
+    bool EquipFromInventory(size_t anIndex);
+    bool AreAllRoomsCleared() const;
     int ReadInt(const std::string& aPrompt) const;
 };

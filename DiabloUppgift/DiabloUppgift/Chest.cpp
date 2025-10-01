@@ -16,6 +16,8 @@ Chest::Chest(const std::string& aName, const std::string& aDescription)
 {
 }
 
+Chest::~Chest() = default;
+
 const std::string& Chest::GetName() const
 {
     return myName;

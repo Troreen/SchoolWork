@@ -14,6 +14,8 @@ public:
          int aDexterityToUnlock = 0,
          int aStrengthToBreak = 0
         );
+    Door() = delete;
+    ~Door();
 
     Room* GetOtherRoom(Room* aFromRoom) const;
     Direction GetDirectionFromRoom(const Room* aFromRoom) const;

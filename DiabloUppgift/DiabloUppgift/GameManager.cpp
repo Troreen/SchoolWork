@@ -62,17 +62,7 @@ GameManager::GameManager()
     myCurrentRoom = &myRooms[0];
     myCurrentRoom->EnterRoom();
 
-    ItemInstance sword{ ItemId::ShortSword, 1, 0, 0, true };
-    myPlayer.Equipment().hasMainHand = true;
-    myPlayer.Equipment().mainHand = sword;
-
-    ItemInstance armor{ ItemId::LeatherArmor, 1, 0, 0, true };
-    myPlayer.Equipment().hasChest = true;
-    myPlayer.Equipment().chest = armor;
-
-    ItemInstance pot{ ItemId::HealthPotion, 2, 0, 0, false };
     myPlayer.Inventory().maxCarryWeight = 50.0f;
-    myPlayer.AddItem(pot);
     myPlayer.RecalculateDerivedStats();
 
     myRooms[0].AddFloorItem({ ItemId::LongBow, 1, 0, 0, false });

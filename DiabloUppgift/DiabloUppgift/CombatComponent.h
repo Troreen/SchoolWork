@@ -24,7 +24,9 @@ public:
         ResultCount
     };
 
+    CombatComponent() = delete;
     CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemies, Room& aRoom);
+    ~CombatComponent();
 
     Result GetResult() const;
     const Enemy* GetCurrentEnemy() const;

@@ -27,6 +27,8 @@ CombatComponent::CombatComponent(Player& aPlayer, std::vector<Enemy>& someEnemie
     }
 }
 
+CombatComponent::~CombatComponent() = default;
+
 CombatComponent::Result CombatComponent::GetResult() const
 {
     return myResult;

@@ -11,7 +11,9 @@ class Door;
 class Room
 {
 public:
+    Room() = delete;
     Room(const std::string& aName);
+    ~Room();
 
     std::vector<Enemy>& Enemies();
     const std::vector<Enemy>& Enemies() const;

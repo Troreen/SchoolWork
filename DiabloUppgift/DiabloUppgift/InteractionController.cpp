@@ -17,6 +17,8 @@ InteractionController::InteractionController(Player& aPlayer,
 {
 }
 
+InteractionController::~InteractionController() = default;
+
 bool InteractionController::HandleTurn()
 {
     ConsoleView::ClearScreen();
@@ -75,6 +77,17 @@ InteractionController::Command InteractionController::GetCommandInSafeRoom() con
         options.emplace_back(optionIndex, Command::Inventory);
         displayOptions.emplace_back(optionIndex++, "View inventory");
 
+        const InventoryState& inventoryState = myPlayer.Inventory();
+        const EquipmentState& equipment = myPlayer.Equipment();
+        const bool hasDroppableItems = !inventoryState.items.empty()
+            || equipment.hasMainHand
+            || equipment.hasChest;
+        if (hasDroppableItems)
+        {
+            options.emplace_back(optionIndex, Command::Drop);
+            displayOptions.emplace_back(optionIndex++, "Drop items");
+        }
+
         options.emplace_back(optionIndex, Command::Stats);
         displayOptions.emplace_back(optionIndex++, "View stats");
 
@@ -128,6 +141,9 @@ bool InteractionController::ExecuteCommand(Command aCommand)
         return true;
     case Command::Inventory:
         ShowInventory();
+        return true;
+    case Command::Drop:
+        DropItems();
         return true;
     case Command::Stats:
         ConsoleView::ShowPlayerStats(myPlayer);
@@ -214,10 +230,249 @@ void InteractionController::InspectRoom() const
     ConsoleView::ShowRoomInspection(*myCurrentRoom);
 }
 
-void InteractionController::ShowInventory() const
+void InteractionController::ShowInventory()
 {
-    ConsoleView::ShowInventory(myPlayer);
-    ConsoleView::Pause();
+    while (true)
+    {
+        ConsoleView::ShowInventory(myPlayer);
+
+        InventoryState& inventory = myPlayer.Inventory();
+        const int choice = ReadInt("Choice: ");
+
+        if (choice == 0)
+        {
+            return;
+        }
+
+        if (choice < 0 || choice > static_cast<int>(inventory.items.size()))
+        {
+            ConsoleView::ShowInvalidChoice();
+            continue;
+        }
+
+        const size_t index = static_cast<size_t>(choice - 1);
+        EquipFromInventory(index);
+    }
+}
+
+bool InteractionController::EquipFromInventory(size_t anIndex)
+{
+    InventoryState& inventory = myPlayer.Inventory();
+    if (anIndex >= inventory.items.size())
+    {
+        ConsoleView::ShowInvalidChoice();
+        return false;
+    }
+
+    ItemInstance item = inventory.items[anIndex];
+    const ItemSpec& spec = GetItemSpec(item.id);
+
+    if (!spec.hasSlot)
+    {
+        ConsoleView::ShowCannotEquipMessage();
+        return false;
+    }
+
+    EquipmentState& equipment = myPlayer.Equipment();
+    ItemInstance* slotItem = nullptr;
+    bool* hasFlag = nullptr;
+    const char* slotLabel = "";
+
+    switch (spec.slot)
+    {
+    case EquipmentSlot::MainHand:
+        slotItem = &equipment.mainHand;
+        hasFlag = &equipment.hasMainHand;
+        slotLabel = "main hand";
+        break;
+    case EquipmentSlot::Chest:
+        slotItem = &equipment.chest;
+        hasFlag = &equipment.hasChest;
+        slotLabel = "chest";
+        break;
+    default:
+        ConsoleView::ShowCannotEquipMessage();
+        return false;
+    }
+
+    if (!(*hasFlag))
+    {
+        item.equipped = true;
+        *slotItem = item;
+        *hasFlag = true;
+        inventory.items.erase(inventory.items.begin() + static_cast<long long>(anIndex));
+        ConsoleView::ShowEquipmentResult(spec, slotLabel, true);
+        myPlayer.RecalculateDerivedStats();
+        return true;
+    }
+
+    const ItemSpec& currentSpec = GetItemSpec(slotItem->id);
+    ConsoleView::ShowEquipmentPrompt(currentSpec, spec, slotLabel);
+    char answer = 'n';
+    std::cin >> answer;
+    std::cin.ignore(1000000, '\n');
+
+    if (answer != 'y' && answer != 'Y')
+    {
+        ConsoleView::ShowEquipmentResult(spec, slotLabel, false);
+        return true;
+    }
+
+    ItemInstance previous = *slotItem;
+    previous.equipped = false;
+
+    inventory.items.erase(inventory.items.begin() + static_cast<long long>(anIndex));
+    inventory.items.insert(inventory.items.begin() + static_cast<long long>(anIndex), previous);
+
+    item.equipped = true;
+    *slotItem = item;
+    *hasFlag = true;
+
+    ConsoleView::ShowEquipmentResult(spec, slotLabel, true);
+    myPlayer.RecalculateDerivedStats();
+    return true;
+}
+
+void InteractionController::DropItems()
+{
+    while (true)
+    {
+        InventoryState& inventory = myPlayer.Inventory();
+        EquipmentState& equipment = myPlayer.Equipment();
+
+        struct DropCandidate
+        {
+            enum class Type
+            {
+                Inventory,
+                Equipment
+            };
+
+            Type type;
+            size_t index;
+            EquipmentSlot slot;
+        };
+
+        std::vector<DropCandidate> candidates;
+        std::vector<std::pair<std::string, ItemInstance>> displayItems;
+        candidates.reserve(inventory.items.size() + 2);
+        displayItems.reserve(inventory.items.size() + 2);
+
+        for (size_t i = 0; i < inventory.items.size(); ++i)
+        {
+            candidates.push_back({ DropCandidate::Type::Inventory, i, EquipmentSlot::MainHand });
+            displayItems.emplace_back("Backpack", inventory.items[i]);
+        }
+
+        if (equipment.hasMainHand)
+        {
+            candidates.push_back({ DropCandidate::Type::Equipment, 0, EquipmentSlot::MainHand });
+            const char* label = equipment.mainHand.equipped ? "Main Hand (equipped)" : "Main Hand";
+            displayItems.emplace_back(label, equipment.mainHand);
+        }
+
+        if (equipment.hasChest)
+        {
+            candidates.push_back({ DropCandidate::Type::Equipment, 0, EquipmentSlot::Chest });
+            const char* label = equipment.chest.equipped ? "Chest (equipped)" : "Chest";
+            displayItems.emplace_back(label, equipment.chest);
+        }
+
+        if (candidates.empty())
+        {
+            ConsoleView::ShowNoItemsToDrop();
+            return;
+        }
+
+        ConsoleView::ShowDropList(displayItems);
+        const int choice = ReadInt("Drop which item?: ");
+
+        if (choice == 0)
+        {
+            return;
+        }
+
+        if (choice < 0 || choice > static_cast<int>(candidates.size()))
+        {
+            ConsoleView::ShowInvalidChoice();
+            continue;
+        }
+
+        const DropCandidate& selected = candidates[static_cast<size_t>(choice - 1)];
+        bool dropped = false;
+
+        switch (selected.type)
+        {
+        case DropCandidate::Type::Inventory:
+        {
+            const size_t itemIndex = selected.index;
+            if (itemIndex >= inventory.items.size())
+            {
+                ConsoleView::ShowInvalidChoice();
+                break;
+            }
+
+            ItemInstance droppedItem = inventory.items[itemIndex];
+            droppedItem.equipped = false;
+            myCurrentRoom->AddFloorItem(droppedItem);
+            const ItemSpec& spec = GetItemSpec(droppedItem.id);
+            ConsoleView::ShowDropResult(spec, droppedItem.count);
+            inventory.items.erase(inventory.items.begin() + static_cast<long long>(itemIndex));
+            dropped = true;
+            break;
+        }
+        case DropCandidate::Type::Equipment:
+        {
+            ItemInstance* slotItem = nullptr;
+            bool* hasFlag = nullptr;
+
+            if (selected.slot == EquipmentSlot::MainHand && equipment.hasMainHand)
+            {
+                slotItem = &equipment.mainHand;
+                hasFlag = &equipment.hasMainHand;
+            }
+            else if (selected.slot == EquipmentSlot::Chest && equipment.hasChest)
+            {
+                slotItem = &equipment.chest;
+                hasFlag = &equipment.hasChest;
+            }
+
+            if (slotItem == nullptr || hasFlag == nullptr)
+            {
+                ConsoleView::ShowInvalidChoice();
+                break;
+            }
+
+            ItemInstance droppedItem = *slotItem;
+            droppedItem.equipped = false;
+            myCurrentRoom->AddFloorItem(droppedItem);
+            const ItemSpec& spec = GetItemSpec(droppedItem.id);
+            ConsoleView::ShowDropResult(spec, droppedItem.count);
+            *slotItem = ItemInstance{};
+            *hasFlag = false;
+            dropped = true;
+            break;
+        }
+        }
+
+        if (dropped)
+        {
+            myPlayer.RecalculateDerivedStats();
+        }
+    }
+}
+
+bool InteractionController::AreAllRoomsCleared() const
+{
+    for (const Room& room : myRooms)
+    {
+        if (room.HasEnemies())
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void InteractionController::PickUpItems()
@@ -256,80 +511,6 @@ void InteractionController::PickUpItems()
             myPlayer.AddActiveEnchantment({ item.id, spec.durationTurns });
             ConsoleView::ShowActivationMessage(spec);
             pickedUp = true;
-        }
-        else if (spec.hasSlot)
-        {
-            auto equipItem = [&](EquipmentSlot slot, const ItemSpec& equipSpec, ItemInstance equipInstance) -> bool
-            {
-                EquipmentState& equipment = myPlayer.Equipment();
-                ItemInstance* slotItem = nullptr;
-                bool* hasFlag = nullptr;
-                const char* slotLabel = "";
-                const float newItemWeight = myPlayer.ComputeItemWeight(equipInstance);
-
-                switch (slot)
-                {
-                case EquipmentSlot::MainHand:
-                    slotItem = &equipment.mainHand;
-                    hasFlag = &equipment.hasMainHand;
-                    slotLabel = "main hand";
-                    break;
-                case EquipmentSlot::Chest:
-                    slotItem = &equipment.chest;
-                    hasFlag = &equipment.hasChest;
-                    slotLabel = "chest";
-                    break;
-                default:
-                    ConsoleView::ShowCannotEquipMessage();
-                    return false;
-                }
-
-                if (!(*hasFlag))
-                {
-                    if (!myPlayer.CanCarryAdditionalWeight(newItemWeight))
-                    {
-                        ConsoleView::ShowCapacityExceededMessage(equipSpec, myPlayer.GetRemainingCarryWeight());
-                        return false;
-                    }
-                    equipInstance.equipped = true;
-                    *slotItem = equipInstance;
-                    *hasFlag = true;
-                    ConsoleView::ShowEquipmentResult(equipSpec, slotLabel, true);
-                    myPlayer.RecalculateDerivedStats();
-                    return true;
-                }
-
-                const ItemSpec& currentSpec = GetItemSpec(slotItem->id);
-                const float currentItemWeight = myPlayer.ComputeItemWeight(*slotItem);
-                if (!myPlayer.CanCarryAdditionalWeight(newItemWeight - currentItemWeight))
-                {
-                    ConsoleView::ShowCapacityExceededMessage(equipSpec, myPlayer.GetRemainingCarryWeight());
-                    return false;
-                }
-                ConsoleView::ShowEquipmentPrompt(currentSpec, equipSpec, slotLabel);
-                char answer = 'n';
-                std::cin >> answer;
-                std::cin.ignore(1000000, '\n');
-
-                if (answer == 'y' || answer == 'Y')
-                {
-                    ItemInstance dropped = *slotItem;
-                    dropped.equipped = false;
-                    myCurrentRoom->AddFloorItem(dropped);
-
-                    equipInstance.equipped = true;
-                    *slotItem = equipInstance;
-                    *hasFlag = true;
-                    ConsoleView::ShowEquipmentResult(equipSpec, slotLabel, true);
-                    myPlayer.RecalculateDerivedStats();
-                    return true;
-                }
-
-                ConsoleView::ShowEquipmentResult(equipSpec, slotLabel, false);
-                return false;
-            };
-
-            pickedUp = equipItem(spec.slot, spec, item);
         }
         else
         {
@@ -487,6 +668,12 @@ bool InteractionController::StartCombat()
     case CombatComponent::Result::ResultPlayerWon:
         ConsoleView::ShowCombatVictory();
         myCurrentRoom->SetRoomCleared(true);
+        if (AreAllRoomsCleared())
+        {
+            ConsoleView::ShowAllEnemiesCleared();
+            ConsoleView::Pause();
+            return false;
+        }
         return true;
     case CombatComponent::Result::ResultPlayerLost:
         ConsoleView::ShowCombatDefeat();

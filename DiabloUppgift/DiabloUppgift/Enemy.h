@@ -13,7 +13,9 @@ public:
         int probability;
     };
 
+    Enemy() = delete;
     Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique);
+    ~Enemy();
     const std::string& GetName() const;
     int GetStrength() const;
     int GetDexterity() const;

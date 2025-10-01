@@ -19,6 +19,8 @@ Door::Door(Room* aRoomA,
 {
 }
 
+Door::~Door() = default;
+
 Room* Door::GetOtherRoom(Room* aFromRoom) const
 {
     if (aFromRoom == myRoomA)

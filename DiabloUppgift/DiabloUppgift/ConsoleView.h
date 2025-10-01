@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 #include <string>
 
 #include "Player.h"
@@ -17,13 +18,16 @@ namespace ConsoleView
     void ShowSafeRoomMenu(const Room& aRoom, const Player& aPlayer, const std::vector<std::pair<int, std::string>>& someOptions);
     void ShowCombatLayout(const Room& aRoom, const Player& aPlayer, const std::vector<Enemy>& someEnemies, const std::vector<std::pair<int, std::string>>& someOptions);
     void ShowInventory(const Player& aPlayer);
+    void ShowDropList(const std::vector<std::pair<std::string, ItemInstance>>& someItems);
     void ShowPickupList(const std::vector<ItemInstance>& someItems);
     void ShowPickupResult(const std::string& anItemName, int aCount, bool aSuccess);
+    void ShowDropResult(const ItemSpec& aSpec, int aCount);
     void ShowActivationMessage(const ItemSpec& aSpec);
     void ShowEquipmentPrompt(const ItemSpec& currentSpec, const ItemSpec& newSpec, const char* aSlotLabel);
     void ShowEquipmentResult(const ItemSpec& aSpec, const char* aSlotLabel, bool aEquipped);
     void ShowInvalidChoice();
     void ShowNoItemsMessage();
+    void ShowNoItemsToDrop();
     void ShowCannotEquipMessage();
     void ShowDoorList(const std::vector<Door*>& someDoors, const Room* aCurrentRoom);
     void ShowNoExits();
@@ -38,8 +42,8 @@ namespace ConsoleView
     void ShowNoClosedChests();
     void ShowEnemies(const std::vector<Enemy>& someEnemies);
     void ShowPlayerStats(const Player& aPlayer);
-    void ShowCombatMenu();
     void ShowNoEnemiesToAttack();
+    void ShowAllEnemiesCleared();
     void ShowCombatVictory();
     void ShowCombatDefeat();
     void Pause();

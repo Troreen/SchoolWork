@@ -3,7 +3,9 @@
 class DamagableComponent
 {
 public:
+    DamagableComponent() = delete;
     DamagableComponent(int aMaxHealth, int aDefense);
+    ~DamagableComponent();
     void TakeDamage(int anIncomingDamage);
     void Heal(int anAmount);
     void SetMaxHealth(int aMaxHealth);

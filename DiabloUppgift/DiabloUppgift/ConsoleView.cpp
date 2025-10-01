@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "InventoryTypes.h"
 
@@ -317,7 +318,23 @@ void ConsoleView::ShowInventory(const Player& aPlayer)
         std::cout << "\nActive enchantments: " << aPlayer.GetActiveEnchantmentsSummary() << "\n";
     }
 
-    std::cout << "\nPress enter to continue...";
+    std::cout << "\n0 - Back\n";
+    std::cout << "Enter an item number to equip, or 0 to return.\n";
+}
+
+void ConsoleView::ShowDropList(const std::vector<std::pair<std::string, ItemInstance>>& someItems)
+{
+    std::cout << "\nItems you can drop:\n";
+    for (size_t index = 0; index < someItems.size(); ++index)
+    {
+        const auto& entry = someItems[index];
+        const ItemSpec& spec = GetItemSpec(entry.second.id);
+        std::cout << index + 1 << " - " << entry.first << ": " << FormatItemStack(entry.second)
+                  << " (ATK +" << spec.attackBonus
+                  << ", DEF +" << spec.defenseBonus
+                  << ", WEIGHT " << spec.weight << ")\n";
+    }
+    std::cout << "0 - Cancel\n";
 }
 
 void ConsoleView::ShowPickupList(const std::vector<ItemInstance>& someItems)
@@ -348,6 +365,21 @@ void ConsoleView::ShowPickupResult(const std::string& anItemName, int aCount, bo
     {
         std::cout << "You leave the " << anItemName << ".\n";
     }
+}
+
+void ConsoleView::ShowDropResult(const ItemSpec& aSpec, int aCount)
+{
+    std::cout << "You drop the " << aSpec.name;
+    if (aCount > 1)
+    {
+        std::cout << " x" << aCount;
+    }
+    std::cout << ".\n";
+}
+
+void ConsoleView::ShowNoItemsToDrop()
+{
+    std::cout << "You have nothing to drop.\n";
 }
 
 void ConsoleView::ShowActivationMessage(const ItemSpec& aSpec)
@@ -547,6 +579,11 @@ void ConsoleView::ShowPlayerStats(const Player& aPlayer)
 void ConsoleView::ShowNoEnemiesToAttack()
 {
     std::cout << "There are no enemies to attack.\n";
+}
+
+void ConsoleView::ShowAllEnemiesCleared()
+{
+    std::cout << "All enemies have been defeated!\n";
 }
 
 void ConsoleView::ShowCombatVictory()

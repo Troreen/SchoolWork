@@ -47,6 +47,8 @@ Player::Player(const std::string& aName, int aStrength, int aDexterity, int aPhy
     RecalculateDerivedStats();
 }
 
+Player::~Player() = default;
+
 const std::string& Player::GetName() const
 {
     return myName;

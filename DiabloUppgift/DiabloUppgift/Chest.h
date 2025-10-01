@@ -9,6 +9,7 @@ class Chest
 public:
     Chest();
     Chest(const std::string& aName, const std::string& aDescription);
+    ~Chest();
 
     const std::string& GetName() const;
     const std::string& GetDescription() const;

@@ -13,6 +13,8 @@ Room::Room(const std::string& aName)
 {
 }
 
+Room::~Room() = default;
+
 std::vector<Enemy>& Room::Enemies()
 {
     return myEnemies;
