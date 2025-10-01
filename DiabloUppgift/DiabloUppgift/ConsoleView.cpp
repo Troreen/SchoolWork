@@ -117,7 +117,7 @@ namespace
 
 void ConsoleView::ClearScreen()
 {
-    std::cout << "\x1B[2J\x1B[H";
+    system("cls");
 }
 
 void ConsoleView::ShowRoomOverview(const Room& aRoom, const Player& aPlayer)
@@ -130,7 +130,7 @@ void ConsoleView::ShowRoomOverview(const Room& aRoom, const Player& aPlayer)
         std::cout << "Enemies present:\n";
         for (const auto& enemy : aRoom.Enemies())
         {
-            std::cout << "- " << enemy.GetName() << "\n";
+            std::cout << " - " << enemy.GetName() << "\n";
         }
     }
     else
@@ -145,7 +145,7 @@ void ConsoleView::ShowRoomOverview(const Room& aRoom, const Player& aPlayer)
             std::cout << "Available exits:\n";
             for (const auto* door : doorsInRoom)
             {
-                std::cout << "- " << DirectionToString(door->GetDirectionFromRoom(&aRoom));
+                std::cout << " - " << DirectionToString(door->GetDirectionFromRoom(&aRoom));
                 if (door->IsLocked())
                 {
                     std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
@@ -188,7 +188,7 @@ void ConsoleView::ShowRoomInspection(const Room& aRoom)
         std::cout << "Enemies present:\n";
         for (const auto& enemy : aRoom.Enemies())
         {
-            std::cout << "- " << enemy.GetName() << "\n";
+            std::cout << " - " << enemy.GetName() << "\n";
         }
     }
     else
@@ -219,6 +219,8 @@ void ConsoleView::ShowRoomInspection(const Room& aRoom)
             std::cout << "The room is cleared.\n";
         }
     }
+
+	Pause();
 }
 
 void ConsoleView::ShowSafeRoomMenu(const Room& aRoom, const Player& aPlayer, const std::vector<std::pair<int, std::string>>& someOptions)
@@ -256,12 +258,13 @@ void ConsoleView::ShowSafeRoomMenu(const Room& aRoom, const Player& aPlayer, con
     std::cout << "\n== Actions ==\n";
     for (const auto& option : someOptions)
     {
-        std::cout << option.first << ") " << option.second << "\n";
+        std::cout << option.first << " - " << option.second << "\n";
     }
 }
 
-void ConsoleView::ShowCombatLayout(const Player& aPlayer, const std::vector<Enemy>& someEnemies, const std::vector<std::pair<int, std::string>>& someOptions)
+void ConsoleView::ShowCombatLayout(const Room& aRoom, const Player& aPlayer, const std::vector<Enemy>& someEnemies, const std::vector<std::pair<int, std::string>>& someOptions)
 {
+    std::cout << aRoom.GetName();
     std::cout << "\n== Combat ==\n";
     if (someEnemies.empty())
     {
@@ -269,10 +272,7 @@ void ConsoleView::ShowCombatLayout(const Player& aPlayer, const std::vector<Enem
     }
     else
     {
-        for (const Enemy& enemy : someEnemies)
-        {
-            std::cout << "- " << enemy.GetName() << " (HP " << enemy.GetHealth() << "/" << enemy.GetMaxHealth() << ")\n";
-        }
+		ShowEnemies(someEnemies);
     }
 
     std::cout << "\n== You ==\n";
@@ -282,7 +282,7 @@ void ConsoleView::ShowCombatLayout(const Player& aPlayer, const std::vector<Enem
     std::cout << "\n== Actions ==\n";
     for (const auto& option : someOptions)
     {
-        std::cout << option.first << ") " << option.second << "\n";
+        std::cout << option.first << " - " << option.second << "\n";
     }
 }
 
@@ -305,7 +305,7 @@ void ConsoleView::ShowInventory(const Player& aPlayer)
     {
         for (size_t index = 0; index < inventory.items.size(); ++index)
         {
-            std::cout << index + 1 << ". " << FormatItemStack(inventory.items[index]) << "\n";
+            std::cout << index + 1 << " - " << FormatItemStack(inventory.items[index]) << "\n";
         }
     }
 
@@ -322,12 +322,15 @@ void ConsoleView::ShowInventory(const Player& aPlayer)
 
 void ConsoleView::ShowPickupList(const std::vector<ItemInstance>& someItems)
 {
+
     std::cout << "\nItems on the floor:\n";
+
     for (size_t index = 0; index < someItems.size(); ++index)
     {
-        std::cout << index + 1 << ". " << FormatItemStack(someItems[index]) << "\n";
+        const ItemSpec& spec = GetItemSpec(someItems[index].id);
+        std::cout << index + 1 << " - " << FormatItemStack(someItems[index]) << " (ATK +" << spec.attackBonus << ", DEF +" << spec.defenseBonus << ", WEIGHT " << spec.weight << ")\n";
     }
-    std::cout << "0. Cancel\n";
+    std::cout << "0 - Cancel\n";
 }
 
 void ConsoleView::ShowPickupResult(const std::string& anItemName, int aCount, bool aSuccess)
@@ -350,9 +353,9 @@ void ConsoleView::ShowPickupResult(const std::string& anItemName, int aCount, bo
 void ConsoleView::ShowActivationMessage(const ItemSpec& aSpec)
 {
     std::cout << "You feel the " << aSpec.name << " surge through you.";
-    if (aSpec.actionsDuration > 0)
+    if (aSpec.durationTurns > 0)
     {
-        std::cout << " It will persist for " << aSpec.actionsDuration << " actions.";
+        std::cout << " It will persist for " << aSpec.durationTurns << " turns.";
     }
     std::cout << "\n";
 }
@@ -378,6 +381,7 @@ void ConsoleView::ShowEquipmentResult(const ItemSpec& aSpec, const char* aSlotLa
 void ConsoleView::ShowInvalidChoice()
 {
     std::cout << "Invalid choice.\n";
+	Pause();
 }
 
 void ConsoleView::ShowNoItemsMessage()
@@ -396,7 +400,7 @@ void ConsoleView::ShowDoorList(const std::vector<Door*>& someDoors, const Room* 
     for (size_t index = 0; index < someDoors.size(); ++index)
     {
         const Door* door = someDoors[index];
-        std::cout << index + 1 << ". " << DirectionToString(door->GetDirectionFromRoom(aCurrentRoom));
+        std::cout << index + 1 << " - " << DirectionToString(door->GetDirectionFromRoom(aCurrentRoom));
         if (door->IsLocked())
         {
             std::cout << " (locked) [DEX to unlock: " << door->GetDexterityToUnlock() << ", STR to break: " << door->GetStrengthToBreak() << "]";
@@ -425,6 +429,7 @@ void ConsoleView::ShowDoorUnlockResult(bool aSuccess)
     {
         std::cout << "You failed to pick the lock.\n";
     }
+	Pause();
 }
 
 void ConsoleView::ShowDoorBreakResult(bool aSuccess)
@@ -437,11 +442,15 @@ void ConsoleView::ShowDoorBreakResult(bool aSuccess)
     {
         std::cout << "You failed to break down the door.\n";
     }
+    Pause();
+
 }
 
 void ConsoleView::ShowDoorSkipMessage()
 {
     std::cout << "You decided not to attempt to open the door.\n";
+    Pause();
+
 }
 
 void ConsoleView::ShowCapacityExceededMessage(const ItemSpec& aSpec, float remainingWeight)
@@ -485,9 +494,9 @@ void ConsoleView::ShowChestList(const std::vector<const Chest*>& someChests)
     for (size_t index = 0; index < someChests.size(); ++index)
     {
         const Chest* chest = someChests[index];
-        std::cout << index + 1 << ". " << chest->GetName() << "\n";
+        std::cout << index + 1 << " - " << chest->GetName() << "\n";
     }
-    std::cout << "0. Cancel\n";
+    std::cout << "0 - Cancel\n";
 }
 
 void ConsoleView::ShowChestOpenResult(const Chest& aChest, const std::vector<ItemInstance>& someItems)
@@ -502,7 +511,7 @@ void ConsoleView::ShowChestOpenResult(const Chest& aChest, const std::vector<Ite
     std::cout << " Inside you find:\n";
     for (const ItemInstance& item : someItems)
     {
-        std::cout << "- " << FormatItemStack(item) << "\n";
+        std::cout << " - " << FormatItemStack(item) << "\n";
     }
 }
 
@@ -518,11 +527,10 @@ void ConsoleView::ShowEnemies(const std::vector<Enemy>& someEnemies)
         return;
     }
 
-    std::cout << "\nEnemies in the room:\n";
     for (size_t index = 0; index < someEnemies.size(); ++index)
     {
         const Enemy& enemy = someEnemies[index];
-        std::cout << index + 1 << ". " << enemy.PrintStats();
+        std::cout << index + 1 << " - " << enemy.PrintStats();
         std::cout << " | HP: " << enemy.GetDamagable().GetHealth() << "/" << enemy.GetDamagable().GetMaxHealth() << "\n";
     }
 }
@@ -534,14 +542,6 @@ void ConsoleView::ShowPlayerStats(const Player& aPlayer)
     {
         std::cout << "Active enchantments: " << aPlayer.GetActiveEnchantmentsSummary() << "\n";
     }
-}
-
-void ConsoleView::ShowCombatMenu()
-{
-    std::cout << "\nChoose your action:\n"
-              << "1. Attack\n"
-              << "2. Defend\n"
-              << "3. Use item\n";
 }
 
 void ConsoleView::ShowNoEnemiesToAttack()

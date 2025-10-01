@@ -244,17 +244,17 @@ const std::vector<ActiveEnchantment>& Player::ActiveEnchantments() const
 void Player::AddActiveEnchantment(const ActiveEnchantment& anEnchantment)
 {
     const ItemSpec& spec = GetItemSpec(anEnchantment.id);
-    int duration = anEnchantment.remainingActions > 0 ? anEnchantment.remainingActions : spec.actionsDuration;
+    int duration = anEnchantment.durationTurns > 0 ? anEnchantment.durationTurns : spec.durationTurns;
     if (duration <= 0)
     {
-        duration = spec.actionsDuration;
+        duration = spec.durationTurns;
     }
 
     for (auto& active : myActiveEnchantments)
     {
         if (active.id == anEnchantment.id)
         {
-            active.remainingActions = MaxInt(active.remainingActions, duration);
+            active.durationTurns = MaxInt(active.durationTurns, duration);
             RecalculateDerivedStats();
             return;
         }
@@ -281,13 +281,64 @@ std::string Player::GetActiveEnchantmentsSummary() const
         }
 
         summary += spec.name;
-        if (enchantment.remainingActions > 0)
+        if (enchantment.durationTurns > 0)
         {
-            summary += " (" + std::to_string(enchantment.remainingActions) + " actions left)";
+            summary += " (" + std::to_string(enchantment.durationTurns) + " turns left)";
         }
     }
 
     return summary;
+}
+
+void Player::AdvanceActiveEnchantments()
+{
+    bool durationsChanged = false;
+
+    for (auto& enchantment : myActiveEnchantments)
+    {
+        if (enchantment.durationTurns > 0)
+        {
+            enchantment.durationTurns -= 1;
+            durationsChanged = true;
+        }
+    }
+
+    size_t writeIndex = 0;
+    for (size_t readIndex = 0; readIndex < myActiveEnchantments.size(); ++readIndex)
+    {
+        const ActiveEnchantment& enchantment = myActiveEnchantments[readIndex];
+        bool shouldRemove = false;
+
+        if (enchantment.durationTurns <= 0)
+        {
+            const ItemSpec& spec = GetItemSpec(enchantment.id);
+            if (spec.durationTurns > 0)
+            {
+                shouldRemove = true;
+            }
+        }
+
+        if (!shouldRemove)
+        {
+            if (writeIndex != readIndex)
+            {
+                myActiveEnchantments[writeIndex] = enchantment;
+            }
+
+            ++writeIndex;
+        }
+    }
+
+    const bool removedAny = writeIndex != myActiveEnchantments.size();
+    if (removedAny)
+    {
+        myActiveEnchantments.resize(writeIndex);
+    }
+
+    if (durationsChanged || removedAny)
+    {
+        RecalculateDerivedStats();
+    }
 }
 
 void Player::RecalculateDerivedStats()
@@ -482,3 +533,4 @@ std::string Player::PrintStats() const
     stats += "HP: " + std::to_string(GetHealth()) + "/" + std::to_string(GetMaxHealth()) + "\n";
     return stats;
 }
+

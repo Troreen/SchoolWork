@@ -48,7 +48,7 @@ struct ItemSpec
 
     int healAmount;
 
-    int actionsDuration;
+    int durationTurns;
 };
 
 extern const ItemSpec gItemSpecs[];
@@ -61,7 +61,7 @@ struct ItemInstance
     ItemId id;
     int count = 1;
     int durability = 0;
-    int remainingActions = 0;
+    int durationTurns = 0;
     bool equipped = false;
 };
 
@@ -83,5 +83,5 @@ struct EquipmentState
 struct ActiveEnchantment
 {
     ItemId id;
-    int remainingActions = 0;
+    int durationTurns = 0;
 };

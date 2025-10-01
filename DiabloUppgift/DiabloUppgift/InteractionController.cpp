@@ -35,7 +35,7 @@ InteractionController::Command InteractionController::GetCommandWhenEnemies() co
         displayOptions.emplace_back(1, "Fight enemies");
         displayOptions.emplace_back(0, "Exit game");
 
-        ConsoleView::ShowCombatLayout(myPlayer, myCurrentRoom->Enemies(), displayOptions);
+        ConsoleView::ShowCombatLayout(*myCurrentRoom, myPlayer, myCurrentRoom->Enemies(), displayOptions);
 
         const int choice = ReadInt("Choice: ");
 
@@ -253,7 +253,7 @@ void InteractionController::PickUpItems()
 
         if (spec.type == ItemType::Enchantment)
         {
-            myPlayer.AddActiveEnchantment({ item.id, spec.actionsDuration });
+            myPlayer.AddActiveEnchantment({ item.id, spec.durationTurns });
             ConsoleView::ShowActivationMessage(spec);
             pickedUp = true;
         }
@@ -419,10 +419,9 @@ bool InteractionController::StartCombat()
         std::vector<std::pair<int, std::string>> combatOptions = {
             {1, "Attack"},
             {2, "Defend"},
-            {3, "Use item"},
-            {0, "Attempt escape"}
+            {3, "Use item"}
         };
-        ConsoleView::ShowCombatLayout(myPlayer, enemies, combatOptions);
+        ConsoleView::ShowCombatLayout(*myCurrentRoom, myPlayer, enemies, combatOptions);
 
         const int actionInput = ReadInt("Choice: ");
 
@@ -472,6 +471,8 @@ bool InteractionController::StartCombat()
         {
             continue;
         }
+
+        myPlayer.AdvanceActiveEnchantments();
 
         if (combat.GetResult() != CombatComponent::Result::ResultOngoing)
         {

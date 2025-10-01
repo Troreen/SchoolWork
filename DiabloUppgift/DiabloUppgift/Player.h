@@ -29,6 +29,7 @@ public:
     const std::vector<ActiveEnchantment>& ActiveEnchantments() const;
     void AddActiveEnchantment(const ActiveEnchantment& anEnchantment);
     std::string GetActiveEnchantmentsSummary() const;
+    void AdvanceActiveEnchantments();
     void RecalculateDerivedStats();
     float GetCarryWeight() const;
     float GetRemainingCarryWeight() const;

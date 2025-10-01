@@ -15,7 +15,7 @@ namespace ConsoleView
     void ShowRoomOverview(const Room& aRoom, const Player& aPlayer);
     void ShowRoomInspection(const Room& aRoom);
     void ShowSafeRoomMenu(const Room& aRoom, const Player& aPlayer, const std::vector<std::pair<int, std::string>>& someOptions);
-    void ShowCombatLayout(const Player& aPlayer, const std::vector<Enemy>& someEnemies, const std::vector<std::pair<int, std::string>>& someOptions);
+    void ShowCombatLayout(const Room& aRoom, const Player& aPlayer, const std::vector<Enemy>& someEnemies, const std::vector<std::pair<int, std::string>>& someOptions);
     void ShowInventory(const Player& aPlayer);
     void ShowPickupList(const std::vector<ItemInstance>& someItems);
     void ShowPickupResult(const std::string& anItemName, int aCount, bool aSuccess);
