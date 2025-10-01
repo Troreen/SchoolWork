@@ -34,17 +34,19 @@ namespace CasinoHelpers
         Exit = 0
     };
 
-    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory);
+    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName);
     void HandlePlayerMoney(int& somePlayerMoney, int& aPlayerBet, int aMoney);
-    void Bet(int& somePlayerMoney, int& aPlayerBet);
-    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory);
-    bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot, int someWinningsRoulette);
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& playerName, int aMinBet = 1, int aMaxBet = -1);
+    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName);
+    bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot, int someWinningsRoulette, const std::string& playerName);
     void UpdatePlayerStatHistory(std::array<signed int, 5>& aStatHistory, int anAmount);
     int GetInput(int aMinNum, int aMaxNum, const char* aPrompt, const char* aFailPrompt);
     int RollDie(std::mt19937& aGenerator);
-    void ShowMenu();
-    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory);
+    void ShowMenu(const std::string& playerName);
+    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory, const std::string& playerName);
+    void ShowInstructions(GameState aState, const std::string& playerName);
     void ShowInstructions(GameState aState);
     const char* GetLossTaunt(int aStreak);
     const char* GetWinTaunt(int aWinCounter);
 }
+

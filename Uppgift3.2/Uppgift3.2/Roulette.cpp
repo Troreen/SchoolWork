@@ -1,26 +1,28 @@
-#include "CasinoHelpers.h"
 #include "Roulette.h"
 #include <iostream>
-#include <random>
-#include <array>
+#include <Windows.h>
+
 using namespace CasinoHelpers;
 
-namespace Roulette
+namespace
 {
-    static const int rouletteLayout[37] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 };
+    const int rouletteLayout[37] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 };
 
-    void PrintRouletteCellWithColour(std::string aString, HANDLE aConsoleHandle, WORD someDefaultTextAttributes, std::string aColour)
+    void PrintRouletteCellWithColour(const std::string& cellText,
+                                     HANDLE consoleHandle,
+                                     WORD defaultTextAttributes,
+                                     const std::string& colour)
     {
         WORD chosenAttributes;
-        if (aColour == "green")
+        if (colour == "green")
         {
             chosenAttributes = BACKGROUND_GREEN;
         }
-        else if (aColour == "red")
+        else if (colour == "red")
         {
             chosenAttributes = BACKGROUND_RED;
         }
-        else if (aColour == "black")
+        else if (colour == "black")
         {
             chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
         }
@@ -28,14 +30,13 @@ namespace Roulette
         {
             chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
         }
-        SetConsoleTextAttribute(aConsoleHandle, chosenAttributes);
-        std::cout << aString;
-        SetConsoleTextAttribute(aConsoleHandle, someDefaultTextAttributes);
+        SetConsoleTextAttribute(consoleHandle, chosenAttributes);
+        std::cout << cellText;
+        SetConsoleTextAttribute(consoleHandle, defaultTextAttributes);
     }
 
     void DisplayRouletteBoard()
     {
-        system("cls");
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO screenInfo{};
         WORD defaultTextAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
@@ -43,281 +44,220 @@ namespace Roulette
         {
             defaultTextAttributes = screenInfo.wAttributes;
         }
-
-        for (int i = 0; i < 37; i++)
+        for (int index = 0; index < 37; ++index)
         {
-            std::string cellToPrint = "";
-            if (i == 0)
+            std::string cellText;
+            if (index == 0)
             {
-                cellToPrint = "[         " + std::to_string(rouletteLayout[i]) + "        ]\n";
+                cellText = "[         " + std::to_string(rouletteLayout[index]) + "        ]\n";
             }
-            else if (i % 3 == 0)
+            else if (index % 3 == 0)
             {
-                if (i <= 9)
+                if (index <= 9)
                 {
-                    cellToPrint = "[  " + std::to_string(rouletteLayout[i]) + " ]\n";
+                    cellText = "[  " + std::to_string(rouletteLayout[index]) + " ]\n";
                 }
                 else
                 {
-                    cellToPrint = "[ " + std::to_string(rouletteLayout[i]) + " ]\n";
-
+                    cellText = "[ " + std::to_string(rouletteLayout[index]) + " ]\n";
                 }
             }
-            else if (i < 9)
+            else if (index < 9)
             {
-                cellToPrint = "[  " + std::to_string(rouletteLayout[i]) + "  ]";
-
-
+                cellText = "[  " + std::to_string(rouletteLayout[index]) + "  ]";
             }
             else
             {
-                cellToPrint = "[ " + std::to_string(rouletteLayout[i]) + "  ]";
+                cellText = "[ " + std::to_string(rouletteLayout[index]) + "  ]";
             }
-            std::string cellColour = "";
 
-            if (i == 0)
+            std::string cellColour;
+            if (index == 0)
             {
                 cellColour = "green";
             }
-            else if (i < 11 || (i > 18 && i < 29))
+            else if (index < 11 || (index > 18 && index < 29))
             {
-                if (i % 2 == 0)
-                {
-                    cellColour = "black";
-                }
-                else
-                {
-                    cellColour = "red";
-                }
+                cellColour = (index % 2 == 0) ? "black" : "red";
             }
-            else if (i > 10 && i < 19 || i >28)
+            else if ((index > 10 && index < 19) || index > 28)
             {
-                if (i % 2 == 0)
-                {
-                    cellColour = "red";
-                }
-                else
-                {
-                    cellColour = "black";
-                }
-            }
-            PrintRouletteCellWithColour(cellToPrint, consoleHandle, defaultTextAttributes, cellColour);
-        }
-    }
-
-    GameState Roulette(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsOddOrEven, std::array<signed int, 5>& aStatHistory)
-    {
-        BetType currentBetType = BetType::None;
-        int seeInstructions = GetInput(
-            CHOICE_NO, CHOICE_YES,
-            "Do you want instructions? (0: No, 1: Yes)",
-            "Don't test me, choose 0 for No or 1 for Yes"
-        );
-        if (seeInstructions)
-        {
-            ShowInstructions(GameState::Roulette);
-        }
-        int acceptRules = GetInput(
-            CHOICE_NO, CHOICE_YES,
-            "Do you still want to play knowing the stakes? (0: No, 1: Yes)",
-            "Give me a real answer. 0 for No, 1 for Yes."
-        );
-        if (!acceptRules)
-        {
-            return GameState::Menu;
-        }
-        int playAgain = PLAY_AGAIN_YES;
-        int lossStreak = 0;
-        int winCounter = 0;
-        bool win = false;
-        while (playAgain)
-        {
-            if (somePlayerMoney <= 0)
-            {
-                return HandleBankruptcy(somePlayerMoney, aStatHistory);
-            }
-            if (RecognizePlayer(GameState::Roulette, 0, 0, 0, 0, 0))
-            {
-                return GameState::Menu;
-            }
-            DrawHUD(somePlayerMoney, aStatHistory);
-            Bet(somePlayerMoney, aPlayerBet);
-            DisplayRouletteBoard();
-
-            int betTypeChoice = GetInput(
-                1, 6,
-                ("What type of bet do you want to place?\n1. Straight up \n2. Split \n3. Corner \n4. Red / Black \n5. Odd / Even \n6. Column\n\n"),
-                "invalid input."
-            );
-
-            std::uniform_int_distribution<int> rouletteDist(0, 36);
-            int rouletteResult = rouletteDist(aGenerator);
-
-
-            DisplayRouletteBoard();
-            switch (betTypeChoice)
-            {
-            case 1:
-                currentBetType = BetType::Straight;
-                {
-                    int straightGuess = GetInput(
-                        0, 36,
-                        ("Which number do you want to bet on?"),
-                        "invalid input."
-                    );
-                    win = (straightGuess == rouletteResult);
-                }
-                break;
-            case 2:
-                currentBetType = BetType::Split;
-                {
-                    int splitBet1 = GetInput(
-                        0, 36,
-                        ("What is the first number you want to bet on?"),
-                        "invalid input."
-                    );
-
-                    int splitBet2;
-                    bool valid = false;
-                    while (!valid)
-                    {
-                        splitBet2 = GetInput(
-                            0, 36,
-                            ("What is the second number you want to bet on? (must be adjacent to the first number)"),
-                            "invalid input."
-                        );
-
-                            if (splitBet2 == splitBet1 - 1 || splitBet2 == splitBet1 + 1 ||
-                            splitBet2 == splitBet1 - 3 || splitBet2 == splitBet1 + 3)
-                        {
-                            valid = true;
-                            if (splitBet1 % 3 == 1 && splitBet2 == splitBet1 - 1)
-                            {
-                                valid = false;
-                            }
-                            else if (splitBet1 % 3 == 0 && splitBet2 == splitBet1 + 1)
-                            {
-                                valid = false;
-                            }
-                        }
-                        std::cout << "Invalid choice. The second number must be adjacent to the first number.\n";
-                    }
-
-                    win = (splitBet1 == rouletteResult || splitBet2 == rouletteResult);
-                }
-                break;
-            case 3:
-                currentBetType = BetType::Corner;
-                {
-                    int cornerStart;
-                    while (true)
-                    {
-                        cornerStart = GetInput(
-                            1, 32,
-                            ("Enter the top-left number of the corner (1-32, excluding the rightmost column):"),
-                            "invalid input."
-                        );
-
-                        if (cornerStart % 3 != 0)
-                        {
-                            break;
-                        }
-                        std::cout << "Invalid choice. The top-left number cannot be in the rightmost column.\n";
-                    }
-
-                    win = (rouletteResult == cornerStart || rouletteResult == cornerStart + 1 ||
-                        rouletteResult == cornerStart + 3 || rouletteResult == cornerStart + 4);
-                }
-                break;
-            case 4:
-                currentBetType = BetType::RedOrBlack;
-                {
-                    int colorChoice = GetInput(
-                        0, 1,
-                        ("Bet on color (0: Black, 1: Red):"),
-                        "invalid input."
-                    );
-                    bool isRed = (rouletteResult > 0 && ((rouletteResult <= 10 || (rouletteResult >= 19 && rouletteResult <= 28)) ? rouletteResult % 2 != 0 : rouletteResult % 2 == 0));
-                    win = (colorChoice == 1 && isRed) || (colorChoice == 0 && !isRed);
-                }
-                break;
-            case 5:
-                currentBetType = BetType::OddOrEven;
-                {
-                    int oddEvenChoice = GetInput(
-                        0, 1,
-                        ("Bet on (0: Even, 1: Odd):"),
-                        "invalid input."
-                    );
-                    win = (rouletteResult != 0 && ((rouletteResult % 2 == 0 && oddEvenChoice == 0) || (rouletteResult % 2 != 0 && oddEvenChoice == 1)));
-                }
-                break;
-            case 6:
-                currentBetType = BetType::Column;
-                {
-                    int columnChoice = GetInput(
-                        1, 3,
-                        ("Bet on column (1, 2, or 3):"),
-                        "invalid input."
-                    );
-                    win = (rouletteResult != 0 && (rouletteResult - 1) % 3 == (columnChoice - 1));
-                }
-                break;
-            default:
-                currentBetType = BetType::None;
-                win = false;
-                break;
-            }
-
-            DrawHUD(somePlayerMoney, aStatHistory);
-            std::cout << "\nThe roulette spin result is: " << rouletteResult << "\n";
-
-            if (win)
-            {
-                lossStreak = 0;
-                ++winCounter;
-                int payout = aPlayerBet * PAYOUT_MULTIPLIER;
-                HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
-                UpdatePlayerStatHistory(aStatHistory, payout);
-                DrawHUD(somePlayerMoney, aStatHistory);
-                someWinningsOddOrEven += payout;
-                std::cout << "You win\n";
-                std::cout << GetWinTaunt(winCounter);
-                std::cout << "He shoves your stack over: +" << (payout - aPlayerBet) << ".\n";
-            }
-            else if (!win)
-            {
-                winCounter = 0;
-                ++lossStreak;
-                UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
-                DrawHUD(somePlayerMoney, aStatHistory);
-                someWinningsOddOrEven -= aPlayerBet;
-                std::cout << "You lose\n";
-                std::cout << "He pockets your bet like it owed him money: -" << aPlayerBet << ".\n";
-                aPlayerBet = 0;
-                system("pause");
-                if (somePlayerMoney <= 0)
-                {
-                    return HandleBankruptcy(somePlayerMoney, aStatHistory);
-                }
-            }
-
-            playAgain = GetInput(
-                CHOICE_NO, CHOICE_YES,
-                "\nYou sticking around this alley? (0: No, 1: Yes): ",
-                "Eh-eh, it's binary, hotshot - '0' for No or '1' for Yes."
-            );
-            if (playAgain)
-            {
-                DrawHUD(somePlayerMoney, aStatHistory);
-                std::cout << "Grease taps the rail. \"Again.\"\n\n";
+                cellColour = (index % 2 == 0) ? "red" : "black";
             }
             else
             {
-                std::cout << "\nGrease waves you off. \"Keep your shoes clean.\"\n";
+                cellColour = "black";
             }
+
+            PrintRouletteCellWithColour(cellText, consoleHandle, defaultTextAttributes, cellColour);
         }
-        return GameState::Menu;
     }
 }
 
+int RouletteGame::totalWins = 0;
+int RouletteGame::totalLosses = 0;
+
+CasinoHelpers::GameState RouletteGame::play(std::mt19937& generator,
+                                            int& playerMoney,
+                                            int& playerBet,
+                                            std::array<signed int, 5>& statHistory,
+                                            const std::string& playerName)
+{
+    int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES,
+                                   "Would you like to see the instructions? (0: No, 1: Yes)",
+                                   "Please enter 0 for No or 1 for Yes.");
+    if (seeInstructions)
+    {
+        ShowInstructions(GameState::Roulette, playerName);
+    }
+
+    int acceptRules = GetInput(CHOICE_NO, CHOICE_YES,
+                               "Do you want to continue? (0: No, 1: Yes)",
+                               "Please enter 0 for No or 1 for Yes.");
+    if (!acceptRules)
+    {
+        return GameState::Menu;
+    }
+
+    int playAgain = PLAY_AGAIN_YES;
+    int lossStreak = 0;
+    int winCounter = 0;
+    while (playAgain)
+    {
+        if (playerMoney <= 0)
+        {
+            return HandleBankruptcy(playerMoney, statHistory, playerName);
+        }
+
+        if (RecognizePlayer(GameState::Roulette, 0, 0, 0, 0, winnings, playerName))
+        {
+            return GameState::Menu;
+        }
+
+        DrawHUD(playerMoney, statHistory, playerName);
+        Bet(playerMoney, playerBet, playerName);
+        DisplayRouletteBoard();
+
+        std::cout << "Roulette: Choose your bet type.\n";
+        std::cout << "1. Straight up\n2. Split\n3. Corner\n4. Red/Black\n5. Odd/Even\n6. Column\n";
+        int betTypeChoice = GetInput(1, 6,
+                                     "Select bet type (1-6):",
+                                     "Please enter a number between 1 and 6.");
+
+        std::uniform_int_distribution<int> rouletteDist(0, 36);
+        int rouletteResult = rouletteDist(generator);
+        bool win = false;
+
+        switch (betTypeChoice)
+        {
+        case 1:
+        {
+            int straightGuess = GetInput(0, 36,
+                                         "Enter the number you want to bet on (0-36):",
+                                         "Please enter a number between 0 and 36.");
+            win = (straightGuess == rouletteResult);
+            break;
+        }
+        case 2:
+        {
+            int splitBet1 = GetInput(0, 36,
+                                     "Enter the first number (0-36):",
+                                     "Please enter a number between 0 and 36.");
+            int splitBet2 = GetInput(0, 36,
+                                     "Enter the second number (must be adjacent):",
+                                     "Please enter a number between 0 and 36.");
+            win = (splitBet1 == rouletteResult || splitBet2 == rouletteResult);
+            break;
+        }
+        case 3:
+        {
+            int cornerStart = GetInput(1, 32,
+                                       "Enter the top-left number of the corner (1-32):",
+                                       "Please enter a number between 1 and 32.");
+            win = (rouletteResult == cornerStart ||
+                   rouletteResult == cornerStart + 1 ||
+                   rouletteResult == cornerStart + 3 ||
+                   rouletteResult == cornerStart + 4);
+            break;
+        }
+        case 4:
+        {
+            int colourChoice = GetInput(0, 1,
+                                        "Bet on colour (0: Black, 1: Red):",
+                                        "Please enter 0 for Black or 1 for Red.");
+            bool isRed = (rouletteResult > 0 &&
+                          ((rouletteResult <= 10 || (rouletteResult >= 19 && rouletteResult <= 28))
+                               ? rouletteResult % 2 != 0
+                               : rouletteResult % 2 == 0));
+            win = (colourChoice == 1 && isRed) || (colourChoice == 0 && !isRed);
+            break;
+        }
+        case 5:
+        {
+            int oddEvenChoice = GetInput(0, 1,
+                                         "Bet on (0: Even, 1: Odd):",
+                                         "Please enter 0 for Even or 1 for Odd.");
+            win = (rouletteResult != 0 &&
+                   ((rouletteResult % 2 == 0 && oddEvenChoice == 0) ||
+                    (rouletteResult % 2 != 0 && oddEvenChoice == 1)));
+            break;
+        }
+        case 6:
+        {
+            int columnChoice = GetInput(1, 3,
+                                        "Bet on column (1, 2, or 3):",
+                                        "Please enter 1, 2, or 3.");
+            win = (rouletteResult != 0 && (rouletteResult - 1) % 3 == (columnChoice - 1));
+            break;
+        }
+        default:
+            win = false;
+            break;
+        }
+
+        DrawHUD(playerMoney, statHistory, playerName);
+        std::cout << "Roulette result: " << rouletteResult << "\n";
+
+        if (win)
+        {
+            lossStreak = 0;
+            ++winCounter;
+            const int payout = playerBet * PAYOUT_MULTIPLIER;
+            HandlePlayerMoney(playerMoney, playerBet, payout);
+            UpdatePlayerStatHistory(statHistory, payout);
+            winnings += payout;
+            ++totalWins;
+            std::cout << playerName << ", you won. Your payout is " << (payout - playerBet) << ".\n";
+        }
+        else
+        {
+            winCounter = 0;
+            ++lossStreak;
+            UpdatePlayerStatHistory(statHistory, -playerBet);
+            winnings -= playerBet;
+            ++totalLosses;
+            std::cout << playerName << ", you lost. You lose your bet of " << playerBet << ".\n";
+            playerBet = 0;
+            system("pause");
+            if (playerMoney <= 0)
+            {
+                return HandleBankruptcy(playerMoney, statHistory, playerName);
+            }
+        }
+
+        playAgain = GetInput(CHOICE_NO, CHOICE_YES,
+                             "Would you like to play again? (0: No, 1: Yes): ",
+                             "Please enter 0 for No or 1 for Yes.");
+        if (playAgain)
+        {
+            DrawHUD(playerMoney, statHistory, playerName);
+            std::cout << "Starting a new round.\n\n";
+        }
+        else
+        {
+            std::cout << "\nReturning to menu, " << playerName << ".\n";
+        }
+    }
+
+    return GameState::Menu;
+}

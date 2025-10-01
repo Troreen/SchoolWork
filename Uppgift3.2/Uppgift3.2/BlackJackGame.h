@@ -1,6 +1,7 @@
 #pragma once
-#include <random>
 #include <array>
+#include <random>
+#include <string>
 #include "CasinoHelpers.h"
 
 class BlackJackGame
@@ -16,5 +17,5 @@ public:
     static int getTotalWins() { return totalWins; }
     static int getTotalLosses() { return totalLosses; }
     static int getPayoutMultiplier() { return PAYOUT_MULTIPLIER; }
-    CasinoHelpers::GameState play(std::mt19937& generator, int& playerMoney, int& playerBet, std::array<signed int, 5>& statHistory);
+    CasinoHelpers::GameState play(std::mt19937& generator, int& playerMoney, int& playerBet, std::array<signed int, 5>& statHistory, const std::string& playerName);
 };

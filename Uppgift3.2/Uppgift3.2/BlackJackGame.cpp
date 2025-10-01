@@ -88,12 +88,12 @@ namespace {
     }
 }
 
-CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playerMoney, int& playerBet, std::array<signed int, 5>& statHistory)
+CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playerMoney, int& playerBet, std::array<signed int, 5>& statHistory, const std::string& playerName)
 {
     int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES, "Would you like to see the instructions? (0: No, 1: Yes)", "Please enter 0 for No or 1 for Yes.");
     if (seeInstructions)
     {
-        ShowInstructions(GameState::BlackJack);
+        ShowInstructions(GameState::BlackJack, playerName);
     }
     int acceptRules = GetInput(CHOICE_NO, CHOICE_YES, "Do you want to continue? (0: No, 1: Yes)", "Please enter 0 for No or 1 for Yes.");
     if (!acceptRules)
@@ -103,16 +103,16 @@ CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playe
     int playAgain = PLAY_AGAIN_YES;
     while (playAgain)
     {
-        if (RecognizePlayer(GameState::BlackJack, 0, 0, winnings, 0, 0))
+        if (RecognizePlayer(GameState::BlackJack, 0, 0, winnings, 0, 0, playerName))
         {
             return GameState::Menu;
         }
         if (playerMoney <= 0)
         {
-            return HandleBankruptcy(playerMoney, statHistory);
+            return HandleBankruptcy(playerMoney, statHistory, playerName);
         }
-        DrawHUD(playerMoney, statHistory);
-        Bet(playerMoney, playerBet);
+        DrawHUD(playerMoney, statHistory, playerName);
+        Bet(playerMoney, playerBet, playerName);
         std::array<int, 52> deck = createDeck();
         shuffleDeck(deck, generator);
         int deckTop = 0;
@@ -162,7 +162,7 @@ CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playe
         int payout = 0;
         if (playerBust)
         {
-            std::cout << "You have exceeded 21. You lose your bet of " << playerBet << ".\n";
+            std::cout << playerName << ", you have exceeded 21. You lose your bet of " << playerBet << ".\n";
             winnings -= playerBet;
             ++totalLosses;
             UpdatePlayerStatHistory(statHistory, -playerBet);
@@ -171,21 +171,15 @@ CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playe
         else if (dealerBust || playerValue > dealerValue)
         {
             payout = playerBet * PAYOUT_MULTIPLIER;
-            std::cout << "You win. Your payout is " << (payout - playerBet) << ".\n";
+            std::cout << playerName << ", you win. Your payout is " << (payout - playerBet) << ".\n";
             winnings += payout;
             ++totalWins;
             HandlePlayerMoney(playerMoney, playerBet, payout);
             UpdatePlayerStatHistory(statHistory, payout);
         }
-        else if (playerValue == dealerValue)
-        {
-            std::cout << "It's a tie. Your bet is returned.\n";
-            HandlePlayerMoney(playerMoney, playerBet, playerBet);
-            UpdatePlayerStatHistory(statHistory, 0);
-        }
         else
         {
-            std::cout << "Dealer wins. You lose your bet of " << playerBet << ".\n";
+            std::cout << "Dealer wins, " << playerName << ". You lose your bet of " << playerBet << ".\n";
             winnings -= playerBet;
             ++totalLosses;
             UpdatePlayerStatHistory(statHistory, -playerBet);
@@ -194,13 +188,25 @@ CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playe
         playAgain = GetInput(CHOICE_NO, CHOICE_YES, "Would you like to play again? (0: No, 1: Yes): ", "Please enter 0 for No or 1 for Yes.");
         if (playAgain)
         {
-            DrawHUD(playerMoney, statHistory);
-            std::cout << "Starting a new round.\n\n";
+            DrawHUD(playerMoney, statHistory, playerName);
+            std::cout << "Starting a new round, " << playerName << ".\\n\\n";
         }
         else
         {
-            std::cout << "\nReturning to menu.\n";
+            std::cout << "\\nReturning to menu, " << playerName << ".\\n";
         }
     }
     return GameState::Menu;
 }
+
+
+
+
+
+
+
+
+
+
+
+

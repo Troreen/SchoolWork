@@ -1,29 +1,35 @@
 #pragma once
 #include <random>
 #include <array>
-#include "GuessTheNumberGame.h"
-#include "OddOrEvenGame.h"
+#include <string>
+#include "GuessTheNumber.h"
+#include "OddOrEven.h"
 #include "BlackJackGame.h"
-#include "SlotMachineGame.h"
-#include "RouletteGame.h"
+#include "SlotMachine.h"
+#include "Roulette.h"
 #include "CasinoHelpers.h"
 
 class Casino
 {
 private:
-    GuessTheNumberGame guessTheNumberGame;
+    std::array<GuessTheNumberGame, 2> guessTheNumberTables;
     OddOrEvenGame oddOrEvenGame;
     BlackJackGame blackJackGame;
     SlotMachineGame slotMachineGame;
     RouletteGame rouletteGame;
+    std::string playerName;
     int playerMoney;
     int playerBet;
     std::array<signed int, 5> statHistory;
     std::mt19937 generator;
+
+    CasinoHelpers::GameState playGuessTheNumber();
+    std::string promptForPlayerName() const;
+
 public:
     Casino();
     void run();
-    const GuessTheNumberGame& getGuessTheNumberGame() const { return guessTheNumberGame; }
+    const std::array<GuessTheNumberGame, 2>& getGuessTheNumberTables() const { return guessTheNumberTables; }
     const OddOrEvenGame& getOddOrEvenGame() const { return oddOrEvenGame; }
     const BlackJackGame& getBlackJackGame() const { return blackJackGame; }
     const SlotMachineGame& getSlotMachineGame() const { return slotMachineGame; }
@@ -32,3 +38,4 @@ public:
     int getPlayerBet() const { return playerBet; }
     const std::array<signed int, 5>& getStatHistory() const { return statHistory; }
 };
+

@@ -6,27 +6,30 @@
 
 namespace CasinoHelpers
 {
-    void PrintIntegerBySign(int aValue, HANDLE aConsoleHandle, WORD someDefaultTextAttributes)
+    namespace
     {
-        WORD chosenAttributes;
-        if (aValue > 0)
+        void PrintIntegerBySign(int aValue, HANDLE aConsoleHandle, WORD someDefaultTextAttributes)
         {
-            chosenAttributes = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+            WORD chosenAttributes;
+            if (aValue > 0)
+            {
+                chosenAttributes = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+            }
+            else if (aValue < 0)
+            {
+                chosenAttributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
+            }
+            else
+            {
+                chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+            }
+            SetConsoleTextAttribute(aConsoleHandle, chosenAttributes);
+            std::cout << aValue;
+            SetConsoleTextAttribute(aConsoleHandle, someDefaultTextAttributes);
         }
-        else if (aValue < 0)
-        {
-            chosenAttributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
-        }
-        else
-        {
-            chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-        }
-        SetConsoleTextAttribute(aConsoleHandle, chosenAttributes);
-        std::cout << aValue;
-        SetConsoleTextAttribute(aConsoleHandle, someDefaultTextAttributes);
     }
 
-    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory)
+    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName)
     {
         system("cls");
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -36,19 +39,19 @@ namespace CasinoHelpers
         {
             defaultTextAttributes = screenInfo.wAttributes;
         }
+
         std::cout << "  ";
-        for (size_t index = 0; index < aStatHistory.size(); ++index)
+        for (signed int value : aStatHistory)
         {
-            int currentValue = aStatHistory[index];
-            PrintIntegerBySign(currentValue, consoleHandle, defaultTextAttributes);
+            PrintIntegerBySign(value, consoleHandle, defaultTextAttributes);
             std::cout << '\t';
         }
-        std::cout << "\t\t\t\t\t\tYour current money: " << somePlayerMoney << '\n';
+        std::cout << "\t\t\t\t\t\t" << playerName << "'s current money: " << somePlayerMoney << '\n';
     }
 
     void UpdatePlayerStatHistory(std::array<signed int, 5>& aStatHistory, int anAmount)
     {
-        for (size_t i = aStatHistory.size(); i > 1; i--)
+        for (size_t i = aStatHistory.size(); i > 1; --i)
         {
             aStatHistory[i - 1] = aStatHistory[i - 2];
         }
@@ -61,29 +64,43 @@ namespace CasinoHelpers
         aPlayerBet = 0;
     }
 
-    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory)
+    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName)
     {
-        DrawHUD(somePlayerMoney, aStatHistory);
-        std::cout << "\nYour pockets echo like an empty alley, kid. Not a chip left to your name.";
-        std::cout << "\nThe house grins, the bones go quiet. Come back when your luck grows legs... and brings cash.\n\n";
+        DrawHUD(somePlayerMoney, aStatHistory, playerName);
+        std::cout << '\n' << playerName << ", your pockets echo like an empty alley. Not a chip left to your name.";
+        std::cout << "\nThe house grins. Come back when your luck grows legs... and brings cash.\n\n";
         system("pause");
         return GameState::Exit;
     }
 
-    void Bet(int& somePlayerMoney, int& aPlayerBet)
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& playerName, int aMinBet, int aMaxBet)
     {
-        DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
-        std::cout << "\nEnter the amount you want to bet (minimum 1, maximum " << somePlayerMoney << "): ";
-        aPlayerBet = GetInput(1, somePlayerMoney,
+        int effectiveMax = somePlayerMoney;
+        if (aMaxBet > 0 && aMaxBet < effectiveMax)
+        {
+            effectiveMax = aMaxBet;
+        }
+        if (aMinBet > effectiveMax)
+        {
+            aPlayerBet = 0;
+            std::cout << '\n' << playerName << ", you cannot place a bet with the current limits.\n";
+            system("pause");
+            return;
+        }
+
+        std::cout << '\n' << playerName << ", enter the amount you want to bet (minimum "
+                  << aMinBet << ", maximum " << effectiveMax << "): ";
+        aPlayerBet = GetInput(
+            aMinBet,
+            effectiveMax,
             "How much do you want to bet?",
-            "You do not have enough money for that bet. Please enter a valid amount."
-        );
-        int playerOldMoney = somePlayerMoney;
+            "You do not have enough money for that bet. Please enter a valid amount.");
+
+        const int playerOldMoney = somePlayerMoney;
         somePlayerMoney -= aPlayerBet;
-        DrawHUD(somePlayerMoney, std::array<signed int, 5>{});
         if (aPlayerBet == playerOldMoney)
         {
-            std::cout << "You have bet all your remaining money.\n";
+            std::cout << playerName << ", you have bet all your remaining money.\n";
         }
         else
         {
@@ -91,29 +108,38 @@ namespace CasinoHelpers
         }
     }
 
-    bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot, int someWinningsRoulette)
+    bool RecognizePlayer(GameState aState,
+        int someWinningsGuessTheNumber,
+        int someWinningsOddOrEven,
+        int someWinningsBlackJack,
+        int someWinningsSlot,
+        int someWinningsRoulette,
+        const std::string& playerName)
     {
         system("cls");
         bool shouldBan = false;
+        auto pauseWithMessage = [&](const std::string& message)
+        {
+            std::cout << playerName << ", " << message << '\n';
+            system("pause");
+        };
+
         switch (aState)
         {
         case GameState::GuessTheNumber:
         {
             if (someWinningsGuessTheNumber > 500)
             {
-                std::cout << "You have earned too much at this table, you are banned\n";
+                pauseWithMessage("you have earned too much at this table, you are banned.");
                 shouldBan = true;
-                system("pause");
             }
             else if (someWinningsGuessTheNumber < -150)
             {
-                std::cout << "Come right on.\n";
-                system("pause");
+                pauseWithMessage("step right up.");
             }
             else
             {
-                std::cout << "Welcome, the night is young..\n";
-                system("pause");
+                pauseWithMessage("welcome back; the night is young.");
             }
             break;
         }
@@ -121,19 +147,16 @@ namespace CasinoHelpers
         {
             if (someWinningsOddOrEven > 500)
             {
-                std::cout << "You have earned too much at this table, you are banned\n";
+                pauseWithMessage("you have earned too much at this table, you are banned.");
                 shouldBan = true;
-                system("pause");
             }
             else if (someWinningsOddOrEven < -150)
             {
-                std::cout << "Come right on.\n";
-                system("pause");
+                pauseWithMessage("step right up.");
             }
             else
             {
-                std::cout << "Welcome, the night is young..\n";
-                system("pause");
+                pauseWithMessage("welcome back; the night is young.");
             }
             break;
         }
@@ -141,19 +164,16 @@ namespace CasinoHelpers
         {
             if (someWinningsBlackJack > 1000)
             {
-                std::cout << "You have earned too much at this table, you are banned\n";
+                pauseWithMessage("you have earned too much at this table, you are banned.");
                 shouldBan = true;
-                system("pause");
             }
             else if (someWinningsBlackJack < -150)
             {
-                std::cout << "Come right on.\n";
-                system("pause");
+                pauseWithMessage("step right up.");
             }
             else
             {
-                std::cout << "Welcome, the night is young..\n";
-                system("pause");
+                pauseWithMessage("welcome back; the night is young.");
             }
             break;
         }
@@ -161,19 +181,16 @@ namespace CasinoHelpers
         {
             if (someWinningsSlot > 1000)
             {
-                std::cout << "You have earned too much at this table, you are banned\n";
+                pauseWithMessage("you have earned too much at this table, you are banned.");
                 shouldBan = true;
-                system("pause");
             }
             else if (someWinningsSlot < -150)
             {
-                std::cout << "Come right on.\n";
-                system("pause");
+                pauseWithMessage("step right up.");
             }
             else
             {
-                std::cout << "Welcome, the night is young..\n";
-                system("pause");
+                pauseWithMessage("welcome back; the night is young.");
             }
             break;
         }
@@ -181,27 +198,23 @@ namespace CasinoHelpers
         {
             if (someWinningsRoulette > 1000)
             {
-                std::cout << "You have earned too much at this table, you are banned\n";
+                pauseWithMessage("you have earned too much at this table, you are banned.");
                 shouldBan = true;
-                system("pause");
             }
             else if (someWinningsRoulette < -150)
             {
-                std::cout << "Come right on.\n";
-                system("pause");
+                pauseWithMessage("step right up.");
             }
             else
             {
-                std::cout << "Welcome, the night is young..\n";
-                system("pause");
+                pauseWithMessage("welcome back; the night is young.");
             }
             break;
         }
         default:
-        {
             break;
         }
-        }
+
         return shouldBan;
     }
 
@@ -216,12 +229,9 @@ namespace CasinoHelpers
             {
                 break;
             }
-            else
-            {
-                std::cout << '\n' << aFailPrompt;
-                std::cin.clear();
-                std::cin.ignore(10000, '\n');
-            }
+            std::cout << '\n' << aFailPrompt;
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
         }
         return value;
     }
@@ -232,9 +242,9 @@ namespace CasinoHelpers
         return distribution(aGenerator);
     }
 
-    void ShowMenu()
+    void ShowMenu(const std::string& playerName)
     {
-        std::cout << "\n--- Casino Menu ---\n";
+        std::cout << "\n--- " << playerName << "'s Casino Menu ---\n";
         std::cout << "1. Guess The Number\n";
         std::cout << "2. Odd Or Even\n";
         std::cout << "3. BlackJack\n";
@@ -243,9 +253,10 @@ namespace CasinoHelpers
         std::cout << "0. Exit\n";
     }
 
-    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory)
+    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory, const std::string& playerName)
     {
-        int choice = GetInput(0, 5, "Select a game by entering its number:", "Please enter a number between 0 and 5.");
+        const std::string prompt = playerName + ", select a game by entering its number:";
+        int choice = GetInput(0, 5, prompt.c_str(), "Please enter a number between 0 and 5.");
         switch (choice)
         {
         case 1:
@@ -264,37 +275,35 @@ namespace CasinoHelpers
         }
     }
 
-    void ShowInstructions(GameState aState)
+    void ShowInstructions(GameState aState, const std::string& playerName)
     {
         switch (aState)
         {
         case GameState::GuessTheNumber:
         {
             system("cls");
-            std::cout << "Two dice, cold and cruel. You guess the sum (2-12).\n";
-            std::cout << "Hit it right, and maybe you walk away with your pride intact.\n";
-            std::cout << "Miss it, and the house laughs last...\n\n";
+            std::cout << playerName << ", two dice hit the table. Call the sum (2-12) before they settle.\n";
+            std::cout << "Hit it right and you leave with extra chips; miss and the house takes its due.\n\n";
             break;
         }
         case GameState::OddOrEven:
         {
             system("cls");
-            std::cout << "\n\nOdd or Even, simple as sin: roll the bones, call the parity.\n";
-            std::cout << "Get it right, you grin; get it wrong, you learn.\n\n";
+            std::cout << playerName << ", odd or even - simple call, sharp stakes.\n";
+            std::cout << "Guess the parity of the roll. Right call pays, wrong one stings.\n\n";
             break;
         }
         case GameState::BlackJack:
         {
             system("cls");
-            std::cout << "Cards on the felt, nerves on edge. Your job: get as close to 21 as you dare.\n";
-            std::cout << "Draw more cards if you're feeling lucky, but bust over 21 and the house grins.\n";
-            std::cout << "Stay put if you think you've got the edge. Dealer plays to 17-higher hand wins, but don't get greedy...\n\n";
+            std::cout << playerName << ", chase 21 without tumbling over.\n";
+            std::cout << "Hit if you want another card, stand if you're content. Dealer draws to 17 - closest hand wins.\n\n";
             break;
         }
         case GameState::Roulette:
         {
             system("cls");
-            std::cout << "Welcome to Roulette! Here are the instructions:\n";
+            std::cout << "Welcome to Roulette, " << playerName << "! Here are the instructions:\n";
             std::cout << "1. Straight: Bet on a single number.\n";
             std::cout << "2. Split: Bet on two adjacent numbers.\n";
             std::cout << "3. Corner: Bet on four numbers forming a square.\n";
@@ -343,4 +352,10 @@ namespace CasinoHelpers
             return "\nLucky break... savor it. Luck's got short legs, doesn't run far.\n";
         }
     }
+    void ShowInstructions(GameState aState)
+    {
+        static const std::string anonymousPlayerName = "Player";
+        ShowInstructions(aState, anonymousPlayerName);
+    }
 }
+

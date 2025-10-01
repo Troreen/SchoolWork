@@ -1,25 +1,28 @@
 #pragma once
-#include <random>
 #include <array>
-using namespace CasinoHelpers;
+#include <random>
+#include <string>
+#include "CasinoHelpers.h"
 
-namespace Roulette
+class RouletteGame
 {
-	const int GUESS_ODD = 1;
-	const int GUESS_EVEN = 2;
-	const int PAYOUT_MULTIPLIER = 3;
+private:
+    int winnings;
+    static int totalWins;
+    static int totalLosses;
+    static constexpr int PAYOUT_MULTIPLIER = 3;
 
-	enum class BetType
-	{
-		Straight,
-		Split,
-		Corner,
-		RedOrBlack,
-		OddOrEven,
-		Column,
-		None
-	};
-	void PrintRouletteCellWithColour(std::string aString, HANDLE aConsoleHandle, WORD someDefaultTextAttributes, std::string aColour);
-	void DisplayRouletteBoard();
-	GameState Roulette(std::mt19937& aGenerator, int& somePlayerMoney, int& aPlayerBet, int& someWinningsOddOrEven, std::array<signed int, 5>& aStatHistory);
-}
+public:
+    RouletteGame() : winnings(0) {}
+
+    int getWinnings() const { return winnings; }
+    static int getTotalWins() { return totalWins; }
+    static int getTotalLosses() { return totalLosses; }
+    static constexpr int getPayoutMultiplier() { return PAYOUT_MULTIPLIER; }
+
+    CasinoHelpers::GameState play(std::mt19937& generator,
+        int& playerMoney,
+        int& playerBet,
+        std::array<signed int, 5>& statHistory,
+        const std::string& playerName);
+};
