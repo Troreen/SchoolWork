@@ -10,10 +10,10 @@ public:
     struct LootDrop
     {
         ItemInstance item;
-        int probability;
+        float probability;
     };
 
-    Enemy() = delete;
+    Enemy();
     Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique);
     ~Enemy();
     const std::string& GetName() const;
@@ -27,7 +27,7 @@ public:
     const DamagableComponent& GetDamagable() const;
     void TakeDamage(int anAmount);
 
-    void AddLoot(const ItemInstance& anItem, int aProbability);
+    void AddLoot(const ItemInstance& anItem, float aProbability);
     const std::vector<LootDrop>& GetLootDrops() const;
     void ClearLoot();
 

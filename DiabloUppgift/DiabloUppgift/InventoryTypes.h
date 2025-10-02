@@ -54,6 +54,7 @@ struct ItemSpec
 extern const ItemSpec gItemSpecs[];
 extern const size_t gItemSpecCount;
 
+const ItemSpec* FindItemSpec(ItemId id);
 const ItemSpec& GetItemSpec(ItemId id);
 
 struct ItemInstance
@@ -64,6 +65,16 @@ struct ItemInstance
     int durationTurns = 0;
     bool equipped = false;
 };
+
+struct ItemFactory
+{
+    const ItemSpec* specs = nullptr;
+    size_t specCount = 0;
+
+    ItemInstance Make(ItemId id, int count = 1) const;
+};
+
+const ItemFactory& GetItemFactory();
 
 struct InventoryState
 {
@@ -85,3 +96,4 @@ struct ActiveEnchantment
     ItemId id;
     int durationTurns = 0;
 };
+

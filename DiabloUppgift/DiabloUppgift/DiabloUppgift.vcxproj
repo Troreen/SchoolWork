@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChestTypes.cpp" />
     <ClCompile Include="CombatComponent.cpp" />
     <ClCompile Include="Chest.cpp" />
     <ClCompile Include="ConsoleView.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="DiabloUppgift.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyTypes.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InteractionController.cpp" />
     <ClCompile Include="InventoryTypes.cpp" />
@@ -137,6 +139,7 @@
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChestTypes.h" />
     <ClInclude Include="CombatComponent.h" />
     <ClInclude Include="Chest.h" />
     <ClInclude Include="ConsoleView.h" />
@@ -144,6 +147,7 @@
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyTypes.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="InteractionController.h" />
     <ClInclude Include="InventoryTypes.h" />

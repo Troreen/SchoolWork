@@ -15,6 +15,12 @@ public:
     const std::string& GetDescription() const;
     bool IsOpened() const;
 
+    bool IsLocked() const;
+    void SetLocked(bool aLocked);
+
+    int GetCapacity() const;
+    void SetCapacity(int aCapacity);
+
     void AddItem(const ItemInstance& anItem);
     std::vector<ItemInstance> Open();
 
@@ -23,4 +29,6 @@ private:
     std::string myDescription;
     std::vector<ItemInstance> myContents;
     bool myOpened;
+    bool myLocked;
+    int myCapacity;
 };

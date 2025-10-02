@@ -1,14 +1,24 @@
 #include "Enemy.h"
 
 Enemy::Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique)
-    : myName(aName),
-      myStrength(aStrength),
-      myDexterity(aDexterity),
-      myPhysique(aPhysique),
-      myDamagable(aPhysique * 3, aDexterity),
-      myLoot()
+    : myName(aName)
+    , myStrength(aStrength)
+    , myDexterity(aDexterity)
+    , myPhysique(aPhysique)
+    , myDamagable(aPhysique * 3, aDexterity)
+    , myLoot()
 {
 }
+Enemy::Enemy()
+    : myName("Unknown")
+    , myStrength(0)
+    , myDexterity(0)
+    , myPhysique(0)
+    , myDamagable(0, 0)
+    , myLoot()
+{
+}
+
 
 Enemy::~Enemy() = default;
 
@@ -57,15 +67,15 @@ void Enemy::TakeDamage(int anAmount)
     myDamagable.TakeDamage(anAmount);
 }
 
-void Enemy::AddLoot(const ItemInstance& anItem, int aProbability)
+void Enemy::AddLoot(const ItemInstance& anItem, float aProbability)
 {
-    if (aProbability < 0)
+    if (aProbability < 0.0f)
     {
-        aProbability = 0;
+        aProbability = 0.0f;
     }
-    else if (aProbability > 100)
+    else if (aProbability > 1.0f)
     {
-        aProbability = 100;
+        aProbability = 1.0f;
     }
 
     myLoot.push_back({ anItem, aProbability });

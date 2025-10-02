@@ -19,6 +19,8 @@
     <ClCompile Include="Chest.cpp" />
     <ClCompile Include="ConsoleView.cpp" />
     <ClCompile Include="InteractionController.cpp" />
+    <ClCompile Include="ChestTypes.cpp" />
+    <ClCompile Include="EnemyTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CombatComponent.h" />
@@ -33,5 +35,7 @@
     <ClInclude Include="Chest.h" />
     <ClInclude Include="ConsoleView.h" />
     <ClInclude Include="InteractionController.h" />
+    <ClInclude Include="ChestTypes.h" />
+    <ClInclude Include="EnemyTypes.h" />
   </ItemGroup>
 </Project>
