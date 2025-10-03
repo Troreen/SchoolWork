@@ -13,8 +13,8 @@ const EnemySpec gEnemySpecs[] =
         10, // dexterity
         15, // physique
         {
-            { ItemId::ShortSword, 1, 0.5 },
-            { ItemId::HealthPotion, 1, 0.3 }
+            { ItemId::ShortSword, 1, 0.5f },
+            { ItemId::HealthPotion, 1, 0.3f }
         }
     },
     {
@@ -24,9 +24,9 @@ const EnemySpec gEnemySpecs[] =
         8,  // dexterity
         20, // physique
         {
-            { ItemId::BattleAxe, 1, 0.4 },
-            { ItemId::HealthPotion, 1, 0.4 },
-            { ItemId::LeatherArmor, 1, 0.2 }
+            { ItemId::BattleAxe, 1, 0.4f },
+            { ItemId::HealthPotion, 1, 0.4f },
+            { ItemId::LeatherArmor, 1, 0.2f }
         }
     },
     {
@@ -36,10 +36,10 @@ const EnemySpec gEnemySpecs[] =
         5,  // dexterity
         25, // physique
         {
-            { ItemId::LongBow, 1, 0.3 },
-            { ItemId::HealthPotion, 2, 0.5 },
-            { ItemId::ChainmailArmor, 1, 0.3 },
-            { ItemId::FuryEnchant, 1, 0.1 }
+            { ItemId::LongBow, 1, 0.3f },
+            { ItemId::HealthPotion, 2, 0.5f },
+            { ItemId::ChainmailArmor, 1, 0.3f },
+            { ItemId::FuryEnchant, 1, 0.1f }
         }
     }
 };

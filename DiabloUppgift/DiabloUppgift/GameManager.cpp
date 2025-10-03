@@ -8,10 +8,12 @@
 #include "InventoryTypes.h"
 #include "Chest.h"
 #include "ChestTypes.h"
+
+#include <memory>
 #include <iostream>
 
 GameManager::GameManager()
-    : myPlayer("Hero", 5, 5, 5)
+    : myPlayer("Hero", 10, 7, 8)
     , myRooms()
     , myCurrentRoom(nullptr)
     , myDoors()
@@ -23,38 +25,44 @@ GameManager::GameManager()
 
     const bool isLocked = true;
 
-    Door* doorFromRoom1ToRoom2 = new Door(&myRooms[0],
-                                          &myRooms[1],
-                                          Direction::DirectionNorth,
-                                          Direction::DirectionSouth,
-                                          !isLocked,
-                                          0,
-                                          0);
-    Door* doorFromRoom2ToRoom3 = new Door(&myRooms[1],
-                                          &myRooms[2],
-                                          Direction::DirectionEast,
-                                          Direction::DirectionWest,
-                                          isLocked,
-                                          3,
-                                          10);
-    Door* doorFromRoom3ToRoom4 = new Door(&myRooms[2],
-                                          &myRooms[3],
-                                          Direction::DirectionSouth,
-                                          Direction::DirectionNorth,
-                                          isLocked,
-                                          7,
-                                          2);
+    auto& door1 = myDoors.emplace_back(std::make_unique<Door>(
+        &myRooms[0],
+        &myRooms[1],
+        Direction::DirectionNorth,
+        Direction::DirectionSouth,
+        !isLocked,
+        0,
+        0));
+    Door* door1Ptr = door1.get();
 
-    myDoors.push_back(doorFromRoom1ToRoom2);
-    myDoors.push_back(doorFromRoom2ToRoom3);
-    myDoors.push_back(doorFromRoom3ToRoom4);
+    myRooms[0].AddDoor(door1Ptr);
+    myRooms[1].AddDoor(door1Ptr);
 
-    myRooms[0].AddDoor(doorFromRoom1ToRoom2);
-    myRooms[1].AddDoor(doorFromRoom1ToRoom2);
-    myRooms[1].AddDoor(doorFromRoom2ToRoom3);
-    myRooms[2].AddDoor(doorFromRoom2ToRoom3);
-    myRooms[2].AddDoor(doorFromRoom3ToRoom4);
-    myRooms[3].AddDoor(doorFromRoom3ToRoom4);
+    std::unique_ptr<Door>& door2 = myDoors.emplace_back(std::make_unique<Door>(
+        &myRooms[1],
+        &myRooms[2],
+        Direction::DirectionEast,
+        Direction::DirectionWest,
+        isLocked,
+        3,
+        10));
+    Door* door2Ptr = door2.get();
+
+    myRooms[1].AddDoor(door2Ptr);
+    myRooms[2].AddDoor(door2Ptr);
+
+    auto& door3 = myDoors.emplace_back(std::make_unique<Door>(
+        &myRooms[2],
+        &myRooms[3],
+        Direction::DirectionSouth,
+        Direction::DirectionNorth,
+        isLocked,
+        7,
+        2));
+    Door* door3Ptr = door3.get();
+
+    myRooms[2].AddDoor(door3Ptr);
+    myRooms[3].AddDoor(door3Ptr);
 
     const EnemyFactory& enemyFactory = GetEnemyFactory();
     myRooms[1].AddEnemy(enemyFactory.Make(EnemyId::Goblin));
@@ -69,25 +77,23 @@ GameManager::GameManager()
     myPlayer.RecalculateDerivedStats();
 
     const ItemFactory& itemFactory = GetItemFactory();
-    
+
     myRooms[0].AddFloorItem(itemFactory.Make(ItemId::LongBow));
     myRooms[0].AddFloorItem(itemFactory.Make(ItemId::ChainmailArmor));
     myRooms[0].AddFloorItem(itemFactory.Make(ItemId::HealthPotion, 2));
-    
+
     myRooms[1].AddFloorItem(itemFactory.Make(ItemId::BattleAxe));
     myRooms[1].AddFloorItem(itemFactory.Make(ItemId::HealthPotion));
     myRooms[2].AddFloorItem(itemFactory.Make(ItemId::FuryEnchant));
-    
+
     const ChestFactory& chestFactory = GetChestFactory();
-    
+
     Chest entranceChest = chestFactory.Make(ChestId::WoodenChest);
     myRooms[0].AddChest(entranceChest);
 
     Chest treasureChest = chestFactory.Make(ChestId::IronChest);
     myRooms[2].AddChest(treasureChest);
 
-
-    
 
     if (!myRooms[1].Enemies().empty())
     {
@@ -107,17 +113,18 @@ GameManager::GameManager()
     }
 }
 
-GameManager::~GameManager()
-{
-    for (Door* door : myDoors)
-    {
-        delete door;
-    }
-}
+GameManager::~GameManager() = default;
 
 void GameManager::Run()
 {
-    InteractionController interaction(myPlayer, myRooms, myCurrentRoom, myDoors);
+    std::vector<Door*> doorViews;
+    doorViews.reserve(myDoors.size());
+    for (const auto& door : myDoors)
+    {
+        doorViews.push_back(door.get());
+    }
+
+    InteractionController interaction(myPlayer, myRooms, myCurrentRoom, doorViews);
     bool isRunning = true;
 
     while (isRunning)

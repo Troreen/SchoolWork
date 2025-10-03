@@ -390,6 +390,7 @@ void ConsoleView::ShowActivationMessage(const ItemSpec& aSpec)
         std::cout << " It will persist for " << aSpec.durationTurns << " turns.";
     }
     std::cout << "\n";
+	Pause();
 }
 
 void ConsoleView::ShowEquipmentPrompt(const ItemSpec& currentSpec, const ItemSpec& newSpec, const char* aSlotLabel)

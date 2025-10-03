@@ -109,7 +109,7 @@ Chest ChestFactory::Make(ChestId id) const
         }
     }
     
-    return Chest();
+    return chest;
 }
 
 namespace

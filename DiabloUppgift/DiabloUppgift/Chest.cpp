@@ -11,7 +11,7 @@ Chest::Chest()
 }
 
 Chest::Chest(const std::string& aName, const std::string& aDescription)
-    : myName(aName)
+    : myName( aName)
     , myDescription(aDescription)
     , myContents()
     , myOpened(false)

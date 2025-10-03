@@ -3,6 +3,7 @@
 #include "Room.h"
 #include <vector>
 #include <string>
+#include <memory>
 
 class Door;
 
@@ -17,5 +18,5 @@ private:
     Player myPlayer;
     std::vector<Room> myRooms;
     Room* myCurrentRoom;
-    std::vector<Door*> myDoors;
+    std::vector<std::unique_ptr<Door>> myDoors;
 };
