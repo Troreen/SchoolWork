@@ -1,6 +1,4 @@
 #include "ChestTypes.h"
-#include "Chest.h"
-#include "InventoryTypes.h"
 
 #include <assert.h>
 
@@ -13,8 +11,8 @@ const ChestSpec gChestSpecs[] =
         false,
         4,
         {
-            { ItemId::HealthPotion, 1, 0.7 },
-            { ItemId::ShortSword, 1, 0.5 }
+            { ItemId::HealthPotion, 1, 0.7f },
+            { ItemId::ShortSword, 1, 0.5f }
         }
     },
     {
@@ -24,8 +22,8 @@ const ChestSpec gChestSpecs[] =
         true,
         6,
         {
-            { ItemId::HealthPotion, 2, 0.8 },
-            { ItemId::ChainmailArmor, 1, 0.5 }
+            { ItemId::HealthPotion, 2, 0.8f },
+            { ItemId::ChainmailArmor, 1, 0.5f }
         }
     }
 };
@@ -56,68 +54,4 @@ const ChestSpec& GetChestSpec(ChestId id)
     }
 
     return *spec;
-}
-
-Chest ChestFactory::Make(ChestId id) const
-{
-    const ChestSpec* spec = nullptr;
-
-    if (specs != nullptr && specCount > 0)
-    {
-        for (size_t i = 0; i < specCount; i++)
-        {
-            if (specs[i].id == id)
-            {
-                spec = &specs[i];
-                break;
-            }
-        }
-    }
-
-    if (!spec)
-    {
-        spec = FindChestSpec(id);
-    }
-
-    assert(spec && "ChestFactory::Make called with unknown ChestId");
-
-    if (!spec)
-    {
-        return Chest{};
-    }
-
-    Chest chest(spec->name, spec->description);
-    chest.SetLocked(spec->locked); 
-    chest.SetCapacity(spec->capacity); 
-    
-    const ItemFactory& ItemFactory = GetItemFactory();
-    for (const ChestLootEntry& entry : spec->lootTable)
-    {
-        if (entry.probability <= 0)
-        {
-            continue;
-        }
-
-        // add item outright if probablity is 100
-        if (entry.probability >= 1.0)
-        {
-            chest.AddItem(ItemFactory.Make(entry.itemId, entry.count));
-        }
-        else
-        {
-            //TODO: apply RNG rolls once FactoryContext exposes RNG
-        }
-    }
-    
-    return chest;
-}
-
-namespace
-{
-    const ChestFactory gDefaultChestFactory{ gChestSpecs, gChestSpecCount };
-}
-
-const ChestFactory& GetChestFactory()
-{
-    return gDefaultChestFactory;
 }

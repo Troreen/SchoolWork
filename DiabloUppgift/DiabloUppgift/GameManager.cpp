@@ -3,10 +3,13 @@
 #include "Door.h"
 #include "Direction.h"
 #include "Enemy.h"
+#include "EnemyFactory.h"
 #include "EnemyTypes.h"
 #include "InteractionController.h"
 #include "InventoryTypes.h"
+#include "ItemFactory.h"
 #include "Chest.h"
+#include "ChestFactory.h"
 #include "ChestTypes.h"
 
 #include <memory>
@@ -134,3 +137,7 @@ void GameManager::Run()
 
     std::cout << "\nThanks for playing!\n";
 }
+
+
+
+

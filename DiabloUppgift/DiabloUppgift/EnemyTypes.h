@@ -4,8 +4,6 @@
 #include <cstddef>
 #include "InventoryTypes.h"
 
-class Enemy;
-
 enum class EnemyId
 {
     Goblin,
@@ -17,7 +15,7 @@ struct EnemyLootEntry
 {
     ItemId itemId;
     int count;
-    float probability; 
+    float probability;
 };
 
 struct EnemySpec
@@ -29,16 +27,6 @@ struct EnemySpec
     int physique;
     std::vector<EnemyLootEntry> lootTable;
 };
-
-struct EnemyFactory 
-{
-    const EnemySpec* specs = nullptr;
-    size_t specCount = 0;
-
-    Enemy Make(EnemyId id) const;   
-};
-
-const EnemyFactory& GetEnemyFactory();
 
 extern const EnemySpec gEnemySpecs[];
 extern const size_t gEnemySpecCount;

@@ -4,8 +4,6 @@
 #include <cstddef>
 #include "InventoryTypes.h"
 
-class Chest;
-
 enum class ChestId
 {
     WoodenChest,
@@ -17,7 +15,7 @@ struct ChestLootEntry
 {
     ItemId itemId;
     int count;
-    float probability; 
+    float probability;
 };
 
 struct ChestSpec
@@ -30,21 +28,8 @@ struct ChestSpec
     std::vector<ChestLootEntry> lootTable;
 };
 
-struct ChestFactory 
-{
-    const ChestSpec* specs = nullptr;
-    size_t specCount = 0;
-
-    Chest Make(ChestId id) const;
-};
-
-const ChestFactory& GetChestFactory();
-
 extern const ChestSpec gChestSpecs[];
 extern const size_t gChestSpecCount;
 
 const ChestSpec* FindChestSpec(ChestId id);
 const ChestSpec& GetChestSpec(ChestId id);
-
-
-

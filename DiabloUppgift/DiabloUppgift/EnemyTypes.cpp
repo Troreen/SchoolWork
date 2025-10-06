@@ -1,17 +1,15 @@
 #include "EnemyTypes.h"
-#include "Enemy.h"
-#include "InventoryTypes.h"
 
 #include <assert.h>
 
-const EnemySpec gEnemySpecs[] = 
+const EnemySpec gEnemySpecs[] =
 {
     {
         EnemyId::Goblin,
         "Goblin",
-        5,  // strength
-        10, // dexterity
-        15, // physique
+        5,
+        10,
+        15,
         {
             { ItemId::ShortSword, 1, 0.5f },
             { ItemId::HealthPotion, 1, 0.3f }
@@ -20,9 +18,9 @@ const EnemySpec gEnemySpecs[] =
     {
         EnemyId::Orc,
         "Orc",
-        10, // strength
-        8,  // dexterity
-        20, // physique
+        10,
+        8,
+        20,
         {
             { ItemId::BattleAxe, 1, 0.4f },
             { ItemId::HealthPotion, 1, 0.4f },
@@ -32,9 +30,9 @@ const EnemySpec gEnemySpecs[] =
     {
         EnemyId::Troll,
         "Troll",
-        15, // strength
-        5,  // dexterity
-        25, // physique
+        15,
+        5,
+        25,
         {
             { ItemId::LongBow, 1, 0.3f },
             { ItemId::HealthPotion, 2, 0.5f },
@@ -46,17 +44,16 @@ const EnemySpec gEnemySpecs[] =
 
 const size_t gEnemySpecCount = sizeof(gEnemySpecs) / sizeof(gEnemySpecs[0]);
 
-
 const EnemySpec* FindEnemySpec(EnemyId id)
 {
-    for (size_t i = 0; i < gEnemySpecCount; i++)
+    for (size_t i = 0; i < gEnemySpecCount; ++i)
     {
         if (gEnemySpecs[i].id == id)
         {
             return &gEnemySpecs[i];
         }
     }
-    
+
     return nullptr;
 }
 
@@ -71,54 +68,4 @@ const EnemySpec& GetEnemySpec(EnemyId id)
     }
 
     return *spec;
-    
-}
-
-Enemy EnemyFactory::Make(EnemyId id) const
-{
-    const EnemySpec* spec = nullptr;
-
-    if (specs != nullptr && specCount > 0)
-    {
-        for (size_t i = 0; i < specCount; i++)
-        {
-            if (specs[i].id == id)
-            {
-                spec = &specs[i];
-                break;
-            }   
-        }
-    }
-    
-    if (!spec)
-    {
-        spec = FindEnemySpec(id);
-    }
-
-    assert(spec && "EnemyFactory::Make called with unknown EnemyId");
-    
-    if (!spec)
-    {
-        return Enemy{};
-    }
-    
-    Enemy enemy(spec->name, spec->strength, spec->dexterity, spec->physique);
-
-    const ItemFactory& itemFactory = GetItemFactory();
-    for (const EnemyLootEntry& entry : spec->lootTable)
-    {
-        enemy.AddLoot(itemFactory.Make(entry.itemId, entry.count), entry.probability);
-    }
-
-    return enemy;
-}
-
-namespace
-{
-    const EnemyFactory gDefaultEnemyFactory = { gEnemySpecs, gEnemySpecCount };
-}
-
-const EnemyFactory& GetEnemyFactory()
-{
-    return gDefaultEnemyFactory;
 }

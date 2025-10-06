@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChestFactory.cpp" />
     <ClCompile Include="ChestTypes.cpp" />
     <ClCompile Include="CombatComponent.cpp" />
     <ClCompile Include="Chest.cpp" />
@@ -132,14 +133,17 @@
     <ClCompile Include="DiabloUppgift.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="EnemyTypes.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InteractionController.cpp" />
+    <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="InventoryTypes.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Room.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChestFactory.h" />
     <ClInclude Include="ChestTypes.h" />
     <ClInclude Include="CombatComponent.h" />
     <ClInclude Include="Chest.h" />
@@ -148,9 +152,11 @@
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="EnemyTypes.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="InteractionController.h" />
+    <ClInclude Include="ItemFactory.h" />
     <ClInclude Include="InventoryTypes.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Room.h" />
@@ -159,3 +165,5 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
+
+
