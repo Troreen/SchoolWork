@@ -1,31 +1,33 @@
 #include "Casino.h"
+
 #include <cctype>
 #include <iostream>
 
 using namespace CasinoHelpers;
 
 Casino::Casino()
-    : guessTheNumberTables{
+    : myGuessTheNumberTables{
           GuessTheNumberGame("Low Stakes", 10, 100),
           GuessTheNumberGame("High Stakes", 100, 500)}
-    , oddOrEvenGame()
-    , blackJackGame()
-    , slotMachineGame()
-    , rouletteGame()
-    , playerName()
-    , playerMoney(PLAYER_INITIAL_MONEY)
-    , playerBet(0)
-    , statHistory{0}
+    , myOddOrEvenGame()
+    , myBlackJackGame()
+    , mySlotMachineGame()
+    , myRouletteGame()
+    , myPlayerName()
+    , myPlayerMoney(globalPlayerInitialMoney)
+    , myPlayerBet(0)
+    , myStatHistory{0}
+    , myGenerator()
 {
-    std::random_device rd;
-    generator = std::mt19937(rd());
+    std::random_device randomSource;
+    myGenerator = std::mt19937(randomSource());
 }
 
-void Casino::run()
+void Casino::Run()
 {
-    if (playerName.empty())
+    if (myPlayerName.empty())
     {
-        playerName = promptForPlayerName();
+        myPlayerName = PromptForPlayerName();
     }
 
     GameState currentState = GameState::Menu;
@@ -34,59 +36,60 @@ void Casino::run()
         switch (currentState)
         {
         case GameState::Menu:
-            DrawHUD(playerMoney, statHistory, playerName);
-            ShowMenu(playerName);
-            currentState = MenuState(playerMoney, playerBet, statHistory, playerName);
+            DrawHud(myPlayerMoney, myStatHistory, myPlayerName);
+            ShowMenu(myPlayerName);
+            currentState = MenuState(myPlayerMoney, myPlayerBet, myStatHistory, myPlayerName);
             break;
         case GameState::GuessTheNumber:
-            currentState = playGuessTheNumber();
+            currentState = PlayGuessTheNumber();
             break;
         case GameState::OddOrEven:
-            currentState = oddOrEvenGame.play(generator, playerMoney, playerBet, statHistory, playerName);
+            currentState = myOddOrEvenGame.Play(myGenerator, myPlayerMoney, myPlayerBet, myStatHistory, myPlayerName);
             break;
         case GameState::BlackJack:
-            currentState = blackJackGame.play(generator, playerMoney, playerBet, statHistory, playerName);
+            currentState = myBlackJackGame.Play(myGenerator, myPlayerMoney, myPlayerBet, myStatHistory, myPlayerName);
             break;
         case GameState::SlotMachine:
-            currentState = slotMachineGame.play(generator, playerMoney, playerBet, statHistory, playerName);
+            currentState = mySlotMachineGame.Play(myGenerator, myPlayerMoney, myPlayerBet, myStatHistory, myPlayerName);
             break;
         case GameState::Roulette:
-            currentState = rouletteGame.play(generator, playerMoney, playerBet, statHistory, playerName);
+            currentState = myRouletteGame.Play(myGenerator, myPlayerMoney, myPlayerBet, myStatHistory, myPlayerName);
             break;
         case GameState::Exit:
-            std::cout << "\n" << playerName << ", you are leaving with: " << playerMoney << "\n";
+            std::cout << "\n" << myPlayerName << ", you are leaving with: " << myPlayerMoney << "\n";
             return;
+        case GameState::Count:
         default:
             return;
         }
     }
 }
 
-CasinoHelpers::GameState Casino::playGuessTheNumber()
+CasinoHelpers::GameState Casino::PlayGuessTheNumber()
 {
-    DrawHUD(playerMoney, statHistory, playerName);
-    std::cout << "\nChoose your Guess The Number table, " << playerName << ":\n";
-    for (size_t index = 0; index < guessTheNumberTables.size(); ++index)
+    DrawHud(myPlayerMoney, myStatHistory, myPlayerName);
+    std::cout << "\nChoose your Guess The Number table, " << myPlayerName << ":\n";
+    for (size_t tableIndex = 0; tableIndex < myGuessTheNumberTables.size(); ++tableIndex)
     {
-        const auto& table = guessTheNumberTables[index];
-        std::cout << index + 1 << ". " << table.getTableName()
-                  << " (min " << table.getMinBet()
-                  << ", max " << table.getMaxBet() << ")\n";
+        const GuessTheNumberGame& table = myGuessTheNumberTables[tableIndex];
+        std::cout << tableIndex + 1 << ". " << table.GetTableName()
+                  << " (min " << table.GetMinBet()
+                  << ", max " << table.GetMaxBet() << ")\n";
     }
     std::cout << "0. Return to menu\n";
 
     const std::string prompt = "Select a table (0 to return):";
-    int selection = GetInput(0, static_cast<int>(guessTheNumberTables.size()), prompt.c_str(), "Please enter a valid option.");
+    int selection = GetInput(0, static_cast<int>(myGuessTheNumberTables.size()), prompt.c_str(), "Please enter a valid option.");
     if (selection == 0)
     {
         return GameState::Menu;
     }
 
-    GuessTheNumberGame& selectedTable = guessTheNumberTables[static_cast<size_t>(selection - 1)];
-    return selectedTable.play(generator, playerMoney, playerBet, statHistory, playerName);
+    GuessTheNumberGame& selectedTable = myGuessTheNumberTables[static_cast<size_t>(selection - 1)];
+    return selectedTable.Play(myGenerator, myPlayerMoney, myPlayerBet, myStatHistory, myPlayerName);
 }
 
-std::string Casino::promptForPlayerName() const
+std::string Casino::PromptForPlayerName() const
 {
     while (true)
     {
@@ -98,24 +101,23 @@ std::string Casino::promptForPlayerName() const
             std::cout << "Name must have at least two letters.\n";
             continue;
         }
+
         bool onlyLetters = true;
-        for (char ch : input)
+        for (char character : input)
         {
-            if (!std::isalpha(static_cast<unsigned char>(ch)))
+            if (!std::isalpha(static_cast<unsigned char>(character)))
             {
                 onlyLetters = false;
                 break;
             }
         }
+
         if (!onlyLetters)
         {
             std::cout << "Name may contain letters only.\n";
             continue;
         }
+
         return input;
     }
 }
-
-
-
-

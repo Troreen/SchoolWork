@@ -1,26 +1,28 @@
 #include "OddOrEven.h"
+
+#include <cstdlib>
 #include <iostream>
 
 using namespace CasinoHelpers;
 
-int OddOrEvenGame::totalWins = 0;
-int OddOrEvenGame::totalLosses = 0;
+int OddOrEvenGame::ourTotalWins = 0;
+int OddOrEvenGame::ourTotalLosses = 0;
 
-CasinoHelpers::GameState OddOrEvenGame::play(std::mt19937& generator,
-                                             int& playerMoney,
-                                             int& playerBet,
-                                             std::array<signed int, 5>& statHistory,
-                                             const std::string& playerName)
+CasinoHelpers::GameState OddOrEvenGame::Play(std::mt19937& aGenerator,
+                                             int& somePlayerMoney,
+                                             int& aPlayerBet,
+                                             std::array<signed int, CasinoHelpers::globalStatHistorySize>& aStatHistory,
+                                             const std::string& aPlayerName)
 {
-    int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES,
+    int seeInstructions = GetInput(globalChoiceNo, globalChoiceYes,
                                    "Do you want instructions? (0: No, 1: Yes)",
                                    "Please enter 0 for No or 1 for Yes.");
     if (seeInstructions)
     {
-        ShowInstructions(GameState::OddOrEven, playerName);
+        ShowInstructions(GameState::OddOrEven, aPlayerName);
     }
 
-    int acceptRules = GetInput(CHOICE_NO, CHOICE_YES,
+    int acceptRules = GetInput(globalChoiceNo, globalChoiceYes,
                                "Do you want to continue? (0: No, 1: Yes)",
                                "Please enter 0 for No or 1 for Yes.");
     if (!acceptRules)
@@ -28,96 +30,96 @@ CasinoHelpers::GameState OddOrEvenGame::play(std::mt19937& generator,
         return GameState::Menu;
     }
 
-    int playAgain = PLAY_AGAIN_YES;
+    int playAgain = globalPlayAgainYes;
     int lossStreak = 0;
     int winCounter = 0;
     while (playAgain)
     {
-        if (playerMoney <= 0)
+        if (somePlayerMoney <= 0)
         {
-            return HandleBankruptcy(playerMoney, statHistory, playerName);
+            return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
         }
 
-        if (RecognizePlayer(GameState::OddOrEven, 0, winnings, 0, 0, 0, playerName))
+        if (RecognizePlayer(GameState::OddOrEven, 0, myWinnings, 0, 0, 0, aPlayerName))
         {
             return GameState::Menu;
         }
 
-        DrawHUD(playerMoney, statHistory, playerName);
-        Bet(playerMoney, playerBet, playerName);
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName);
 
         int guess = GetInput(1, 2,
                              "Enter 1 for odd or 2 for even (both dice must match):",
                              "Please enter 1 for odd or 2 for even.");
 
-        DrawHUD(playerMoney, statHistory, playerName);
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
         std::cout << "Rolling the dice...\n";
-        int die1 = RollDie(generator);
-        int die2 = RollDie(generator);
+        int dieOne = RollDie(aGenerator);
+        int dieTwo = RollDie(aGenerator);
 
         std::cout << "\nResult:\n";
-        std::cout << "Die 1: " << die1 << "\n";
-        std::cout << "Die 2: " << die2 << "\n";
+        std::cout << "Die 1: " << dieOne << "\n";
+        std::cout << "Die 2: " << dieTwo << "\n";
 
-        const bool bothOdd = ((die1 % 2) != 0) && ((die2 % 2) != 0);
-        const bool bothEven = ((die1 % 2) == 0) && ((die2 % 2) == 0);
-        const bool split1 = ((die1 % 2) != 0) && ((die2 % 2) == 0);
-        const bool split2 = ((die1 % 2) == 0) && ((die2 % 2) != 0);
-        const bool win = ((guess == 1) && bothOdd) || ((guess == 2) && bothEven);
+        const bool bothOdd = ((dieOne % 2) != 0) && ((dieTwo % 2) != 0);
+        const bool bothEven = ((dieOne % 2) == 0) && ((dieTwo % 2) == 0);
+        const bool splitOddEven = ((dieOne % 2) != 0) && ((dieTwo % 2) == 0);
+        const bool splitEvenOdd = ((dieOne % 2) == 0) && ((dieTwo % 2) != 0);
+        const bool playerWon = ((guess == 1) && bothOdd) || ((guess == 2) && bothEven);
 
-        if (win)
+        if (playerWon)
         {
             lossStreak = 0;
             ++winCounter;
-            const int payout = playerBet * PAYOUT_MULTIPLIER;
-            HandlePlayerMoney(playerMoney, playerBet, payout);
-            UpdatePlayerStatHistory(statHistory, payout);
-            winnings += payout;
-            ++totalWins;
-            std::cout << playerName << ", you guessed correctly. You win " << (payout - playerBet) << ".\n";
+            const int payout = aPlayerBet * ourPayoutMultiplier;
+            HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+            UpdatePlayerStatHistory(aStatHistory, payout);
+            myWinnings += payout;
+            ++ourTotalWins;
+            std::cout << aPlayerName << ", you guessed correctly. You win " << (payout - aPlayerBet) << ".\n";
         }
-        else if (split1 || split2)
+        else if (splitOddEven || splitEvenOdd)
         {
             winCounter = 0;
             ++lossStreak;
-            UpdatePlayerStatHistory(statHistory, -playerBet);
-            winnings -= playerBet;
-            ++totalLosses;
-            std::cout << "One die is odd and one is even, " << playerName << ". You lose your bet of " << playerBet << ".\n";
-            playerBet = 0;
+            UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+            myWinnings -= aPlayerBet;
+            ++ourTotalLosses;
+            std::cout << "One die is odd and one is even, " << aPlayerName << ". You lose your bet of " << aPlayerBet << ".\n";
+            aPlayerBet = 0;
             system("pause");
-            if (playerMoney <= 0)
+            if (somePlayerMoney <= 0)
             {
-                return HandleBankruptcy(playerMoney, statHistory, playerName);
+                return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
             }
         }
         else
         {
             winCounter = 0;
             ++lossStreak;
-            UpdatePlayerStatHistory(statHistory, -playerBet);
-            winnings -= playerBet;
-            ++totalLosses;
-            std::cout << "Incorrect guess, " << playerName << ". You lose your bet of " << playerBet << ".\n";
-            playerBet = 0;
+            UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+            myWinnings -= aPlayerBet;
+            ++ourTotalLosses;
+            std::cout << "Incorrect guess, " << aPlayerName << ". You lose your bet of " << aPlayerBet << ".\n";
+            aPlayerBet = 0;
             system("pause");
-            if (playerMoney <= 0)
+            if (somePlayerMoney <= 0)
             {
-                return HandleBankruptcy(playerMoney, statHistory, playerName);
+                return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
             }
         }
 
-        playAgain = GetInput(CHOICE_NO, CHOICE_YES,
-                             "Play again? (0: No, 1: Yes): ",
-                             "Please enter 0 for No or 1 for Yes.");
+        playAgain = GetInput(globalChoiceNo, globalChoiceYes,
+                              "Play again? (0: No, 1: Yes): ",
+                              "Please enter 0 for No or 1 for Yes.");
         if (playAgain)
         {
-            DrawHUD(playerMoney, statHistory, playerName);
-            std::cout << "Starting a new round, " << playerName << ".\n\n";
+            DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+            std::cout << "Starting a new round, " << aPlayerName << ".\n\n";
         }
         else
         {
-            std::cout << "\nExiting to menu, " << playerName << ".\n";
+            std::cout << "\nExiting to menu, " << aPlayerName << ".\n";
         }
     }
 

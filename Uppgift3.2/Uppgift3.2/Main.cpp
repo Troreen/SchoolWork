@@ -3,6 +3,6 @@
 int main()
 {
     Casino casino;
-    casino.run();
+    casino.Run();
     return 0;
 }

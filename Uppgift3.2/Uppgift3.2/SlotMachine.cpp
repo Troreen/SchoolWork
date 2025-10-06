@@ -1,27 +1,29 @@
 #include "SlotMachine.h"
+
+#include <cstdlib>
 #include <iostream>
 
 using namespace CasinoHelpers;
 
-int SlotMachineGame::totalWins = 0;
-int SlotMachineGame::totalLosses = 0;
+int SlotMachineGame::ourTotalWins = 0;
+int SlotMachineGame::ourTotalLosses = 0;
 
-CasinoHelpers::GameState SlotMachineGame::play(std::mt19937& generator,
-                                               int& playerMoney,
-                                               int& playerBet,
-                                               std::array<signed int, 5>& statHistory,
-                                               const std::string& playerName)
+CasinoHelpers::GameState SlotMachineGame::Play(std::mt19937& aGenerator,
+                                               int& somePlayerMoney,
+                                               int& aPlayerBet,
+                                               std::array<signed int, CasinoHelpers::globalStatHistorySize>& aStatHistory,
+                                               const std::string& aPlayerName)
 {
-    int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES,
+    int seeInstructions = GetInput(globalChoiceNo, globalChoiceYes,
                                    "Do you want instructions? (0: No, 1: Yes)",
                                    "Please enter 0 for No or 1 for Yes.");
     if (seeInstructions)
     {
-        std::cout << playerName << ", here's how the slot machine works: bet, spin, and hunt for three of a kind.\n";
+        std::cout << aPlayerName << ", here's how the slot machine works: bet, spin, and hunt for three of a kind.\n";
         std::cout << "Payouts: 3 of a kind = 5x bet, 2 of a kind = 2x bet, otherwise you lose your bet.\n\n";
     }
 
-    int acceptRules = GetInput(CHOICE_NO, CHOICE_YES,
+    int acceptRules = GetInput(globalChoiceNo, globalChoiceYes,
                                "Do you want to continue? (0: No, 1: Yes)",
                                "Please enter 0 for No or 1 for Yes.");
     if (!acceptRules)
@@ -29,61 +31,63 @@ CasinoHelpers::GameState SlotMachineGame::play(std::mt19937& generator,
         return GameState::Menu;
     }
 
-    int playAgain = PLAY_AGAIN_YES;
+    int playAgain = globalPlayAgainYes;
     while (playAgain)
     {
-        if (RecognizePlayer(GameState::SlotMachine, 0, 0, 0, 0, winnings, playerName))
+        if (RecognizePlayer(GameState::SlotMachine, 0, 0, 0, 0, myWinnings, aPlayerName))
         {
             return GameState::Menu;
         }
 
-        if (playerMoney <= 0)
+        if (somePlayerMoney <= 0)
         {
-            return HandleBankruptcy(playerMoney, statHistory, playerName);
+            return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
         }
 
-        DrawHUD(playerMoney, statHistory, playerName);
-        Bet(playerMoney, playerBet, playerName);
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName);
 
-        std::cout << playerName << ", spinning the reels...\n";
-        std::uniform_int_distribution<int> symbolDist(1, 5);
-        int reels[3] = { symbolDist(generator), symbolDist(generator), symbolDist(generator) };
+        std::cout << aPlayerName << ", spinning the reels...\n";
+        std::uniform_int_distribution<int> symbolDistribution(1, 5);
+        std::array<int, 3> reels{ symbolDistribution(aGenerator), symbolDistribution(aGenerator), symbolDistribution(aGenerator) };
         std::cout << "[ " << reels[0] << " | " << reels[1] << " | " << reels[2] << " ]\n";
 
         int payout = 0;
         if (reels[0] == reels[1] && reels[1] == reels[2])
         {
-            payout = playerBet * PAYOUT_MULTIPLIER_JACKPOT;
-            std::cout << "Three of a kind, " << playerName << ". You win " << payout << ".\n";
-            ++totalWins;
+            payout = aPlayerBet * ourPayoutMultiplierJackpot;
+            std::cout << "Three of a kind, " << aPlayerName << ". You win " << payout << ".\n";
+            ++ourTotalWins;
         }
         else if (reels[0] == reels[1] || reels[1] == reels[2] || reels[0] == reels[2])
         {
-            payout = playerBet * PAYOUT_MULTIPLIER_TWO_OF_A_KIND;
-            std::cout << "Two of a kind, " << playerName << ". You win " << payout << ".\n";
-            ++totalWins;
+            payout = aPlayerBet * ourPayoutMultiplierTwoOfAKind;
+            std::cout << "Two of a kind, " << aPlayerName << ". You win " << payout << ".\n";
+            ++ourTotalWins;
         }
         else
         {
             payout = 0;
-            std::cout << "No match this time, " << playerName << ". You lose your bet.\n";
-            ++totalLosses;
+            std::cout << "No match this time, " << aPlayerName << ". You lose your bet.\n";
+            ++ourTotalLosses;
         }
 
-        HandlePlayerMoney(playerMoney, playerBet, payout);
-        UpdatePlayerStatHistory(statHistory, payout - playerBet);
+        const int betAmount = aPlayerBet;
+        HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+        UpdatePlayerStatHistory(aStatHistory, payout - betAmount);
+        myWinnings += payout - betAmount;
 
-        playAgain = GetInput(PLAY_AGAIN_NO, PLAY_AGAIN_YES,
+        playAgain = GetInput(globalPlayAgainNo, globalPlayAgainYes,
                              "Play again? (0: No, 1: Yes): ",
                              "Please enter 0 for No or 1 for Yes.");
         if (playAgain)
         {
-            DrawHUD(playerMoney, statHistory, playerName);
-            std::cout << "Starting a new round, " << playerName << ".\n\n";
+            DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+            std::cout << "Starting a new round, " << aPlayerName << ".\n\n";
         }
         else
         {
-            std::cout << "\nExiting to menu, " << playerName << ".\n";
+            std::cout << "\nExiting to menu, " << aPlayerName << ".\n";
         }
     }
 
