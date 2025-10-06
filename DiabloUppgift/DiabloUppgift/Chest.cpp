@@ -1,35 +1,60 @@
 #include "Chest.h"
+#include "ChestTypes.h"
 
 Chest::Chest()
-    : myName("Chest")
-    , myDescription("")
+    : myType(nullptr)
     , myContents()
     , myOpened(false)
     , myLocked(false)
     , myCapacity(0)
+    , myCustomName("Chest")
+    , myCustomDescription()
 {
 }
 
 Chest::Chest(const std::string& aName, const std::string& aDescription)
-    : myName( aName)
-    , myDescription(aDescription)
+    : myType(nullptr)
     , myContents()
     , myOpened(false)
     , myLocked(false)
     , myCapacity(0)
+    , myCustomName(aName)
+    , myCustomDescription(aDescription)
 {
+}
+
+Chest::Chest(const ChestSpec& aType)
+    : myType(&aType)
+    , myContents()
+    , myOpened(false)
+    , myLocked(aType.locked)
+    , myCapacity(0)
+    , myCustomName()
+    , myCustomDescription()
+{
+    SetCapacity(aType.capacity);
 }
 
 Chest::~Chest() = default;
 
-const std::string& Chest::GetName() const
+std::string Chest::GetName() const
 {
-    return myName;
+    if (myType && myType->name)
+    {
+        return myType->name;
+    }
+
+    return myCustomName.empty() ? std::string("Chest") : myCustomName;
 }
 
-const std::string& Chest::GetDescription() const
+std::string Chest::GetDescription() const
 {
-    return myDescription;
+    if (myType && myType->description)
+    {
+        return myType->description;
+    }
+
+    return myCustomDescription;
 }
 
 bool Chest::IsOpened() const
@@ -59,7 +84,6 @@ void Chest::SetCapacity(int aCapacity)
         aCapacity = 0;
     }
     myCapacity = aCapacity;
-    
 }
 
 void Chest::AddItem(const ItemInstance& anItem)
@@ -78,4 +102,24 @@ std::vector<ItemInstance> Chest::Open()
     std::vector<ItemInstance> contents = myContents;
     myContents.clear();
     return contents;
+}
+
+const ChestSpec& Chest::GetType() const
+{
+    if (myType)
+    {
+        return *myType;
+    }
+
+    return GetChestSpec(ChestId::WoodenChest);
+}
+
+ChestId Chest::GetTypeId() const
+{
+    return GetType().id;
+}
+
+bool Chest::HasType() const
+{
+    return myType != nullptr;
 }

@@ -33,9 +33,7 @@ Chest ChestFactory::Make(ChestId id) const
         return Chest{};
     }
 
-    Chest chest(spec->name, spec->description);
-    chest.SetLocked(spec->locked);
-    chest.SetCapacity(spec->capacity);
+    Chest chest(*spec);
 
     const ItemFactory& itemFactory = GetItemFactory();
     for (const ChestLootEntry& entry : spec->lootTable)
@@ -63,4 +61,5 @@ const ChestFactory& GetChestFactory()
 {
     return gDefaultChestFactory;
 }
+
 

@@ -33,7 +33,7 @@ Enemy EnemyFactory::Make(EnemyId id) const
         return Enemy{};
     }
 
-    Enemy enemy(spec->name, spec->strength, spec->dexterity, spec->physique);
+    Enemy enemy(*spec);
 
     const ItemFactory& itemFactory = GetItemFactory();
     for (const EnemyLootEntry& entry : spec->lootTable)
@@ -53,3 +53,4 @@ const EnemyFactory& GetEnemyFactory()
 {
     return gDefaultEnemyFactory;
 }
+
