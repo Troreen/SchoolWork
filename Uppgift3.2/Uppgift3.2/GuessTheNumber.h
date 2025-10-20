@@ -6,32 +6,41 @@
 
 class GuessTheNumberGame
 {
-private:
-    std::string tableName;
-    int minBet;
-    int maxBet;
-    int winnings;
-    static int totalWins;
-    static int totalLosses;
-    static constexpr int PAYOUT_MULTIPLIER_NUMERATOR = 3;
-    static constexpr int PAYOUT_MULTIPLIER_DENOMINATOR = 2;
-
 public:
-    GuessTheNumberGame(const std::string& tableLabel, int minBetAmount, int maxBetAmount);
+    GuessTheNumberGame(const std::string& aTableLabel, int aMinBetAmount, int aMaxBetAmount);
 
-    int getWinnings() const { return winnings; }
-    const std::string& getTableName() const { return tableName; }
-    int getMinBet() const { return minBet; }
-    int getMaxBet() const { return maxBet; }
-    bool canAfford(int playerMoney) const { return playerMoney >= minBet; }
-    static int getTotalWins() { return totalWins; }
-    static int getTotalLosses() { return totalLosses; }
-    static constexpr int getPayoutMultiplierNumerator() { return PAYOUT_MULTIPLIER_NUMERATOR; }
-    static constexpr int getPayoutMultiplierDenominator() { return PAYOUT_MULTIPLIER_DENOMINATOR; }
+    int GetWinnings() const;
 
-    CasinoHelpers::GameState play(std::mt19937& generator,
-                                  int& playerMoney,
-                                  int& playerBet,
-                                  std::array<signed int, 5>& statHistory,
-                                  const std::string& playerName);
+    const std::string& GetTableName() const;
+
+    int GetMinBet() const;
+
+    int GetMaxBet() const;
+
+    bool CanAfford(int somePlayerMoney) const;
+
+    static int GetTotalWins();
+
+    static int GetTotalLosses();
+
+    static int GetPayoutMultiplierNumerator();
+
+    static int GetPayoutMultiplierDenominator();
+
+    CasinoHelpers::GameState Play(std::mt19937& aGenerator,
+                                  int& somePlayerMoney,
+                                  int& aPlayerBet,
+                                  CasinoHelpers::StatHistory& aStatHistory,
+                                  const std::string& aPlayerName);
+
+private:
+    std::string myTableName;
+    int myMinBet;
+    int myMaxBet;
+    int myWinnings;
+    static int ourTotalWins;
+    static int ourTotalLosses;
+    static const int ourPayoutMultiplierNumerator;
+    static const int ourPayoutMultiplierDenominator;
+
 };

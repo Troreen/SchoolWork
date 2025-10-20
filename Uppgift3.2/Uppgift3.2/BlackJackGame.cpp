@@ -5,90 +5,137 @@
 #include <cassert>
 using namespace CasinoHelpers;
 
-int BlackJackGame::totalWins = 0;
-int BlackJackGame::totalLosses = 0;
+BlackJackGame::BlackJackGame()
+    : myWinnings(0)
+{
+}
 
-namespace {
-    std::array<int, 52> createDeck()
+int BlackJackGame::ourTotalWins = 0;
+int BlackJackGame::ourTotalLosses = 0;
+const int BlackJackGame::ourPayoutMultiplier = 2;
+
+std::array<int, 52> BlackJackGame::CreateDeck()
+{
+    std::array<int, 52> deck{};
+    for (int index = 0; index < 52; ++index)
     {
-        std::array<int, 52> deck{};
-        for (int i = 0; i < 52; ++i)
-        {
-            deck[i] = i;
-        }
-        return deck;
+        deck[index] = index;
     }
 
-    void shuffleDeck(std::array<int, 52>& deck, std::mt19937& generator)
-    {
-        for (int i = static_cast<int>(deck.size()) - 1; i > 0; i--)
-        {
-            std::uniform_int_distribution<int> distribution(0, i);
-            int j = distribution(generator);
-            std::swap(deck[i], deck[j]);
-        }
-    }
+    return deck;
+}
 
-    int getCardValue(int cardIndex)
+void BlackJackGame::ShuffleDeck(std::array<int, 52>& aDeck, std::mt19937& aGenerator)
+{
+    for (int index = static_cast<int>(aDeck.size()) - 1; index > 0; --index)
     {
-        int rank = (cardIndex % 13) + 1;
-        if (rank == 1)
-            return 11; // Ace
-        if (rank > 10)
-            return 10; // Face cards
-        return rank;
-    }
-
-    int getHandValue(const std::array<int, 12>& hand, int cardCount)
-    {
-        int total = 0;
-        int aceCount = 0;
-        for (int i = 0; i < cardCount; i++)
-        {
-            int value = getCardValue(hand[i]);
-            total += value;
-            if (value == 11)
-                aceCount++;
-        }
-        while (total > 21 && aceCount > 0)
-        {
-            total -= 10;
-            aceCount--;
-        }
-        return total;
-    }
-
-    int dealOneCard(const std::array<int, 52>& deck, int& deckTop)
-    {
-        assert(deckTop < static_cast<int>(deck.size()));
-        return deck[deckTop++];
-    }
-
-    void showHands(const std::array<int, 12>& player, int playerCount, const std::array<int, 12>& dealer, int dealerCount, bool revealDealer)
-    {
-        std::cout << "Player's hand: ";
-        for (int i = 0; i < playerCount; ++i)
-        {
-            std::cout << getCardValue(player[i]) << ' ';
-        }
-        std::cout << "(Total: " << getHandValue(player, playerCount) << ")\n";
-        std::cout << "Dealer's hand: ";
-        if (revealDealer)
-        {
-            for (int i = 0; i < dealerCount; ++i)
-            {
-                std::cout << getCardValue(dealer[i]) << ' ';
-            }
-            std::cout << "(Total: " << getHandValue(dealer, dealerCount) << ")\n";
-        }
-        else
-        {
-            std::cout << getCardValue(dealer[0]) << " ?\n";
-        }
+        std::uniform_int_distribution<int> distribution(0, index);
+        int chosenIndex = distribution(aGenerator);
+        std::swap(aDeck[index], aDeck[chosenIndex]);
     }
 }
 
-CasinoHelpers::GameState BlackJackGame::play(std::mt19937& generator, int& playerMoney, int& playerBet, std::array<signed int, 5>& statHistory, const std::string& playerName)
+int BlackJackGame::GetCardValue(int aCardIndex)
+{
+    int rank = (aCardIndex % 13) + 1;
+    if (rank == 1)
+    {
+        return 11;
+    }
+
+    if (rank > 10)
+    {
+        return 10;
+    }
+
+    return rank;
+}
+
+int BlackJackGame::GetHandValue(const std::array<int, 12>& aHand, int aCardCount)
+{
+    int totalValue = 0;
+    int aceCount = 0;
+    for (int index = 0; index < aCardCount; ++index)
+    {
+        int cardValue = GetCardValue(aHand[index]);
+        totalValue += cardValue;
+        if (cardValue == 11)
+        {
+            ++aceCount;
+        }
+    }
+
+    while (totalValue > 21 && aceCount > 0)
+    {
+        totalValue -= 10;
+        --aceCount;
+    }
+
+    return totalValue;
+}
+
+int BlackJackGame::DealOneCard(const std::array<int, 52>& aDeck, int& aDeckTop)
+{
+    assert(aDeckTop < static_cast<int>(aDeck.size()));
+    int dealtCard = aDeck[aDeckTop];
+    ++aDeckTop;
+    return dealtCard;
+}
+
+void BlackJackGame::ShowHands(const std::array<int, 12>& aPlayerHand,
+                              int aPlayerCount,
+                              const std::array<int, 12>& aDealerHand,
+                              int aDealerCount,
+                              bool aRevealDealer)
+{
+    std::cout << "Player's hand: ";
+    for (int index = 0; index < aPlayerCount; ++index)
+    {
+        std::cout << GetCardValue(aPlayerHand[index]) << ' ';
+    }
+
+    std::cout << "(Total: " << GetHandValue(aPlayerHand, aPlayerCount) << ")\n";
+    std::cout << "Dealer's hand: ";
+    if (aRevealDealer)
+    {
+        for (int index = 0; index < aDealerCount; ++index)
+        {
+            std::cout << GetCardValue(aDealerHand[index]) << ' ';
+        }
+
+        std::cout << "(Total: " << GetHandValue(aDealerHand, aDealerCount) << ")\n";
+    }
+    else
+    {
+        std::cout << GetCardValue(aDealerHand[0]) << " ?\n";
+    }
+}
+
+int BlackJackGame::GetWinnings() const
+{
+    return myWinnings;
+}
+
+int BlackJackGame::GetTotalWins()
+{
+    return ourTotalWins;
+}
+
+int BlackJackGame::GetTotalLosses()
+{
+    return ourTotalLosses;
+}
+
+int BlackJackGame::GetPayoutMultiplier()
+{
+    return ourPayoutMultiplier;
+}
+
+CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
+                                             int& somePlayerMoney,
+                                             int& aPlayerBet,
+                                             CasinoHelpers::StatHistory& aStatHistory,
+                                             const std::string& aPlayerName)
 {
     int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES, "Would you like to see the instructions? (0: No, 1: Yes)", "Please enter 0 for No or 1 for Yes.");
     if (seeInstructions)

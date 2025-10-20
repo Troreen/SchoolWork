@@ -3,8 +3,10 @@
 
 using namespace CasinoHelpers;
 
-int GuessTheNumberGame::totalWins = 0;
-int GuessTheNumberGame::totalLosses = 0;
+int GuessTheNumberGame::ourTotalWins = 0;
+int GuessTheNumberGame::ourTotalLosses = 0;
+const int GuessTheNumberGame::ourPayoutMultiplierNumerator = 3;
+const int GuessTheNumberGame::ourPayoutMultiplierDenominator = 2;
 
 GuessTheNumberGame::GuessTheNumberGame(const std::string& tableLabel,
                                        int minBetAmount,
@@ -14,17 +16,62 @@ GuessTheNumberGame::GuessTheNumberGame(const std::string& tableLabel,
     , maxBet(1)
     , winnings(0)
 {
-    const int normalizedMin = (minBetAmount < 1) ? 1 : minBetAmount;
-    const int normalizedMax = (maxBetAmount < normalizedMin) ? normalizedMin : maxBetAmount;
-    minBet = normalizedMin;
-    maxBet = normalizedMax;
+    const int normalizedMin = (aMinBetAmount < 1) ? 1 : aMinBetAmount;
+    const int normalizedMax = (aMaxBetAmount < normalizedMin) ? normalizedMin : aMaxBetAmount;
+    myMinBet = normalizedMin;
+    myMaxBet = normalizedMax;
 }
 
-CasinoHelpers::GameState GuessTheNumberGame::play(std::mt19937& generator,
-                                                  int& playerMoney,
-                                                  int& playerBet,
-                                                  std::array<signed int, 5>& statHistory,
-                                                  const std::string& playerName)
+int GuessTheNumberGame::GetWinnings() const
+{
+    return myWinnings;
+}
+
+const std::string& GuessTheNumberGame::GetTableName() const
+{
+    return myTableName;
+}
+
+int GuessTheNumberGame::GetMinBet() const
+{
+    return myMinBet;
+}
+
+int GuessTheNumberGame::GetMaxBet() const
+{
+    return myMaxBet;
+}
+
+bool GuessTheNumberGame::CanAfford(int somePlayerMoney) const
+{
+    return somePlayerMoney >= myMinBet;
+}
+
+int GuessTheNumberGame::GetTotalWins()
+{
+    return ourTotalWins;
+}
+
+int GuessTheNumberGame::GetTotalLosses()
+{
+    return ourTotalLosses;
+}
+
+int GuessTheNumberGame::GetPayoutMultiplierNumerator()
+{
+    return ourPayoutMultiplierNumerator;
+}
+
+int GuessTheNumberGame::GetPayoutMultiplierDenominator()
+{
+    return ourPayoutMultiplierDenominator;
+}
+
+CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
+                                                  int& somePlayerMoney,
+                                                  int& aPlayerBet,
+                                                  CasinoHelpers::StatHistory& aStatHistory,
+                                                  const std::string& aPlayerName)
 {
     if (!canAfford(playerMoney))
     {

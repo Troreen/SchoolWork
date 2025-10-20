@@ -3,14 +3,46 @@
 
 using namespace CasinoHelpers;
 
-int SlotMachineGame::totalWins = 0;
-int SlotMachineGame::totalLosses = 0;
+SlotMachineGame::SlotMachineGame()
+    : myWinnings(0)
+{
+}
 
-CasinoHelpers::GameState SlotMachineGame::play(std::mt19937& generator,
-                                               int& playerMoney,
-                                               int& playerBet,
-                                               std::array<signed int, 5>& statHistory,
-                                               const std::string& playerName)
+int SlotMachineGame::ourTotalWins = 0;
+int SlotMachineGame::ourTotalLosses = 0;
+const int SlotMachineGame::ourPayoutMultiplierTwoOfAKind = 2;
+const int SlotMachineGame::ourPayoutMultiplierJackpot = 5;
+
+int SlotMachineGame::GetWinnings() const
+{
+    return myWinnings;
+}
+
+int SlotMachineGame::GetTotalWins()
+{
+    return ourTotalWins;
+}
+
+int SlotMachineGame::GetTotalLosses()
+{
+    return ourTotalLosses;
+}
+
+int SlotMachineGame::GetPayoutMultiplierTwoOfAKind()
+{
+    return ourPayoutMultiplierTwoOfAKind;
+}
+
+int SlotMachineGame::GetPayoutMultiplierJackpot()
+{
+    return ourPayoutMultiplierJackpot;
+}
+
+CasinoHelpers::GameState SlotMachineGame::Play(std::mt19937 &aGenerator,
+                                               int &somePlayerMoney,
+                                               int &aPlayerBet,
+                                               CasinoHelpers::StatHistory &aStatHistory,
+                                               const std::string &aPlayerName)
 {
     int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES,
                                    "Do you want instructions? (0: No, 1: Yes)",

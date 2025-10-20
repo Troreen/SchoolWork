@@ -3,14 +3,40 @@
 
 using namespace CasinoHelpers;
 
-int OddOrEvenGame::totalWins = 0;
-int OddOrEvenGame::totalLosses = 0;
+OddOrEvenGame::OddOrEvenGame()
+    : myWinnings(0)
+{
+}
 
-CasinoHelpers::GameState OddOrEvenGame::play(std::mt19937& generator,
-                                             int& playerMoney,
-                                             int& playerBet,
-                                             std::array<signed int, 5>& statHistory,
-                                             const std::string& playerName)
+int OddOrEvenGame::ourTotalWins = 0;
+int OddOrEvenGame::ourTotalLosses = 0;
+const int OddOrEvenGame::ourPayoutMultiplier = 3;
+
+int OddOrEvenGame::GetWinnings() const
+{
+    return myWinnings;
+}
+
+int OddOrEvenGame::GetTotalWins()
+{
+    return ourTotalWins;
+}
+
+int OddOrEvenGame::GetTotalLosses()
+{
+    return ourTotalLosses;
+}
+
+int OddOrEvenGame::GetPayoutMultiplier()
+{
+    return ourPayoutMultiplier;
+}
+
+CasinoHelpers::GameState OddOrEvenGame::Play(std::mt19937& aGenerator,
+                                             int& somePlayerMoney,
+                                             int& aPlayerBet,
+                                             CasinoHelpers::StatHistory& aStatHistory,
+                                             const std::string& aPlayerName)
 {
     int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES,
                                    "Do you want instructions? (0: No, 1: Yes)",

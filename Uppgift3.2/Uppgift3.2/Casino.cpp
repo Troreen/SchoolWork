@@ -21,6 +21,7 @@ Casino::Casino()
     generator = std::mt19937(rd());
 }
 
+
 void Casino::run()
 {
     if (playerName.empty())
@@ -62,7 +63,47 @@ void Casino::run()
     }
 }
 
-CasinoHelpers::GameState Casino::playGuessTheNumber()
+const std::array<GuessTheNumberGame, 2>& Casino::GetGuessTheNumberTables() const
+{
+    return myGuessTheNumberTables;
+}
+
+const OddOrEvenGame& Casino::GetOddOrEvenGame() const
+{
+    return myOddOrEvenGame;
+}
+
+const BlackJackGame& Casino::GetBlackJackGame() const
+{
+    return myBlackJackGame;
+}
+
+const SlotMachineGame& Casino::GetSlotMachineGame() const
+{
+    return mySlotMachineGame;
+}
+
+const RouletteGame& Casino::GetRouletteGame() const
+{
+    return myRouletteGame;
+}
+
+int Casino::GetPlayerMoney() const
+{
+    return myPlayerMoney;
+}
+
+int Casino::GetPlayerBet() const
+{
+    return myPlayerBet;
+}
+
+const CasinoHelpers::StatHistory& Casino::GetStatHistory() const
+{
+    return myStatHistory;
+}
+
+CasinoHelpers::GameState Casino::PlayGuessTheNumber()
 {
     DrawHUD(playerMoney, statHistory, playerName);
     std::cout << "\nChoose your Guess The Number table, " << playerName << ":\n";

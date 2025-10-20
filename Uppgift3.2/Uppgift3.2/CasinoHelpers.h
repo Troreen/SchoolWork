@@ -6,12 +6,13 @@
 
 namespace CasinoHelpers
 {
-    const int CHOICE_NO = 0;
-    const int CHOICE_YES = 1;
-    const int PLAY_AGAIN_NO = 0;
-    const int PLAY_AGAIN_YES = 1;
-    const int PLAYER_INITIAL_MONEY = 1000;
-    const int STAT_HISTORY_SIZE = 5;
+    extern const int globalChoiceNo;
+    extern const int globalChoiceYes;
+    extern const int globalPlayAgainNo;
+    extern const int globalPlayAgainYes;
+    extern const int globalPlayerInitialMoney;
+
+    using StatHistory = std::array<signed int, 5>;
 
     enum class GameState
     {
@@ -34,17 +35,19 @@ namespace CasinoHelpers
         Exit = 0
     };
 
-    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName);
+    void DrawHud(int somePlayerMoney, const StatHistory& aStatHistory, const std::string& aPlayerName);
     void HandlePlayerMoney(int& somePlayerMoney, int& aPlayerBet, int aMoney);
-    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& playerName, int aMinBet = 1, int aMaxBet = -1);
-    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName);
-    bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot, int someWinningsRoulette, const std::string& playerName);
-    void UpdatePlayerStatHistory(std::array<signed int, 5>& aStatHistory, int anAmount);
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& aPlayerName);
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& aPlayerName, int aMinBet);
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& aPlayerName, int aMinBet, int aMaxBet);
+    GameState HandleBankruptcy(int somePlayerMoney, const StatHistory& aStatHistory, const std::string& aPlayerName);
+    bool RecognizePlayer(GameState aState, int someWinningsGuessTheNumber, int someWinningsOddOrEven, int someWinningsBlackJack, int someWinningsSlot, int someWinningsRoulette, const std::string& aPlayerName);
+    void UpdatePlayerStatHistory(StatHistory& aStatHistory, int anAmount);
     int GetInput(int aMinNum, int aMaxNum, const char* aPrompt, const char* aFailPrompt);
     int RollDie(std::mt19937& aGenerator);
-    void ShowMenu(const std::string& playerName);
-    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory, const std::string& playerName);
-    void ShowInstructions(GameState aState, const std::string& playerName);
+    void ShowMenu(const std::string& aPlayerName);
+    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, StatHistory& aStatHistory, const std::string& aPlayerName);
+    void ShowInstructions(GameState aState, const std::string& aPlayerName);
     void ShowInstructions(GameState aState);
     const char* GetLossTaunt(int aStreak);
     const char* GetWinTaunt(int aWinCounter);

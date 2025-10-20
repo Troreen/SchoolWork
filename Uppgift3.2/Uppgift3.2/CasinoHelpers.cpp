@@ -6,6 +6,12 @@
 
 namespace CasinoHelpers
 {
+    const int globalChoiceNo = 0;
+    const int globalChoiceYes = 1;
+    const int globalPlayAgainNo = 0;
+    const int globalPlayAgainYes = 1;
+    const int globalPlayerInitialMoney = 1000;
+
     namespace
     {
         void PrintIntegerBySign(int aValue, HANDLE aConsoleHandle, WORD someDefaultTextAttributes)
@@ -29,7 +35,7 @@ namespace CasinoHelpers
         }
     }
 
-    void DrawHUD(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName)
+    void DrawHud(int somePlayerMoney, const StatHistory& aStatHistory, const std::string& aPlayerName)
     {
         system("cls");
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -49,7 +55,7 @@ namespace CasinoHelpers
         std::cout << "\t\t\t\t\t\t" << playerName << "'s current money: " << somePlayerMoney << '\n';
     }
 
-    void UpdatePlayerStatHistory(std::array<signed int, 5>& aStatHistory, int anAmount)
+    void UpdatePlayerStatHistory(StatHistory& aStatHistory, int anAmount)
     {
         for (size_t i = aStatHistory.size(); i > 1; --i)
         {
@@ -64,7 +70,7 @@ namespace CasinoHelpers
         aPlayerBet = 0;
     }
 
-    GameState HandleBankruptcy(int somePlayerMoney, const std::array<signed int, 5>& aStatHistory, const std::string& playerName)
+    GameState HandleBankruptcy(int somePlayerMoney, const StatHistory& aStatHistory, const std::string& aPlayerName)
     {
         DrawHUD(somePlayerMoney, aStatHistory, playerName);
         std::cout << '\n' << playerName << ", your pockets echo like an empty alley. Not a chip left to your name.";
@@ -73,7 +79,17 @@ namespace CasinoHelpers
         return GameState::Exit;
     }
 
-    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& playerName, int aMinBet, int aMaxBet)
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& aPlayerName)
+    {
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName, 1, -1);
+    }
+
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& aPlayerName, int aMinBet)
+    {
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName, aMinBet, -1);
+    }
+
+    void Bet(int& somePlayerMoney, int& aPlayerBet, const std::string& aPlayerName, int aMinBet, int aMaxBet)
     {
         int effectiveMax = somePlayerMoney;
         if (aMaxBet > 0 && aMaxBet < effectiveMax)
@@ -253,7 +269,7 @@ namespace CasinoHelpers
         std::cout << "0. Exit\n";
     }
 
-    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, std::array<signed int, 5>& aStatHistory, const std::string& playerName)
+    GameState MenuState(int& somePlayerMoney, int& aPlayerBet, StatHistory& aStatHistory, const std::string& aPlayerName)
     {
         const std::string prompt = playerName + ", select a game by entering its number:";
         int choice = GetInput(0, 5, prompt.c_str(), "Please enter a number between 0 and 5.");

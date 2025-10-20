@@ -4,104 +4,128 @@
 
 using namespace CasinoHelpers;
 
-namespace
+RouletteGame::RouletteGame()
+    : myWinnings(0)
 {
-    const int rouletteLayout[37] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 };
+}
 
-    void PrintRouletteCellWithColour(const std::string& cellText,
-                                     HANDLE consoleHandle,
-                                     WORD defaultTextAttributes,
-                                     const std::string& colour)
+const std::array<int, 37> RouletteGame::ourRouletteLayout{
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36
+};
+
+void RouletteGame::PrintRouletteCellWithColour(const std::string& aCellText,
+                                               HANDLE aConsoleHandle,
+                                               WORD someDefaultTextAttributes,
+                                               const std::string& aColour)
+{
+    WORD chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+    if (aColour == "green")
     {
-        WORD chosenAttributes;
-        if (colour == "green")
+        chosenAttributes = BACKGROUND_GREEN;
+    }
+    else if (aColour == "red")
+    {
+        chosenAttributes = BACKGROUND_RED;
+    }
+    else if (aColour == "black")
+    {
+        chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+    }
+
+    SetConsoleTextAttribute(aConsoleHandle, chosenAttributes);
+    std::cout << aCellText;
+    SetConsoleTextAttribute(aConsoleHandle, someDefaultTextAttributes);
+}
+
+void RouletteGame::DisplayRouletteBoard()
+{
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO screenInfo{};
+    WORD defaultTextAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+    if (GetConsoleScreenBufferInfo(consoleHandle, &screenInfo))
+    {
+        defaultTextAttributes = screenInfo.wAttributes;
+    }
+
+    for (int index = 0; index < static_cast<int>(ourRouletteLayout.size()); ++index)
+    {
+        std::string cellText;
+        if (index == 0)
         {
-            chosenAttributes = BACKGROUND_GREEN;
+            cellText = "[         " + std::to_string(ourRouletteLayout[index]) + "        ]\n";
         }
-        else if (colour == "red")
+        else if (index % 3 == 0)
         {
-            chosenAttributes = BACKGROUND_RED;
+            if (index <= 9)
+            {
+                cellText = "[  " + std::to_string(ourRouletteLayout[index]) + " ]\n";
+            }
+            else
+            {
+                cellText = "[ " + std::to_string(ourRouletteLayout[index]) + " ]\n";
+            }
         }
-        else if (colour == "black")
+        else if (index < 10)
         {
-            chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+            cellText = "[  " + std::to_string(ourRouletteLayout[index]) + "  ]";
         }
         else
         {
-            chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+            cellText = "[ " + std::to_string(ourRouletteLayout[index]) + "  ]";
         }
-        SetConsoleTextAttribute(consoleHandle, chosenAttributes);
-        std::cout << cellText;
-        SetConsoleTextAttribute(consoleHandle, defaultTextAttributes);
-    }
 
-    void DisplayRouletteBoard()
-    {
-        HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_SCREEN_BUFFER_INFO screenInfo{};
-        WORD defaultTextAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-        if (GetConsoleScreenBufferInfo(consoleHandle, &screenInfo))
+        std::string cellColour;
+        if (index == 0)
         {
-            defaultTextAttributes = screenInfo.wAttributes;
+            cellColour = "green";
         }
-        for (int index = 0; index < 37; ++index)
+        else if (index < 11 || (index > 18 && index < 29))
         {
-            std::string cellText;
-            if (index == 0)
-            {
-                cellText = "[         " + std::to_string(rouletteLayout[index]) + "        ]\n";
-            }
-            else if (index % 3 == 0)
-            {
-                if (index <= 9)
-                {
-                    cellText = "[  " + std::to_string(rouletteLayout[index]) + " ]\n";
-                }
-                else
-                {
-                    cellText = "[ " + std::to_string(rouletteLayout[index]) + " ]\n";
-                }
-            }
-            else if (index < 9)
-            {
-                cellText = "[  " + std::to_string(rouletteLayout[index]) + "  ]";
-            }
-            else
-            {
-                cellText = "[ " + std::to_string(rouletteLayout[index]) + "  ]";
-            }
-
-            std::string cellColour;
-            if (index == 0)
-            {
-                cellColour = "green";
-            }
-            else if (index < 11 || (index > 18 && index < 29))
-            {
-                cellColour = (index % 2 == 0) ? "black" : "red";
-            }
-            else if ((index > 10 && index < 19) || index > 28)
-            {
-                cellColour = (index % 2 == 0) ? "red" : "black";
-            }
-            else
-            {
-                cellColour = "black";
-            }
-
-            PrintRouletteCellWithColour(cellText, consoleHandle, defaultTextAttributes, cellColour);
+            cellColour = (index % 2 == 0) ? "black" : "red";
         }
+        else if ((index > 10 && index < 19) || index > 28)
+        {
+            cellColour = (index % 2 == 0) ? "red" : "black";
+        }
+        else
+        {
+            cellColour = "black";
+        }
+
+        PrintRouletteCellWithColour(cellText, consoleHandle, defaultTextAttributes, cellColour);
     }
 }
 
-int RouletteGame::totalWins = 0;
-int RouletteGame::totalLosses = 0;
+int RouletteGame::ourTotalWins = 0;
+int RouletteGame::ourTotalLosses = 0;
+const int RouletteGame::ourPayoutMultiplier = 3;
 
-CasinoHelpers::GameState RouletteGame::play(std::mt19937& generator,
-                                            int& playerMoney,
-                                            int& playerBet,
-                                            std::array<signed int, 5>& statHistory,
-                                            const std::string& playerName)
+int RouletteGame::GetWinnings() const
+{
+    return myWinnings;
+}
+
+int RouletteGame::GetTotalWins()
+{
+    return ourTotalWins;
+}
+
+int RouletteGame::GetTotalLosses()
+{
+    return ourTotalLosses;
+}
+
+int RouletteGame::GetPayoutMultiplier()
+{
+    return ourPayoutMultiplier;
+}
+
+CasinoHelpers::GameState RouletteGame::Play(std::mt19937& aGenerator,
+                                            int& somePlayerMoney,
+                                            int& aPlayerBet,
+                                            CasinoHelpers::StatHistory& aStatHistory,
+                                            const std::string& aPlayerName)
 {
     int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES,
                                    "Would you like to see the instructions? (0: No, 1: Yes)",
