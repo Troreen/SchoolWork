@@ -1,6 +1,6 @@
 #pragma once
-#include <random>
 #include <array>
+#include <random>
 #include <string>
 #include "GuessTheNumber.h"
 #include "OddOrEven.h"
@@ -11,21 +11,6 @@
 
 class Casino
 {
-private:
-    std::array<GuessTheNumberGame, 2> guessTheNumberTables;
-    OddOrEvenGame oddOrEvenGame;
-    BlackJackGame blackJackGame;
-    SlotMachineGame slotMachineGame;
-    RouletteGame rouletteGame;
-    std::string playerName;
-    int playerMoney;
-    int playerBet;
-    std::array<signed int, 5> statHistory;
-    std::mt19937 generator;
-
-    CasinoHelpers::GameState playGuessTheNumber();
-    std::string promptForPlayerName() const;
-
 public:
     Casino();
     void Run();
@@ -62,4 +47,3 @@ private:
     std::string PromptForPlayerName() const;
 
 };
-

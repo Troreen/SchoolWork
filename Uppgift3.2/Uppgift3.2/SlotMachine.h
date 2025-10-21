@@ -18,12 +18,12 @@ public:
     static int GetPayoutMultiplierTwoOfAKind();
 
     static int GetPayoutMultiplierJackpot();
-    
+
     CasinoHelpers::GameState Play(std::mt19937& aGenerator,
-                                  int& somePlayerMoney,
-                                  int& aPlayerBet,
-                                  CasinoHelpers::StatHistory& aStatHistory,
-                                  const std::string& aPlayerName);
+        int& somePlayerMoney,
+        int& aPlayerBet,
+        CasinoHelpers::StatHistory& aStatHistory,
+        const std::string& aPlayerName);
 
 private:
     int myWinnings;

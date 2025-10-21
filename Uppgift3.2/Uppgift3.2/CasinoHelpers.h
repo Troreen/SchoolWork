@@ -1,7 +1,7 @@
 #pragma once
-#include <random>
+
 #include <array>
-#include <Windows.h>
+#include <random>
 #include <string>
 
 namespace CasinoHelpers
@@ -22,7 +22,8 @@ namespace CasinoHelpers
         BlackJack,
         SlotMachine,
         Roulette,
-        Exit
+        Exit,
+        Count
     };
 
     enum class MenuOption
@@ -32,7 +33,8 @@ namespace CasinoHelpers
         BlackJack = 3,
         SlotMachine = 4,
         Roulette = 5,
-        Exit = 0
+        Exit = 0,
+        Count
     };
 
     void DrawHud(int somePlayerMoney, const StatHistory& aStatHistory, const std::string& aPlayerName);
@@ -52,4 +54,3 @@ namespace CasinoHelpers
     const char* GetLossTaunt(int aStreak);
     const char* GetWinTaunt(int aWinCounter);
 }
-

@@ -1,14 +1,18 @@
 #include "BlackJackGame.h"
-#include <iostream>
+
 #include <array>
-#include <random>
 #include <cassert>
+#include <iostream>
+#include <random>
+
 using namespace CasinoHelpers;
 
 BlackJackGame::BlackJackGame()
     : myWinnings(0)
 {
 }
+
+BlackJackGame::~BlackJackGame() = default;
 
 int BlackJackGame::ourTotalWins = 0;
 int BlackJackGame::ourTotalLosses = 0;
@@ -83,10 +87,10 @@ int BlackJackGame::DealOneCard(const std::array<int, 52>& aDeck, int& aDeckTop)
 }
 
 void BlackJackGame::ShowHands(const std::array<int, 12>& aPlayerHand,
-                              int aPlayerCount,
-                              const std::array<int, 12>& aDealerHand,
-                              int aDealerCount,
-                              bool aRevealDealer)
+    int aPlayerCount,
+    const std::array<int, 12>& aDealerHand,
+    int aDealerCount,
+    bool aRevealDealer)
 {
     std::cout << "Player's hand: ";
     for (int index = 0; index < aPlayerCount; ++index)
@@ -132,128 +136,147 @@ int BlackJackGame::GetPayoutMultiplier()
 }
 
 CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
-                                             int& somePlayerMoney,
-                                             int& aPlayerBet,
-                                             CasinoHelpers::StatHistory& aStatHistory,
-                                             const std::string& aPlayerName)
+    int& somePlayerMoney,
+    int& aPlayerBet,
+    CasinoHelpers::StatHistory& aStatHistory,
+    const std::string& aPlayerName)
 {
-    int seeInstructions = GetInput(CHOICE_NO, CHOICE_YES, "Would you like to see the instructions? (0: No, 1: Yes)", "Please enter 0 for No or 1 for Yes.");
+    int seeInstructions = GetInput(globalChoiceNo, globalChoiceYes,
+        "Would you like to see the instructions? (0: No, 1: Yes)",
+        "Please enter 0 for No or 1 for Yes.");
     if (seeInstructions)
     {
-        ShowInstructions(GameState::BlackJack, playerName);
+        ShowInstructions(GameState::BlackJack, aPlayerName);
     }
-    int acceptRules = GetInput(CHOICE_NO, CHOICE_YES, "Do you want to continue? (0: No, 1: Yes)", "Please enter 0 for No or 1 for Yes.");
+
+    int acceptRules = GetInput(globalChoiceNo, globalChoiceYes,
+        "Do you want to continue? (0: No, 1: Yes)",
+        "Please enter 0 for No or 1 for Yes.");
     if (!acceptRules)
     {
         return GameState::Menu;
     }
-    int playAgain = PLAY_AGAIN_YES;
+
+    int playAgain = globalPlayAgainYes;
     while (playAgain)
     {
-        if (RecognizePlayer(GameState::BlackJack, 0, 0, winnings, 0, 0, playerName))
+        if (RecognizePlayer(GameState::BlackJack, 0, 0, myWinnings, 0, 0, aPlayerName))
         {
             return GameState::Menu;
         }
-        if (playerMoney <= 0)
+
+        if (somePlayerMoney <= 0)
         {
-            return HandleBankruptcy(playerMoney, statHistory, playerName);
+            return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
         }
-        DrawHUD(playerMoney, statHistory, playerName);
-        Bet(playerMoney, playerBet, playerName);
-        std::array<int, 52> deck = createDeck();
-        shuffleDeck(deck, generator);
+
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName);
+
+        std::array<int, 52> deck = CreateDeck();
+        ShuffleDeck(deck, aGenerator);
         int deckTop = 0;
         std::array<int, 12> playerHand{};
         std::array<int, 12> dealerHand{};
-        int playerCount = 0, dealerCount = 0;
-        playerHand[playerCount++] = dealOneCard(deck, deckTop);
-        dealerHand[dealerCount++] = dealOneCard(deck, deckTop);
-        playerHand[playerCount++] = dealOneCard(deck, deckTop);
-        dealerHand[dealerCount++] = dealOneCard(deck, deckTop);
+        int playerCount = 0;
+        int dealerCount = 0;
+
+        playerHand[playerCount++] = DealOneCard(deck, deckTop);
+        dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
+        playerHand[playerCount++] = DealOneCard(deck, deckTop);
+        dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
+
+        const int betAmount = aPlayerBet;
         bool playerBust = false;
         bool dealerBust = false;
         bool playerStand = false;
         while (!playerBust && !playerStand)
         {
-            showHands(playerHand, playerCount, dealerHand, dealerCount, false);
-            int handValue = getHandValue(playerHand, playerCount);
-            if (handValue > 21)
+            ShowHands(playerHand, playerCount, dealerHand, dealerCount, false);
+            int playerHandValue = GetHandValue(playerHand, playerCount);
+            if (playerHandValue > 21)
             {
                 playerBust = true;
                 break;
             }
-            int action = GetInput(1, 2, "Choose your action: 1) Hit (draw a card) 2) Stand (end your turn)", "Please enter 1 for Hit or 2 for Stand.");
+
+            int action = GetInput(1, 2,
+                "Choose your action: 1) Hit (draw a card) 2) Stand (end your turn)",
+                "Please enter 1 for Hit or 2 for Stand.");
             if (action == 1)
             {
-                playerHand[playerCount++] = dealOneCard(deck, deckTop);
+                playerHand[playerCount++] = DealOneCard(deck, deckTop);
             }
             else
             {
                 playerStand = true;
             }
         }
+
         if (!playerBust)
         {
-            while (getHandValue(dealerHand, dealerCount) < 17)
+            while (GetHandValue(dealerHand, dealerCount) < 17)
             {
-                dealerHand[dealerCount++] = dealOneCard(deck, deckTop);
+                dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
             }
-            if (getHandValue(dealerHand, dealerCount) > 21)
+
+            if (GetHandValue(dealerHand, dealerCount) > 21)
             {
                 dealerBust = true;
             }
         }
-        showHands(playerHand, playerCount, dealerHand, dealerCount, true);
-        int playerValue = getHandValue(playerHand, playerCount);
-        int dealerValue = getHandValue(dealerHand, dealerCount);
-        int payout = 0;
+
+        ShowHands(playerHand, playerCount, dealerHand, dealerCount, true);
+        int playerValue = GetHandValue(playerHand, playerCount);
+        int dealerValue = GetHandValue(dealerHand, dealerCount);
+        int roundResult = 0;
         if (playerBust)
         {
-            std::cout << playerName << ", you have exceeded 21. You lose your bet of " << playerBet << ".\n";
-            winnings -= playerBet;
-            ++totalLosses;
-            UpdatePlayerStatHistory(statHistory, -playerBet);
-            playerBet = 0;
+            roundResult = -betAmount;
+            myWinnings -= betAmount;
+            ++ourTotalLosses;
+            aPlayerBet = 0;
+            std::cout << aPlayerName << ", you bust! Dealer wins this round. You lose " << betAmount << " chips.\n";
         }
         else if (dealerBust || playerValue > dealerValue)
         {
-            payout = playerBet * PAYOUT_MULTIPLIER;
-            std::cout << playerName << ", you win. Your payout is " << (payout - playerBet) << ".\n";
-            winnings += payout;
-            ++totalWins;
-            HandlePlayerMoney(playerMoney, playerBet, payout);
-            UpdatePlayerStatHistory(statHistory, payout);
+            int payout = betAmount * ourPayoutMultiplier;
+            HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+            roundResult = payout;
+            myWinnings += payout;
+            ++ourTotalWins;
+            std::cout << aPlayerName << ", you win " << (payout - betAmount) << " chips!\n";
+        }
+        else if (playerValue == dealerValue)
+        {
+            HandlePlayerMoney(somePlayerMoney, aPlayerBet, aPlayerBet);
+            roundResult = 0;
+            std::cout << "It's a push. Bets are returned.\n";
         }
         else
         {
-            std::cout << "Dealer wins, " << playerName << ". You lose your bet of " << playerBet << ".\n";
-            winnings -= playerBet;
-            ++totalLosses;
-            UpdatePlayerStatHistory(statHistory, -playerBet);
-            playerBet = 0;
+            roundResult = -betAmount;
+            myWinnings -= betAmount;
+            ++ourTotalLosses;
+            std::cout << "Dealer wins this round. You lose " << betAmount << " chips.\n";
+            aPlayerBet = 0;
         }
-        playAgain = GetInput(CHOICE_NO, CHOICE_YES, "Would you like to play again? (0: No, 1: Yes): ", "Please enter 0 for No or 1 for Yes.");
+
+        UpdatePlayerStatHistory(aStatHistory, roundResult);
+
+        playAgain = GetInput(globalPlayAgainNo, globalPlayAgainYes,
+            "Would you like to play again? (0: No, 1: Yes): ",
+            "Please enter 0 for No or 1 for Yes.");
         if (playAgain)
         {
-            DrawHUD(playerMoney, statHistory, playerName);
-            std::cout << "Starting a new round, " << playerName << ".\\n\\n";
+            DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+            std::cout << "Shuffling for another round...\n\n";
         }
         else
         {
-            std::cout << "\\nReturning to menu, " << playerName << ".\\n";
+            std::cout << "\nReturning to menu.\n";
         }
     }
+
     return GameState::Menu;
 }
-
-
-
-
-
-
-
-
-
-
-
-

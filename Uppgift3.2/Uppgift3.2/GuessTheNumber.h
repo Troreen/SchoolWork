@@ -28,10 +28,10 @@ public:
     static int GetPayoutMultiplierDenominator();
 
     CasinoHelpers::GameState Play(std::mt19937& aGenerator,
-                                  int& somePlayerMoney,
-                                  int& aPlayerBet,
-                                  CasinoHelpers::StatHistory& aStatHistory,
-                                  const std::string& aPlayerName);
+        int& somePlayerMoney,
+        int& aPlayerBet,
+        CasinoHelpers::StatHistory& aStatHistory,
+        const std::string& aPlayerName);
 
 private:
     std::string myTableName;
