@@ -21,6 +21,8 @@ GameManager::GameManager()
     , myCurrentRoom(nullptr)
     , myDoors()
 {
+    GetEnemyFactory().Initialize();
+
     myRooms.emplace_back("First Room");
     myRooms.emplace_back("Second Room");
     myRooms.emplace_back("Third Room");

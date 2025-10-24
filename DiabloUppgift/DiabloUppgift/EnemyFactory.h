@@ -24,4 +24,4 @@ private:
     bool myInitialized = false;
 };
 
-const EnemyFactory& GetEnemyFactory();
+EnemyFactory& GetEnemyFactory();

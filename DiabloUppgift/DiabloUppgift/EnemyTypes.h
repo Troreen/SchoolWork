@@ -24,7 +24,7 @@ public:
     EnemyType();
     ~EnemyType();
 
-    // Setters
+    
     void SetId(EnemyId anId);
     void SetName(const char* aName); 
     void SetStrength(int aStrength);
@@ -32,7 +32,6 @@ public:
     void SetPhysique(int aPhysique);
     void AddLoot(ItemId anItemId, int aCount, float aProbability);
 
-    // Getters
     EnemyId GetId() const;
     const char* GetName() const;
     int GetStrength() const;

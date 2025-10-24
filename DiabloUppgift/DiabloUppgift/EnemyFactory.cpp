@@ -89,19 +89,9 @@ Enemy EnemyFactory::Make(EnemyId anId) const
     return enemy;
 }
 
-namespace
+EnemyFactory& GetEnemyFactory()
 {
-    EnemyFactory& GetMutableFactory()
-    {
-        static EnemyFactory factory;
-        return factory;
-    }
-}
-
-const EnemyFactory& GetEnemyFactory()
-{
-    EnemyFactory& factory = GetMutableFactory();
-    factory.Initialize();
+    static EnemyFactory factory; 
     return factory;
 }
 
