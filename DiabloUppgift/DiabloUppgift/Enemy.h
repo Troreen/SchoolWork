@@ -1,8 +1,12 @@
 #pragma once
+
 #include <string>
 #include <vector>
 #include "DamagableComponent.h"
 #include "InventoryTypes.h"
+
+class EnemyType;
+enum class EnemyId;
 
 class Enemy
 {
@@ -10,13 +14,15 @@ public:
     struct LootDrop
     {
         ItemInstance item;
-        int probability;
+        float probability;
     };
 
-    Enemy() = delete;
+    Enemy();
     Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique);
+    explicit Enemy(const EnemyType& aType);
     ~Enemy();
-    const std::string& GetName() const;
+
+    std::string GetName() const;
     int GetStrength() const;
     int GetDexterity() const;
     int GetPhysique() const;
@@ -27,17 +33,23 @@ public:
     const DamagableComponent& GetDamagable() const;
     void TakeDamage(int anAmount);
 
-    void AddLoot(const ItemInstance& anItem, int aProbability);
+    EnemyId GetTypeId() const;
+    bool HasType() const;
+
+    void AddLoot(const ItemInstance& anItem, float aProbability);
     const std::vector<LootDrop>& GetLootDrops() const;
     void ClearLoot();
 
     std::string PrintStats() const;
 
-    private:
-    std::string myName;
-    int myStrength;
-    int myDexterity;
-    int myPhysique;
+private:
+    const EnemyType* myType;
     DamagableComponent myDamagable;
     std::vector<LootDrop> myLoot;
+
+    std::string myCustomName;
+    int myCustomStrength;
+    int myCustomDexterity;
+    int myCustomPhysique;
 };
+

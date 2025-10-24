@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -15,10 +15,15 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="InventoryTypes.cpp" />
     <ClCompile Include="Chest.cpp" />
     <ClCompile Include="ConsoleView.cpp" />
     <ClCompile Include="InteractionController.cpp" />
+    <ClCompile Include="ChestFactory.cpp" />
+    <ClCompile Include="ChestTypes.cpp" />
+    <ClCompile Include="EnemyFactory.cpp" />
+    <ClCompile Include="EnemyTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CombatComponent.h" />
@@ -29,9 +34,16 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="ItemFactory.h" />
     <ClInclude Include="InventoryTypes.h" />
     <ClInclude Include="Chest.h" />
     <ClInclude Include="ConsoleView.h" />
     <ClInclude Include="InteractionController.h" />
+    <ClInclude Include="ChestFactory.h" />
+    <ClInclude Include="ChestTypes.h" />
+    <ClInclude Include="EnemyFactory.h" />
+    <ClInclude Include="EnemyTypes.h" />
   </ItemGroup>
 </Project>
+
+

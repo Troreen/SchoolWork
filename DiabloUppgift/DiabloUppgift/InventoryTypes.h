@@ -54,6 +54,7 @@ struct ItemSpec
 extern const ItemSpec gItemSpecs[];
 extern const size_t gItemSpecCount;
 
+const ItemSpec* FindItemSpec(ItemId id);
 const ItemSpec& GetItemSpec(ItemId id);
 
 struct ItemInstance

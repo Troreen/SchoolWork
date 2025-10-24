@@ -1,6 +1,8 @@
 #include "GuessTheNumber.h"
 
 #include <cstdlib>
+
+#include <cstdlib>
 #include <iostream>
 
 using namespace CasinoHelpers;
@@ -18,6 +20,10 @@ GuessTheNumberGame::GuessTheNumberGame(const std::string& aTableLabel,
     , myMaxBet(1)
     , myWinnings(0)
 {
+    const int normalizedMin = (aMinBetAmount < 1) ? 1 : aMinBetAmount;
+    const int normalizedMax = (aMaxBetAmount < normalizedMin) ? normalizedMin : aMaxBetAmount;
+    myMinBet = normalizedMin;
+    myMaxBet = normalizedMax;
     const int normalizedMin = (aMinBetAmount < 1) ? 1 : aMinBetAmount;
     const int normalizedMax = (aMaxBetAmount < normalizedMin) ? normalizedMin : aMaxBetAmount;
     myMinBet = normalizedMin;
@@ -78,6 +84,7 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
     const std::string& aPlayerName)
 {
     if (!CanAfford(somePlayerMoney))
+    if (!CanAfford(somePlayerMoney))
     {
         DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
         std::cout << '\n' << aPlayerName << ", you need at least " << myMinBet
@@ -89,12 +96,16 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
     DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
     std::cout << "\nWelcome to the " << myTableName << " table, " << aPlayerName << "!\n";
     std::cout << "Betting limits: minimum " << myMinBet << ", maximum " << myMaxBet << ".\n";
+    DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+    std::cout << "\nWelcome to the " << myTableName << " table, " << aPlayerName << "!\n";
+    std::cout << "Betting limits: minimum " << myMinBet << ", maximum " << myMaxBet << ".\n";
 
     int seeInstructions = GetInput(globalChoiceNo, globalChoiceYes,
         "Do you want instructions? (0: No, 1: Yes)",
         "Please enter 0 for No or 1 for Yes.");
     if (seeInstructions)
     {
+        ShowInstructions(GameState::GuessTheNumber, aPlayerName);
         ShowInstructions(GameState::GuessTheNumber, aPlayerName);
     }
 
@@ -107,10 +118,12 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
     }
 
     int playAgain = globalPlayAgainYes;
+    int playAgain = globalPlayAgainYes;
     int lossStreak = 0;
     int winCounter = 0;
     while (playAgain)
     {
+        if (!CanAfford(somePlayerMoney))
         if (!CanAfford(somePlayerMoney))
         {
             DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
@@ -121,10 +134,13 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
         }
 
         if (somePlayerMoney <= 0)
+        if (somePlayerMoney <= 0)
         {
+            return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
             return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
         }
 
+        if (RecognizePlayer(GameState::GuessTheNumber, myWinnings, 0, 0, 0, 0, aPlayerName))
         if (RecognizePlayer(GameState::GuessTheNumber, myWinnings, 0, 0, 0, 0, aPlayerName))
         {
             return GameState::Menu;
@@ -136,13 +152,19 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
 
         int maxAllowedBet = (somePlayerMoney < myMaxBet) ? somePlayerMoney : myMaxBet;
         Bet(somePlayerMoney, aPlayerBet, aPlayerName, myMinBet, maxAllowedBet);
+        int maxAllowedBet = (somePlayerMoney < myMaxBet) ? somePlayerMoney : myMaxBet;
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName, myMinBet, maxAllowedBet);
 
         int guess = GetInput(2, 12,
             "Enter your guess for the sum of two dice (2-12):",
             "Please enter a number between 2 and 12.");
 
         DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
         std::cout << "Rolling the dice...";
+        int dieOne = RollDie(aGenerator);
+        int dieTwo = RollDie(aGenerator);
+        const int rolledSum = dieOne + dieTwo;
         int dieOne = RollDie(aGenerator);
         int dieTwo = RollDie(aGenerator);
         const int rolledSum = dieOne + dieTwo;
@@ -151,11 +173,21 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
         std::cout << "Die 1: " << dieOne << "\n";
         std::cout << "Die 2: " << dieTwo << "\n";
         std::cout << "Total: " << rolledSum << "\n";
+        std::cout << "Die 1: " << dieOne << "\n";
+        std::cout << "Die 2: " << dieTwo << "\n";
+        std::cout << "Total: " << rolledSum << "\n";
 
+        if (guess == rolledSum)
         if (guess == rolledSum)
         {
             lossStreak = 0;
             ++winCounter;
+            const int payout = aPlayerBet * ourPayoutMultiplierNumerator / ourPayoutMultiplierDenominator;
+            HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+            myWinnings += payout;
+            UpdatePlayerStatHistory(aStatHistory, payout);
+            ++ourTotalWins;
+            std::cout << aPlayerName << ", you guessed correctly. You win " << (payout - aPlayerBet) << ".\n";
             const int payout = aPlayerBet * ourPayoutMultiplierNumerator / ourPayoutMultiplierDenominator;
             HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
             myWinnings += payout;
@@ -172,11 +204,18 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
             myWinnings -= aPlayerBet;
             UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
             ++ourTotalLosses;
+            std::cout << "Incorrect guess, " << aPlayerName << ". You lose your bet of " << aPlayerBet << ".\n";
+            myWinnings -= aPlayerBet;
+            UpdatePlayerStatHistory(aStatHistory, -aPlayerBet);
+            ++ourTotalLosses;
             std::cout << GetLossTaunt(lossStreak);
+            aPlayerBet = 0;
             aPlayerBet = 0;
             system("pause");
             if (somePlayerMoney <= 0)
+            if (somePlayerMoney <= 0)
             {
+                return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
                 return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
             }
         }
@@ -188,6 +227,8 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
         {
             DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
             std::cout << "Starting a new round at the " << myTableName << " table.\n\n";
+            DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+            std::cout << "Starting a new round at the " << myTableName << " table.\n\n";
         }
         else
         {
@@ -197,3 +238,4 @@ CasinoHelpers::GameState GuessTheNumberGame::Play(std::mt19937& aGenerator,
 
     return GameState::Menu;
 }
+

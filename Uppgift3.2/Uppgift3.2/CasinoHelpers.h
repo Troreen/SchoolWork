@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+
+#include <array>
 #include <random>
 #include <string>
 
@@ -24,6 +26,8 @@ namespace CasinoHelpers
         Roulette,
         Exit,
         Count
+        Exit,
+        Count
     };
 
     enum class MenuOption
@@ -33,6 +37,8 @@ namespace CasinoHelpers
         BlackJack = 3,
         SlotMachine = 4,
         Roulette = 5,
+        Exit = 0,
+        Count
         Exit = 0,
         Count
     };

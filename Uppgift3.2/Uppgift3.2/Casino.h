@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <array>
 #include <random>
 #include <string>
 #include "GuessTheNumber.h"

@@ -1,35 +1,79 @@
 #include "Enemy.h"
+#include "EnemyTypes.h"
 
-Enemy::Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique)
-    : myName(aName),
-      myStrength(aStrength),
-      myDexterity(aDexterity),
-      myPhysique(aPhysique),
-      myDamagable(aPhysique * 3, aDexterity),
-      myLoot()
+Enemy::Enemy()
+    : myType(nullptr)
+    , myDamagable(0, 0)
+    , myLoot()
+    , myCustomName("Unknown")
+    , myCustomStrength(0)
+    , myCustomDexterity(0)
+    , myCustomPhysique(0)
+{
+}
+
+Enemy::Enemy(const std::string& someName, int someStrength, int someDexterity, int somePhysique)
+    : myType(nullptr)
+    , myDamagable(somePhysique * 3, someDexterity)
+    , myLoot()
+    , myCustomName(someName)
+    , myCustomStrength(someStrength)
+    , myCustomDexterity(someDexterity)
+    , myCustomPhysique(somePhysique)
+{
+}
+
+Enemy::Enemy(const EnemyType& aType)
+    : myType(&aType)
+    , myDamagable(aType.GetPhysique() * 3, aType.GetDexterity())
+    , myLoot()
+    , myCustomName()
+    , myCustomStrength(0)
+    , myCustomDexterity(0)
+    , myCustomPhysique(0)
 {
 }
 
 Enemy::~Enemy() = default;
 
-const std::string& Enemy::GetName() const
+std::string Enemy::GetName() const
 {
-    return myName;
+    if (myType && myType->GetName())
+    {
+        return myType->GetName();
+    }
+
+    return myCustomName;
 }
 
 int Enemy::GetStrength() const
 {
-    return myStrength;
+    if (myType)
+    {
+        return myType->GetStrength();
+    }
+
+    return myCustomStrength;
 }
 
 int Enemy::GetDexterity() const
 {
-    return myDexterity;
+    if (myType)
+    {
+        return myType->GetDexterity();
+    }
+
+    return myCustomDexterity;
 }
 
 int Enemy::GetPhysique() const
 {
-    return myPhysique;
+    if (myType)
+    {
+        return myType->GetPhysique();
+    }
+
+    return myCustomPhysique;
 }
 
 int Enemy::GetHealth() const
@@ -57,18 +101,29 @@ void Enemy::TakeDamage(int anAmount)
     myDamagable.TakeDamage(anAmount);
 }
 
-void Enemy::AddLoot(const ItemInstance& anItem, int aProbability)
+EnemyId Enemy::GetTypeId() const
 {
-    if (aProbability < 0)
+    return myType ? myType->GetId() : EnemyId::Goblin;
+}
+
+bool Enemy::HasType() const
+{
+    return myType != nullptr;
+}
+
+void Enemy::AddLoot(const ItemInstance& anItem, float aProbability)
+{
+    float clampedProbability = aProbability;
+    if (clampedProbability < 0.0f)
     {
-        aProbability = 0;
+        clampedProbability = 0.0f;
     }
-    else if (aProbability > 100)
+    else if (clampedProbability > 1.0f)
     {
-        aProbability = 100;
+        clampedProbability = 1.0f;
     }
 
-    myLoot.push_back({ anItem, aProbability });
+    myLoot.push_back({ anItem, clampedProbability });
 }
 
 const std::vector<Enemy::LootDrop>& Enemy::GetLootDrops() const
@@ -83,5 +138,5 @@ void Enemy::ClearLoot()
 
 std::string Enemy::PrintStats() const
 {
-    return myName + " (STR: " + std::to_string(myStrength) + ", DEX: " + std::to_string(myDexterity) + ", PHY: " + std::to_string(myPhysique) + ")";
+    return GetName() + " (STR: " + std::to_string(GetStrength()) + ", DEX: " + std::to_string(GetDexterity()) + ", PHY: " + std::to_string(GetPhysique()) + ")";
 }

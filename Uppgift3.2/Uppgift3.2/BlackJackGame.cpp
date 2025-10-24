@@ -2,8 +2,12 @@
 
 #include <array>
 #include <cassert>
+
+#include <array>
+#include <cassert>
 #include <iostream>
 #include <random>
+
 
 using namespace CasinoHelpers;
 
@@ -147,6 +151,7 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
     if (seeInstructions)
     {
         ShowInstructions(GameState::BlackJack, aPlayerName);
+        ShowInstructions(GameState::BlackJack, aPlayerName);
     }
 
     int acceptRules = GetInput(globalChoiceNo, globalChoiceYes,
@@ -158,17 +163,29 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
     }
 
     int playAgain = globalPlayAgainYes;
+
+    int playAgain = globalPlayAgainYes;
     while (playAgain)
     {
+        if (RecognizePlayer(GameState::BlackJack, 0, 0, myWinnings, 0, 0, aPlayerName))
         if (RecognizePlayer(GameState::BlackJack, 0, 0, myWinnings, 0, 0, aPlayerName))
         {
             return GameState::Menu;
         }
 
         if (somePlayerMoney <= 0)
+
+        if (somePlayerMoney <= 0)
         {
             return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
+            return HandleBankruptcy(somePlayerMoney, aStatHistory, aPlayerName);
         }
+
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+        Bet(somePlayerMoney, aPlayerBet, aPlayerName);
+
+        std::array<int, 52> deck = CreateDeck();
+        ShuffleDeck(deck, aGenerator);
 
         DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
         Bet(somePlayerMoney, aPlayerBet, aPlayerName);
@@ -187,11 +204,23 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
         dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
 
         const int betAmount = aPlayerBet;
+        int playerCount = 0;
+        int dealerCount = 0;
+
+        playerHand[playerCount++] = DealOneCard(deck, deckTop);
+        dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
+        playerHand[playerCount++] = DealOneCard(deck, deckTop);
+        dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
+
+        const int betAmount = aPlayerBet;
         bool playerBust = false;
         bool dealerBust = false;
         bool playerStand = false;
         while (!playerBust && !playerStand)
         {
+            ShowHands(playerHand, playerCount, dealerHand, dealerCount, false);
+            int playerHandValue = GetHandValue(playerHand, playerCount);
+            if (playerHandValue > 21)
             ShowHands(playerHand, playerCount, dealerHand, dealerCount, false);
             int playerHandValue = GetHandValue(playerHand, playerCount);
             if (playerHandValue > 21)
@@ -206,6 +235,7 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
             if (action == 1)
             {
                 playerHand[playerCount++] = DealOneCard(deck, deckTop);
+                playerHand[playerCount++] = DealOneCard(deck, deckTop);
             }
             else
             {
@@ -213,18 +243,28 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
             }
         }
 
+
         if (!playerBust)
         {
             while (GetHandValue(dealerHand, dealerCount) < 17)
+            while (GetHandValue(dealerHand, dealerCount) < 17)
             {
                 dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
+                dealerHand[dealerCount++] = DealOneCard(deck, deckTop);
             }
+
+            if (GetHandValue(dealerHand, dealerCount) > 21)
 
             if (GetHandValue(dealerHand, dealerCount) > 21)
             {
                 dealerBust = true;
             }
         }
+
+        ShowHands(playerHand, playerCount, dealerHand, dealerCount, true);
+        int playerValue = GetHandValue(playerHand, playerCount);
+        int dealerValue = GetHandValue(dealerHand, dealerCount);
+        int roundResult = 0;
 
         ShowHands(playerHand, playerCount, dealerHand, dealerCount, true);
         int playerValue = GetHandValue(playerHand, playerCount);
@@ -237,9 +277,26 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
             ++ourTotalLosses;
             aPlayerBet = 0;
             std::cout << aPlayerName << ", you bust! Dealer wins this round. You lose " << betAmount << " chips.\n";
+            roundResult = -betAmount;
+            myWinnings -= betAmount;
+            ++ourTotalLosses;
+            aPlayerBet = 0;
+            std::cout << aPlayerName << ", you bust! Dealer wins this round. You lose " << betAmount << " chips.\n";
         }
         else if (dealerBust || playerValue > dealerValue)
         {
+            int payout = betAmount * ourPayoutMultiplier;
+            HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
+            roundResult = payout;
+            myWinnings += payout;
+            ++ourTotalWins;
+            std::cout << aPlayerName << ", you win " << (payout - betAmount) << " chips!\n";
+        }
+        else if (playerValue == dealerValue)
+        {
+            HandlePlayerMoney(somePlayerMoney, aPlayerBet, aPlayerBet);
+            roundResult = 0;
+            std::cout << "It's a push. Bets are returned.\n";
             int payout = betAmount * ourPayoutMultiplier;
             HandlePlayerMoney(somePlayerMoney, aPlayerBet, payout);
             roundResult = payout;
@@ -271,12 +328,16 @@ CasinoHelpers::GameState BlackJackGame::Play(std::mt19937& aGenerator,
         {
             DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
             std::cout << "Shuffling for another round...\n\n";
+            DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+            std::cout << "Shuffling for another round...\n\n";
         }
         else
         {
             std::cout << "\nReturning to menu.\n";
+            std::cout << "\nReturning to menu.\n";
         }
     }
+
 
     return GameState::Menu;
 }

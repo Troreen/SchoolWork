@@ -1,6 +1,9 @@
 #include "CasinoHelpers.h"
 
+
 #include <Windows.h>
+#include <array>
+#include <cstdlib>
 #include <array>
 #include <cstdlib>
 #include <iostream>
@@ -19,6 +22,7 @@ namespace CasinoHelpers
         void PrintIntegerBySign(int aValue, HANDLE aConsoleHandle, WORD someDefaultTextAttributes)
         {
             WORD chosenAttributes{};
+            WORD chosenAttributes{};
             if (aValue > 0)
             {
                 chosenAttributes = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
@@ -31,6 +35,7 @@ namespace CasinoHelpers
             {
                 chosenAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
             }
+
 
             SetConsoleTextAttribute(aConsoleHandle, chosenAttributes);
             std::cout << aValue;
@@ -57,14 +62,19 @@ namespace CasinoHelpers
         }
 
         std::cout << "\t\t\t\t\t\t" << aPlayerName << "'s current money: " << somePlayerMoney << '\n';
+
+        std::cout << "\t\t\t\t\t\t" << aPlayerName << "'s current money: " << somePlayerMoney << '\n';
     }
 
     void UpdatePlayerStatHistory(StatHistory& aStatHistory, int anAmount)
     {
         for (size_t index = aStatHistory.size(); index > 1; --index)
+        for (size_t index = aStatHistory.size(); index > 1; --index)
         {
             aStatHistory[index - 1] = aStatHistory[index - 2];
+            aStatHistory[index - 1] = aStatHistory[index - 2];
         }
+
 
         aStatHistory[0] = anAmount;
     }
@@ -77,6 +87,8 @@ namespace CasinoHelpers
 
     GameState HandleBankruptcy(int somePlayerMoney, const StatHistory& aStatHistory, const std::string& aPlayerName)
     {
+        DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
+        std::cout << '\n' << aPlayerName << ", your pockets echo like an empty alley. Not a chip left to your name.";
         DrawHud(somePlayerMoney, aStatHistory, aPlayerName);
         std::cout << '\n' << aPlayerName << ", your pockets echo like an empty alley. Not a chip left to your name.";
         std::cout << "\nThe house grins. Come back when your luck grows legs... and brings cash.\n\n";
@@ -102,9 +114,11 @@ namespace CasinoHelpers
             effectiveMax = aMaxBet;
         }
 
+
         if (aMinBet > effectiveMax)
         {
             aPlayerBet = 0;
+            std::cout << '\n' << aPlayerName << ", you cannot place a bet with the current limits.\n";
             std::cout << '\n' << aPlayerName << ", you cannot place a bet with the current limits.\n";
             system("pause");
             return;
@@ -123,6 +137,7 @@ namespace CasinoHelpers
         if (aPlayerBet == playerOldMoney)
         {
             std::cout << aPlayerName << ", you have bet all your remaining money.\n";
+            std::cout << aPlayerName << ", you have bet all your remaining money.\n";
         }
         else
         {
@@ -136,6 +151,7 @@ namespace CasinoHelpers
         int someWinningsBlackJack,
         int someWinningsSlot,
         int someWinningsRoulette,
+        const std::string& aPlayerName)
         const std::string& aPlayerName)
     {
         system("cls");
@@ -164,6 +180,7 @@ namespace CasinoHelpers
                 pauseWithMessage("welcome back; the night is young.");
             }
 
+
             break;
         }
         case GameState::OddOrEven:
@@ -181,6 +198,7 @@ namespace CasinoHelpers
             {
                 pauseWithMessage("welcome back; the night is young.");
             }
+
 
             break;
         }
@@ -200,6 +218,7 @@ namespace CasinoHelpers
                 pauseWithMessage("welcome back; the night is young.");
             }
 
+
             break;
         }
         case GameState::SlotMachine:
@@ -217,6 +236,7 @@ namespace CasinoHelpers
             {
                 pauseWithMessage("welcome back; the night is young.");
             }
+
 
             break;
         }
@@ -236,8 +256,12 @@ namespace CasinoHelpers
                 pauseWithMessage("welcome back; the night is young.");
             }
 
+
             break;
         }
+        case GameState::Menu:
+        case GameState::Exit:
+        case GameState::Count:
         case GameState::Menu:
         case GameState::Exit:
         case GameState::Count:
@@ -251,6 +275,7 @@ namespace CasinoHelpers
     int GetInput(int aMinNum, int aMaxNum, const char* aPrompt, const char* aFailPrompt)
     {
         int value = 0;
+        int value = 0;
         while (true)
         {
             std::cout << '\n' << aPrompt << " (" << aMinNum << "-" << aMaxNum << "): ";
@@ -260,10 +285,12 @@ namespace CasinoHelpers
                 break;
             }
 
+
             std::cout << '\n' << aFailPrompt;
             std::cin.clear();
             std::cin.ignore(10000, '\n');
         }
+
 
         return value;
     }
@@ -275,7 +302,9 @@ namespace CasinoHelpers
     }
 
     void ShowMenu(const std::string& aPlayerName)
+    void ShowMenu(const std::string& aPlayerName)
     {
+        std::cout << "\n--- " << aPlayerName << "'s Casino Menu ---\n";
         std::cout << "\n--- " << aPlayerName << "'s Casino Menu ---\n";
         std::cout << "1. Guess The Number\n";
         std::cout << "2. Odd Or Even\n";
@@ -287,6 +316,10 @@ namespace CasinoHelpers
 
     GameState MenuState(int& somePlayerMoney, int& aPlayerBet, StatHistory& aStatHistory, const std::string& aPlayerName)
     {
+        (void)somePlayerMoney;
+        (void)aPlayerBet;
+        (void)aStatHistory;
+        const std::string prompt = aPlayerName + ", select a game by entering its number:";
         (void)somePlayerMoney;
         (void)aPlayerBet;
         (void)aStatHistory;
@@ -311,12 +344,14 @@ namespace CasinoHelpers
     }
 
     void ShowInstructions(GameState aState, const std::string& aPlayerName)
+    void ShowInstructions(GameState aState, const std::string& aPlayerName)
     {
         switch (aState)
         {
         case GameState::GuessTheNumber:
         {
             system("cls");
+            std::cout << aPlayerName << ", two dice hit the table. Call the sum (2-12) before they settle.\n";
             std::cout << aPlayerName << ", two dice hit the table. Call the sum (2-12) before they settle.\n";
             std::cout << "Hit it right and you leave with extra chips; miss and the house takes its due.\n\n";
             break;
@@ -325,6 +360,7 @@ namespace CasinoHelpers
         {
             system("cls");
             std::cout << aPlayerName << ", odd or even - simple call, sharp stakes.\n";
+            std::cout << aPlayerName << ", odd or even - simple call, sharp stakes.\n";
             std::cout << "Guess the parity of the roll. Right call pays, wrong one stings.\n\n";
             break;
         }
@@ -332,12 +368,14 @@ namespace CasinoHelpers
         {
             system("cls");
             std::cout << aPlayerName << ", chase 21 without tumbling over.\n";
+            std::cout << aPlayerName << ", chase 21 without tumbling over.\n";
             std::cout << "Hit if you want another card, stand if you're content. Dealer draws to 17 - closest hand wins.\n\n";
             break;
         }
         case GameState::Roulette:
         {
             system("cls");
+            std::cout << "Welcome to Roulette, " << aPlayerName << "! Here are the instructions:\n";
             std::cout << "Welcome to Roulette, " << aPlayerName << "! Here are the instructions:\n";
             std::cout << "1. Straight: Bet on a single number.\n";
             std::cout << "2. Split: Bet on two adjacent numbers.\n";
@@ -348,6 +386,10 @@ namespace CasinoHelpers
             std::cout << "Good luck!\n";
             break;
         }
+        case GameState::SlotMachine:
+        case GameState::Menu:
+        case GameState::Exit:
+        case GameState::Count:
         case GameState::SlotMachine:
         case GameState::Menu:
         case GameState::Exit:
@@ -388,7 +430,10 @@ namespace CasinoHelpers
         }
 
         return "\nLucky break... savor it. Luck's got short legs, doesn't run far.\n";
+
+        return "\nLucky break... savor it. Luck's got short legs, doesn't run far.\n";
     }
+
 
     void ShowInstructions(GameState aState)
     {

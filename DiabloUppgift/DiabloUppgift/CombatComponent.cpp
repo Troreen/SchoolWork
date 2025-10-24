@@ -6,10 +6,10 @@
 
 namespace
 {
-    int RollPercent()
+    float RollPercent()
     {
         static std::mt19937 rng(std::random_device{}());
-        static std::uniform_int_distribution<int> dist(0, 99);
+        static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
         return dist(rng);
     }
 }
@@ -106,7 +106,7 @@ bool CombatComponent::PerformPlayerAction(Action anAction)
                     continue;
                 }
 
-                const int roll = RollPercent();
+                const float roll = RollPercent();
                 if (roll < drop.probability)
                 {
                     ItemInstance dropped = drop.item;
