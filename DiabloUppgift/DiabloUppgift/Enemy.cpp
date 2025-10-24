@@ -12,20 +12,20 @@ Enemy::Enemy()
 {
 }
 
-Enemy::Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique)
+Enemy::Enemy(const std::string& someName, int someStrength, int someDexterity, int somePhysique)
     : myType(nullptr)
-    , myDamagable(aPhysique * 3, aDexterity)
+    , myDamagable(somePhysique * 3, someDexterity)
     , myLoot()
-    , myCustomName(aName)
-    , myCustomStrength(aStrength)
-    , myCustomDexterity(aDexterity)
-    , myCustomPhysique(aPhysique)
+    , myCustomName(someName)
+    , myCustomStrength(someStrength)
+    , myCustomDexterity(someDexterity)
+    , myCustomPhysique(somePhysique)
 {
 }
 
-Enemy::Enemy(const EnemySpec& aType)
+Enemy::Enemy(const EnemyType& aType)
     : myType(&aType)
-    , myDamagable(aType.physique * 3, aType.dexterity)
+    , myDamagable(aType.GetPhysique() * 3, aType.GetDexterity())
     , myLoot()
     , myCustomName()
     , myCustomStrength(0)
@@ -38,9 +38,9 @@ Enemy::~Enemy() = default;
 
 std::string Enemy::GetName() const
 {
-    if (myType && myType->name)
+    if (myType && myType->GetName())
     {
-        return myType->name;
+        return myType->GetName();
     }
 
     return myCustomName;
@@ -50,7 +50,7 @@ int Enemy::GetStrength() const
 {
     if (myType)
     {
-        return myType->strength;
+        return myType->GetStrength();
     }
 
     return myCustomStrength;
@@ -60,7 +60,7 @@ int Enemy::GetDexterity() const
 {
     if (myType)
     {
-        return myType->dexterity;
+        return myType->GetDexterity();
     }
 
     return myCustomDexterity;
@@ -70,7 +70,7 @@ int Enemy::GetPhysique() const
 {
     if (myType)
     {
-        return myType->physique;
+        return myType->GetPhysique();
     }
 
     return myCustomPhysique;
@@ -101,19 +101,9 @@ void Enemy::TakeDamage(int anAmount)
     myDamagable.TakeDamage(anAmount);
 }
 
-const EnemySpec& Enemy::GetType() const
-{
-    if (myType)
-    {
-        return *myType;
-    }
-
-    return GetEnemySpec(EnemyId::Goblin);
-}
-
 EnemyId Enemy::GetTypeId() const
 {
-    return GetType().id;
+    return myType ? myType->GetId() : EnemyId::Goblin;
 }
 
 bool Enemy::HasType() const

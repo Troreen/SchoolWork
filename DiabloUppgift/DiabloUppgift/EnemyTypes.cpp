@@ -1,71 +1,75 @@
 #include "EnemyTypes.h"
 
-#include <assert.h>
-
-const EnemySpec gEnemySpecs[] =
+EnemyType::EnemyType()
+    : myId(EnemyId::Goblin)
+    , myName(nullptr)
+    , myStrength(0)
+    , myDexterity(0)
+    , myPhysique(0)
+    , myLootTable()
 {
-    {
-        EnemyId::Goblin,
-        "Goblin",
-        5,
-        10,
-        15,
-        {
-            { ItemId::ShortSword, 1, 0.5f },
-            { ItemId::HealthPotion, 1, 0.3f }
-        }
-    },
-    {
-        EnemyId::Orc,
-        "Orc",
-        10,
-        8,
-        20,
-        {
-            { ItemId::BattleAxe, 1, 0.4f },
-            { ItemId::HealthPotion, 1, 0.4f },
-            { ItemId::LeatherArmor, 1, 0.2f }
-        }
-    },
-    {
-        EnemyId::Troll,
-        "Troll",
-        15,
-        5,
-        25,
-        {
-            { ItemId::LongBow, 1, 0.3f },
-            { ItemId::HealthPotion, 2, 0.5f },
-            { ItemId::ChainmailArmor, 1, 0.3f },
-            { ItemId::FuryEnchant, 1, 0.1f }
-        }
-    }
-};
-
-const size_t gEnemySpecCount = sizeof(gEnemySpecs) / sizeof(gEnemySpecs[0]);
-
-const EnemySpec* FindEnemySpec(EnemyId id)
-{
-    for (size_t i = 0; i < gEnemySpecCount; ++i)
-    {
-        if (gEnemySpecs[i].id == id)
-        {
-            return &gEnemySpecs[i];
-        }
-    }
-
-    return nullptr;
 }
 
-const EnemySpec& GetEnemySpec(EnemyId id)
+EnemyType::~EnemyType() = default;
+
+void EnemyType::SetId(EnemyId anId)
 {
-    const EnemySpec* spec = FindEnemySpec(id);
-    assert(spec && "GetEnemySpec called with unknown EnemyId");
+    myId = anId;
+}
 
-    if (!spec)
-    {
-        return gEnemySpecs[0];
-    }
+void EnemyType::SetName(const char* aName)
+{
+    myName = aName;
+}
 
-    return *spec;
+void EnemyType::SetStrength(int aStrength)
+{
+    myStrength = aStrength;
+}
+
+void EnemyType::SetDexterity(int aDexterity)
+{
+    myDexterity = aDexterity;
+}
+
+void EnemyType::SetPhysique(int aPhysique)
+{
+    myPhysique = aPhysique;
+}
+
+void EnemyType::AddLoot(ItemId anItemId, int aCount, float aProbability)
+{
+    if (aProbability < 0.0f) aProbability = 0.0f;
+    if (aProbability > 1.0f) aProbability = 1.0f;
+    myLootTable.push_back({ anItemId, aCount, aProbability });
+}
+
+EnemyId EnemyType::GetId() const
+{
+    return myId;
+}
+
+const char* EnemyType::GetName() const
+{
+    return myName;
+}
+
+int EnemyType::GetStrength() const
+{
+    return myStrength;
+}
+
+int EnemyType::GetDexterity() const
+{
+    return myDexterity;
+}
+
+int EnemyType::GetPhysique() const
+{
+    return myPhysique;
+}
+
+const std::vector<EnemyLootEntry>& EnemyType::GetLootTable() const
+{
+    return myLootTable;
 }

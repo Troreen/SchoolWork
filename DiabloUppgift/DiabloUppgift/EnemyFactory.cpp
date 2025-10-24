@@ -5,38 +5,83 @@
 
 #include <assert.h>
 
-Enemy EnemyFactory::Make(EnemyId id) const
+namespace
 {
-    const EnemySpec* spec = nullptr;
-
-    if (specs != nullptr && specCount > 0)
+    constexpr size_t ToIndex(EnemyId anId)
     {
-        for (size_t i = 0; i < specCount; ++i)
-        {
-            if (specs[i].id == id)
-            {
-                spec = &specs[i];
-                break;
-            }
-        }
+        return static_cast<size_t>(anId);
+    }
+}
+
+EnemyFactory::EnemyFactory() = default;
+EnemyFactory::~EnemyFactory() = default;
+
+void EnemyFactory::Initialize()
+{
+    if (myInitialized)
+    {
+        return;
     }
 
-    if (!spec)
+    // Goblin
     {
-        spec = FindEnemySpec(id);
+        EnemyType& t = myTypes[ToIndex(EnemyId::Goblin)];
+        t.SetId(EnemyId::Goblin);
+        t.SetName("Goblin");
+        t.SetStrength(5);
+        t.SetDexterity(10);
+        t.SetPhysique(15);
+        t.AddLoot(ItemId::ShortSword, 1, 0.5f);
+        t.AddLoot(ItemId::HealthPotion, 1, 0.3f);
     }
 
-    assert(spec && "EnemyFactory::Make called with unknown EnemyId");
-
-    if (!spec)
+    // Orc
     {
-        return Enemy{};
+        EnemyType& t = myTypes[ToIndex(EnemyId::Orc)];
+        t.SetId(EnemyId::Orc);
+        t.SetName("Orc");
+        t.SetStrength(10);
+        t.SetDexterity(8);
+        t.SetPhysique(20);
+        t.AddLoot(ItemId::BattleAxe, 1, 0.4f);
+        t.AddLoot(ItemId::HealthPotion, 1, 0.4f);
+        t.AddLoot(ItemId::LeatherArmor, 1, 0.2f);
     }
 
-    Enemy enemy(*spec);
+    // Troll
+    {
+        EnemyType& t = myTypes[ToIndex(EnemyId::Troll)];
+        t.SetId(EnemyId::Troll);
+        t.SetName("Troll");
+        t.SetStrength(15);
+        t.SetDexterity(5);
+        t.SetPhysique(25);
+        t.AddLoot(ItemId::LongBow, 1, 0.3f);
+        t.AddLoot(ItemId::HealthPotion, 2, 0.5f);
+        t.AddLoot(ItemId::ChainmailArmor, 1, 0.3f);
+        t.AddLoot(ItemId::FuryEnchant, 1, 0.1f);
+    }
+
+    myInitialized = true;
+}
+
+const EnemyType& EnemyFactory::GetType(EnemyId anId) const
+{
+    const size_t index = ToIndex(anId);
+    assert(index < myTypes.size());
+    return myTypes[index];
+}
+
+Enemy EnemyFactory::Make(EnemyId anId) const
+{
+    assert(myInitialized && "EnemyFactory used before Initialize()");
+
+    const EnemyType& type = GetType(anId);
+
+    Enemy enemy(type);
 
     const ItemFactory& itemFactory = GetItemFactory();
-    for (const EnemyLootEntry& entry : spec->lootTable)
+    for (const EnemyLootEntry& entry : type.GetLootTable())
     {
         enemy.AddLoot(itemFactory.Make(entry.itemId, entry.count), entry.probability);
     }
@@ -46,11 +91,17 @@ Enemy EnemyFactory::Make(EnemyId id) const
 
 namespace
 {
-    const EnemyFactory gDefaultEnemyFactory{ gEnemySpecs, gEnemySpecCount };
+    EnemyFactory& GetMutableFactory()
+    {
+        static EnemyFactory factory;
+        return factory;
+    }
 }
 
 const EnemyFactory& GetEnemyFactory()
 {
-    return gDefaultEnemyFactory;
+    EnemyFactory& factory = GetMutableFactory();
+    factory.Initialize();
+    return factory;
 }
 

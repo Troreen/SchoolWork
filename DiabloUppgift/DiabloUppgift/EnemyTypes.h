@@ -18,18 +18,34 @@ struct EnemyLootEntry
     float probability;
 };
 
-struct EnemySpec
+class EnemyType
 {
-    EnemyId id;
-    const char* name;
-    int strength;
-    int dexterity;
-    int physique;
-    std::vector<EnemyLootEntry> lootTable;
+public:
+    EnemyType();
+    ~EnemyType();
+
+    // Setters
+    void SetId(EnemyId anId);
+    void SetName(const char* aName); 
+    void SetStrength(int aStrength);
+    void SetDexterity(int aDexterity);
+    void SetPhysique(int aPhysique);
+    void AddLoot(ItemId anItemId, int aCount, float aProbability);
+
+    // Getters
+    EnemyId GetId() const;
+    const char* GetName() const;
+    int GetStrength() const;
+    int GetDexterity() const;
+    int GetPhysique() const;
+    const std::vector<EnemyLootEntry>& GetLootTable() const;
+
+private:
+    EnemyId myId;
+    const char* myName;
+    int myStrength;
+    int myDexterity;
+    int myPhysique;
+    std::vector<EnemyLootEntry> myLootTable;
 };
 
-extern const EnemySpec gEnemySpecs[];
-extern const size_t gEnemySpecCount;
-
-const EnemySpec* FindEnemySpec(EnemyId id);
-const EnemySpec& GetEnemySpec(EnemyId id);

@@ -5,7 +5,7 @@
 #include "DamagableComponent.h"
 #include "InventoryTypes.h"
 
-struct EnemySpec;
+class EnemyType;
 enum class EnemyId;
 
 class Enemy
@@ -19,7 +19,7 @@ public:
 
     Enemy();
     Enemy(const std::string& aName, int aStrength, int aDexterity, int aPhysique);
-    explicit Enemy(const EnemySpec& aType);
+    explicit Enemy(const EnemyType& aType);
     ~Enemy();
 
     std::string GetName() const;
@@ -33,7 +33,6 @@ public:
     const DamagableComponent& GetDamagable() const;
     void TakeDamage(int anAmount);
 
-    const EnemySpec& GetType() const;
     EnemyId GetTypeId() const;
     bool HasType() const;
 
@@ -44,7 +43,7 @@ public:
     std::string PrintStats() const;
 
 private:
-    const EnemySpec* myType;
+    const EnemyType* myType;
     DamagableComponent myDamagable;
     std::vector<LootDrop> myLoot;
 

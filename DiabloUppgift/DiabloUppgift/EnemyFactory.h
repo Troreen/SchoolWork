@@ -1,17 +1,27 @@
 #pragma once
 
 #include <cstddef>
+#include <array>
 
 #include "EnemyTypes.h"
 
 class Enemy;
 
-struct EnemyFactory
+class EnemyFactory
 {
-    const EnemySpec* specs = nullptr;
-    size_t specCount = 0;
+public:
+    EnemyFactory();
+    ~EnemyFactory();
 
-    Enemy Make(EnemyId id) const;
+    void Initialize();
+    Enemy Make(EnemyId anId) const;
+
+    const EnemyType& GetType(EnemyId anId) const;
+
+private:
+    static constexpr size_t kEnemyTypeCount = 3; // Goblin, Orc, Troll
+    std::array<EnemyType, kEnemyTypeCount> myTypes;
+    bool myInitialized = false;
 };
 
 const EnemyFactory& GetEnemyFactory();
