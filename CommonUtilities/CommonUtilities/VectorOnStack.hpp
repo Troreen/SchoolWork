@@ -6,7 +6,6 @@ namespace CommonUtilities
 	template <typename Type, int SIZE, typename CountType = unsigned short, bool UseSafeModeFlag = true>
 	class VectorOnStack
 	{
-
 	public:
 		VectorOnStack();
 		VectorOnStack(const VectorOnStack& aVectorOnStack);
@@ -14,13 +13,13 @@ namespace CommonUtilities
 
 		VectorOnStack& operator= (const VectorOnStack& aVectorOnStack);
 
-		inline Type& operator[] (const CountType anIndex);
-		inline const Type& operator[] (const CountType anIndex) const;
+		inline Type& operator[] (int anIndex);
+		inline const Type& operator[] (int anIndex) const;
 
 		inline void Add(const Type& anObject);
-		inline void Insert(const CountType anIndex, const Type& anObject);
+		inline void Insert(int anIndex, const Type& anObject);
 		inline void RemoveCyclic(const Type& anObject);
-		inline void RemoveCyclicAtIndex(const CountType anIndex);
+		inline void RemoveCyclicAtIndex(int anIndex);
 
 		inline void Clear();
 		__forceinline CountType Size() const;
@@ -67,17 +66,19 @@ namespace CommonUtilities
 	}
 
 	template <typename Type, int SIZE, typename CountType, bool UseSafeModeFlag>
-	Type& VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::operator[] (const CountType anIndex) 
+	Type& VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::operator[] (int anIndex)
 	{
-		assert(anIndex < mySize);
-		return myData[anIndex];
+		assert(anIndex >= 0);
+		assert(static_cast<CountType>(anIndex) < mySize);
+		return myData[static_cast<CountType>(anIndex)];
 	}
 
 	template <typename Type, int SIZE, typename CountType, bool UseSafeModeFlag>
-	const Type& VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::operator[] (const CountType anIndex) const 
+	const Type& VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::operator[] (int anIndex) const
 	{
-		assert(anIndex < mySize);
-		return myData[anIndex];
+		assert(anIndex >= 0);
+		assert(static_cast<CountType>(anIndex) < mySize);
+		return myData[static_cast<CountType>(anIndex)];
 	}
 
 	template <typename Type, int SIZE, typename CountType, bool UseSafeModeFlag>
@@ -88,17 +89,19 @@ namespace CommonUtilities
 		++mySize;
 	}
 
-
 	template <typename Type, int SIZE, typename CountType, bool UseSafeModeFlag>
-	void VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::Insert(const CountType anIndex, const Type& anObject)
+	void VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::Insert(int anIndex, const Type& anObject)
 	{
 		assert(mySize < SIZE);
-		assert(anIndex <= mySize);
-		for (CountType i = mySize; i > anIndex; --i)
+		assert(anIndex >= 0);
+		assert(static_cast<CountType>(anIndex) <= mySize);
+
+		const CountType idx = static_cast<CountType>(anIndex);
+		for (CountType i = mySize; i > idx; --i)
 		{
 			myData[i] = myData[i - 1];
 		}
-		myData[anIndex] = anObject;
+		myData[idx] = anObject;
 		++mySize;
 	}
 
@@ -109,22 +112,24 @@ namespace CommonUtilities
 		{
 			if (myData[i] == anObject)
 			{
-				RemoveCyclicAtIndex(i);
+				RemoveCyclicAtIndex(static_cast<int>(i));
 				return;
 			}
 		}
 	}
 
 	template <typename Type, int SIZE, typename CountType, bool UseSafeModeFlag>
-	void VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::RemoveCyclicAtIndex(const CountType anIndex)
+	void VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::RemoveCyclicAtIndex(int anIndex)
 	{
-		assert(anIndex < mySize);
-		myData[anIndex] = myData[mySize - 1];
+		assert(anIndex >= 0);
+		assert(static_cast<CountType>(anIndex) < mySize);
+		const CountType idx = static_cast<CountType>(anIndex);
+		myData[idx] = myData[mySize - 1];
 		--mySize;
 	}
 
 	template <typename Type, int SIZE, typename CountType, bool UseSafeModeFlag>
-	void VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::Clear() 
+	void VectorOnStack<Type, SIZE, CountType, UseSafeModeFlag>::Clear()
 	{
 		mySize = 0;
 	}
@@ -134,5 +139,4 @@ namespace CommonUtilities
 	{
 		return mySize;
 	}
-
 } // namespace CommonUtilities
