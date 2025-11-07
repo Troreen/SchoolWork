@@ -160,6 +160,10 @@
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Vector.hpp" />
+    <ClInclude Include="Vector2.hpp" />
+    <ClInclude Include="Vector3.hpp" />
+    <ClInclude Include="Vector4.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommonUtilLib.cpp" />

@@ -6,6 +6,9 @@
 #include <tge/drawers/DebugDrawer.h>
 #include <tge/engine.h>
 
+#include <InputHandler.h>
+#include <Timer.h>
+
 using namespace Tga;
 
 GameWorld::GameWorld()

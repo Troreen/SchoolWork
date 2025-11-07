@@ -6,6 +6,8 @@
 #include <tge/settings/settings.h>
 #include <tge/error/ErrorManager.h>
 
+#include <Timer.h>
+
 LRESULT WinProc([[maybe_unused]]HWND hWnd, UINT message, [[maybe_unused]]WPARAM wParam, [[maybe_unused]]LPARAM lParam)
 {
 	switch (message)
