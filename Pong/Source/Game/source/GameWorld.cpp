@@ -74,8 +74,6 @@ void GameWorld::HandlePaddleBallCollision()
 			ballPos.y + ballRadius > pPos.y - halfH && ballPos.y - ballRadius < pPos.y + halfH)
 		{
 			myBall->ReflectX();
-			float diff = (ballPos.y - pPos.y) / halfH;
-			myBall->AddVerticalInfluence(diff);
 		}
 	};
 
@@ -87,7 +85,6 @@ void GameWorld::Update(float aTimeDelta)
 {
 	if (myInput)
 	{
-		// Restart if game over and Enter pressed
 		if (myIsGameOver && myInput->IsKeyPressed(VK_RETURN))
 		{
 			ResetGame();
@@ -98,7 +95,6 @@ void GameWorld::Update(float aTimeDelta)
 
 	if (myIsGameOver)
 	{
-		// Freeze everything except restart input
 		return;
 	}
 
@@ -118,20 +114,26 @@ void GameWorld::Update(float aTimeDelta)
 		myAIScore++;
 		UpdateScoreText();
 		CheckGameOver();
-		// Reset paddles to middle after score
+
 		myPlayerPaddle->ResetPosition();
 		myAIPaddle->ResetPosition();
-		if (!myIsGameOver) myBall->Reset();
+		if (!myIsGameOver) 
+		{
+			myBall->Reset();
+		}
 	}
 	else if (x > screenW + radius)
 	{
 		myPlayerScore++;
 		UpdateScoreText();
 		CheckGameOver();
-		// Reset paddles to middle after score
+
 		myPlayerPaddle->ResetPosition();
 		myAIPaddle->ResetPosition();
-		if (!myIsGameOver) myBall->Reset();
+		if (!myIsGameOver) 
+		{
+			myBall->Reset();
+		}
 	}
 }
 
@@ -144,9 +146,18 @@ void GameWorld::Render()
 	myPlayerPaddle->Render(spriteDrawer);
 	myAIPaddle->Render(spriteDrawer);
 
-	if (myPlayerScoreText) myPlayerScoreText->Render();
-	if (myAIScoreText) myAIScoreText->Render();
-	if (myIsGameOver && myGameOverText) myGameOverText->Render();
+	if (myPlayerScoreText)
+	{
+		myPlayerScoreText->Render();
+	}
+	if (myAIScoreText) 
+	{
+		myAIScoreText->Render();
+	}
+	if (myIsGameOver && myGameOverText) 
+	{
+		myGameOverText->Render();
+	}
 }
 
 void GameWorld::SetInputHandler(InputHandler* anInput)
@@ -156,8 +167,14 @@ void GameWorld::SetInputHandler(InputHandler* anInput)
 
 void GameWorld::UpdateScoreText()
 {
-	if (myPlayerScoreText) myPlayerScoreText->SetText(std::to_string(myPlayerScore));
-	if (myAIScoreText) myAIScoreText->SetText(std::to_string(myAIScore));
+	if (myPlayerScoreText) 
+	{
+		myPlayerScoreText->SetText(std::to_string(myPlayerScore));
+	}
+	if (myAIScoreText) 
+	{
+		myAIScoreText->SetText(std::to_string(myAIScore));
+	}
 }
 
 void GameWorld::CheckGameOver()
@@ -166,9 +183,13 @@ void GameWorld::CheckGameOver()
 	{
 		myIsGameOver = true;
 		if (myPlayerScore > myAIScore)
+		{
 			myGameOverText->SetText("Player Wins! Press Enter to restart");
+		}
 		else
+		{
 			myGameOverText->SetText("AI Wins! Press Enter to restart");
+		}
 	}
 }
 
@@ -178,10 +199,22 @@ void GameWorld::ResetGame()
 	myAIScore = 0;
 	myIsGameOver = false;
 	UpdateScoreText();
-	if (myGameOverText) myGameOverText->SetText("");
+	if (myGameOverText)
+	{
+		myGameOverText->SetText("");
+	}
 
-	// Reset positions
-	if (myPlayerPaddle) myPlayerPaddle->ResetPosition();
-	if (myAIPaddle) myAIPaddle->ResetPosition();
-	if (myBall) myBall->Reset();
+
+	if (myPlayerPaddle) 
+	{
+		myPlayerPaddle->ResetPosition();
+	}
+	if (myAIPaddle) 
+	{
+		myAIPaddle->ResetPosition();
+	}
+	if (myBall) 
+	{
+		myBall->Reset();
+	}
 }

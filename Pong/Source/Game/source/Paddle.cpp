@@ -7,8 +7,15 @@
 
 Paddle::Paddle()
 {
+	mySpriteInstance = {};
+	mySharedData = {};
 	myPosition = { 0.0f,0.0f };
 	myScreenResolution = { 1920.0f,1080.0f };
+	myMoveSpeed = 1200.0f;
+	mySide = PaddleSide::Left;
+	myIsAI = false;
+	myAiTargetY = 0.0f;
+	myInput = nullptr;
 }
 
 Paddle::~Paddle() {}
@@ -32,6 +39,31 @@ void Paddle::Init(Tga::Engine& anEngine, PaddleSide aSide)
 	ResetPosition();
 }
 
+void Paddle::SetInput(InputHandler* aInput)
+{
+	myInput = aInput;
+}
+
+void Paddle::SetAiFollowY(float aTargetY)
+{
+	myAiTargetY = aTargetY;
+}
+
+void Paddle::SetIsAI(bool aIsAI)
+{
+	myIsAI = aIsAI;
+}
+
+const Tga::Vector2f& Paddle::GetPosition() const
+{
+	return myPosition;
+}
+
+const Tga::Vector2f& Paddle::GetSize() const
+{
+	return mySpriteInstance.mySize;
+}
+
 void Paddle::ResetPosition()
 {
 	const float xMargin = 40.0f;
@@ -53,8 +85,14 @@ void Paddle::Render(Tga::SpriteDrawer& aSpriteDrawer)
 
 void Paddle::Update(float aDeltaTime)
 {
-	if (myIsAI) MoveAI(aDeltaTime);
-	else MovePlayer(aDeltaTime);
+	if (myIsAI)
+	{
+		MoveAI(aDeltaTime);
+	}
+	else
+	{
+		MovePlayer(aDeltaTime);
+	}
 
 	ClampToScreen();
 	mySpriteInstance.myPosition = myPosition;
@@ -62,25 +100,48 @@ void Paddle::Update(float aDeltaTime)
 
 void Paddle::MovePlayer(float aDeltaTime)
 {
-	if (!myInput) return;
+	if (!myInput) 
+	{
+		return;
+	}
+	
 	float dir = 0.0f;
-	// Up should move visually up; adjust mapping
-	if (myInput->IsKeyDown(VK_UP)) dir += 1.0f;   
-	if (myInput->IsKeyDown(VK_DOWN)) dir -= 1.0f; 
+	
+	if (myInput->IsKeyDown(VK_UP)) 
+	{
+		dir += 1.0f;
+	}
+	if (myInput->IsKeyDown(VK_DOWN)) 
+	{
+		dir -= 1.0f;
+	}
+
 	myPosition.y += dir * myMoveSpeed * aDeltaTime;
 }
 
 void Paddle::MoveAI(float aDeltaTime)
 {
 	float dir = 0.0f;
-	if (myAiTargetY < myPosition.y - 5.0f) dir = -1.0f;
-	else if (myAiTargetY > myPosition.y + 5.0f) dir = 1.0f;
+	if (myAiTargetY < myPosition.y - 5.0f) 
+	{
+		dir = -1.0f;
+	}
+	else if (myAiTargetY > myPosition.y + 5.0f) 
+	{
+		dir = 1.0f;
+	}
 	myPosition.y += dir * myMoveSpeed * aDeltaTime;
 }
 
 void Paddle::ClampToScreen()
 {
 	const float halfH = 0.5f * mySpriteInstance.mySize.y;
-	if (myPosition.y < halfH) myPosition.y = halfH;
-	if (myPosition.y > myScreenResolution.y - halfH) myPosition.y = myScreenResolution.y - halfH;
+	if (myPosition.y < halfH) 
+	{
+		myPosition.y = halfH;
+	}
+	if (myPosition.y > myScreenResolution.y - halfH)
+	{
+		myPosition.y = myScreenResolution.y - halfH;
+	}
 }

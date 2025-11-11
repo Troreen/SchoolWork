@@ -13,7 +13,7 @@ static InputHandler* gInputHandler = nullptr;
 
 LRESULT WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    (void)hWnd; // silence unreferenced param warning
+    (void)hWnd;
     if (gInputHandler)
     {
         gInputHandler->UpdateEvents(message, wParam, lParam);
@@ -52,7 +52,7 @@ void Go()
         GameWorld gameWorld;
         gameWorld.Init();
 
-        InputHandler inputHandler; // local input handler
+        InputHandler inputHandler; 
         gInputHandler = &inputHandler;
         gameWorld.SetInputHandler(gInputHandler);
 
