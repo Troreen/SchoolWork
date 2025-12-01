@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector2.hpp"
+#include <cmath>
 
 namespace CommonUtilities
 {
@@ -36,7 +37,7 @@ namespace CommonUtilities
 		Vector2<T> GetNormal() const;
 
 	private:
-		static Vector2<T> CalculateNormalFromDirection(const Vector2<T>& aDirection);
+		static Vector2<T> ComputeNormalFromDirection(const Vector2<T>& aDirection);
 
 		bool IsInitialized() const;
 
@@ -65,9 +66,97 @@ namespace CommonUtilities
 	{
 		const Vector2<T> direction = aPoint1 - aPoint0;
 
-		if (direction.x == T(0) && direction.y == T(0))
+		if (direction.LengthSqr() == 0)
 		{
-			myPoint = Vector2<T>(T(0), T(0))
+			myPoint = Vector2<T>(T(0), T(0));
+			myNormal = Vector2<T>(T(0), T(0));
+			return;
 		}
+
+		myPoint = aPoint0;
+		myNormal = ComputeNormalFromDirection(direction);
 	}
-}
+	
+	template <typename T>
+	inline void Line<T>::InitWithPointAndDirection(const Vector2<T>& aPoint, const Vector2<T>& aDirection)
+	{
+		if (aDirection.LengthSqr() == 0)
+		{
+			myPoint = Vector2<T>(T(0), T(0));
+			myNormal = Vector2<T>(T(0), T(0));
+			return;
+		}
+		
+		myPoint = aPoint;
+		myNormal = ComputeNormalFromDirection(aDirection);
+	}
+
+	template<typename T>
+	inline void Line<T>::InitWithPointAndNormal(const Vector2<T>& aPoint, const Vector2<T>& aNormal)
+	{
+		if (aNormal.LengthSqr() == 0)
+		{
+			myPoint = Vector2<T>(T(0), T(0));
+			myNormal = Vector2<T>(T(0), T(0));
+			return;
+		}
+
+		myPoint = aPoint;
+		myNormal = aNormal.GetNormalized();
+	}
+
+	template<typename T>
+	inline bool Line<T>::IsInside(const Vector2<T>& aPosition) const
+	{
+		if (!IsInitialized())
+		{
+			return false;
+		}
+
+		// Vector from a point on the line to the test point
+		const Vector2<T> offset = aPosition - myPoint;
+
+		// Dot > 0 -> in direction of normal -> outside
+		// Dot <= 0 -> on line or behind normal -> inside
+		const T dot = offset.Dot(myNormal);
+		return dot <= T(0);
+	}
+
+	template<typename T>
+	inline Vector2<T> Line<T>::GetDirection() const
+	{
+		return Vector2<T>(myNormal.y, -myNormal.x);
+	}
+
+	template<typename T>
+	inline Vector2<T> Line<T>::GetNormal() const
+	{
+		return myNormal;
+	}
+
+	// Private helpers
+	template<typename T>
+	inline Vector2<T> Line<T>::ComputeNormalFromDirection(const Vector2<T>& aDirection)
+	{
+		// Perpendicular (rotate 90 degrees CCW) and normalize
+		Vector2<T> n(-aDirection.y, aDirection.x);
+		const T lenSqr = n.LengthSqr();
+		if (lenSqr == T(0))
+		{
+			return Vector2<T>(T(0), T(0));
+		}
+		const T invLen = static_cast<T>(1) / static_cast<T>(std::sqrt(lenSqr));
+		return Vector2<T>(n.x * invLen, n.y * invLen);
+	}
+
+	template<typename T>
+	inline bool Line<T>::IsInitialized() const
+	{
+		return myNormal.LengthSqr() != T(0);
+	}
+} // namespace CommonUtilities
+
+
+
+
+

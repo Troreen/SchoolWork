@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommonUtilLib", "CommonUtilLib\CommonUtilLib.vcxproj", "{ABB9FE9F-8236-4423-979A-F1C4A91053C1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MathTests", "MathTests\MathTests.vcxproj", "{4A41BD22-D056-5651-CF62-02FDADB8475D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{ABB9FE9F-8236-4423-979A-F1C4A91053C1}.Debug|x64.Build.0 = Debug|x64
 		{ABB9FE9F-8236-4423-979A-F1C4A91053C1}.Release|x64.ActiveCfg = Release|x64
 		{ABB9FE9F-8236-4423-979A-F1C4A91053C1}.Release|x64.Build.0 = Release|x64
+		{4A41BD22-D056-5651-CF62-02FDADB8475D}.Debug|x64.ActiveCfg = Debug|x64
+		{4A41BD22-D056-5651-CF62-02FDADB8475D}.Debug|x64.Build.0 = Debug|x64
+		{4A41BD22-D056-5651-CF62-02FDADB8475D}.Release|x64.ActiveCfg = Release|x64
+		{4A41BD22-D056-5651-CF62-02FDADB8475D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
