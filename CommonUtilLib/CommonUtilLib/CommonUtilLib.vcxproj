@@ -155,10 +155,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.hpp" />
     <ClInclude Include="EnumKeys.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="Line.hpp" />
+    <ClInclude Include="LineVolume.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Plane.hpp" />
+    <ClInclude Include="PlaneVolume.hpp" />
+    <ClInclude Include="Ray.hpp" />
+    <ClInclude Include="Sphere.hpp" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector.hpp" />
     <ClInclude Include="Vector2.hpp" />
