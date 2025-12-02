@@ -1,7 +1,8 @@
-# Build artifacts
+# Build artifacts (but keep engine DLLs/LIBs)
 *.exe
-*.dll
-*.lib
+# REMOVE or comment out these:
+# *.dll
+# *.lib
 *.obj
 *.o
 *.so
@@ -10,7 +11,9 @@
 *.app
 
 # Debug / Release folders (Visual Studio, MSVC, MinGW, etc.)
-[Bb]in/
+# REMOVE or comment out this:
+# [Bb]in/
+
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
