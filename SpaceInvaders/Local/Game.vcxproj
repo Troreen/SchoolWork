@@ -158,10 +158,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Game\source\CollisionSystem.h" />
+    <ClInclude Include="..\Source\Game\source\ConfigLoader.h" />
     <ClInclude Include="..\Source\Game\source\Enemy.h" />
     <ClInclude Include="..\Source\Game\source\EnemyFormation.h" />
     <ClInclude Include="..\Source\Game\source\Explosion.h" />
     <ClInclude Include="..\Source\Game\source\GameObject.h" />
+    <ClInclude Include="..\Source\Game\source\GameObjectFactory.h" />
     <ClInclude Include="..\Source\Game\source\GameTypes.h" />
     <ClInclude Include="..\Source\Game\source\GameWorld.h" />
     <ClInclude Include="..\Source\Game\source\Go.h" />
@@ -170,16 +172,30 @@
     <ClInclude Include="..\Source\Game\source\Player.h" />
     <ClInclude Include="..\Source\Game\source\Projectile.h" />
     <ClInclude Include="..\Source\Game\source\ProjectileManager.h" />
+    <ClInclude Include="..\Source\Game\source\RenderBufferPair.h" />
+    <ClInclude Include="..\Source\Game\source\RenderTypes.h" />
     <ClInclude Include="..\Source\Game\source\ScoreManager.h" />
     <ClInclude Include="..\Source\Game\source\ShieldBlock.h" />
     <ClInclude Include="..\Source\Game\source\ShieldManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\Game\source\CollisionSystem.cpp" />
+    <ClCompile Include="..\Source\Game\source\ConfigLoader.cpp" />
+    <ClCompile Include="..\Source\Game\source\Enemy.cpp" />
+    <ClCompile Include="..\Source\Game\source\EnemyFormation.cpp" />
+    <ClCompile Include="..\Source\Game\source\Explosion.cpp" />
     <ClCompile Include="..\Source\Game\source\GameObject.cpp" />
+    <ClCompile Include="..\Source\Game\source\GameObjectFactory.cpp" />
     <ClCompile Include="..\Source\Game\source\GameTypes.cpp" />
     <ClCompile Include="..\Source\Game\source\GameWorld.cpp" />
     <ClCompile Include="..\Source\Game\source\Go.cpp" />
+    <ClCompile Include="..\Source\Game\source\HighScoreManager.cpp" />
+    <ClCompile Include="..\Source\Game\source\MysteryShip.cpp" />
     <ClCompile Include="..\Source\Game\source\Player.cpp" />
+    <ClCompile Include="..\Source\Game\source\Projectile.cpp" />
+    <ClCompile Include="..\Source\Game\source\ProjectileManager.cpp" />
+    <ClCompile Include="..\Source\Game\source\ShieldBlock.cpp" />
+    <ClCompile Include="..\Source\Game\source\ShieldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="External.vcxproj">
@@ -188,6 +204,9 @@
     <ProjectReference Include="Engine.vcxproj">
       <Project>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\Game\source\req.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

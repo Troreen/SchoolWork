@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Projectile.h"
-
+#include "GameTypes.h"
 
 class ProjectileManager
 {

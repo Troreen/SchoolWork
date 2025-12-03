@@ -1,9 +1,13 @@
 #pragma once
+#include <tge/Engine.h>
+
 
 namespace Tga
 {
-	class SpriteSharedData;
+	struct SpriteSharedData;
 }
+
+struct GameConfig;
 
 struct PlayerType
 {
@@ -38,8 +42,16 @@ struct ShieldType
 struct ExplosionType
 {
 	float duration;
-	Tga::SpriteSharedData* spriteData = nullptr;
+	Tga::SpriteSharedData* frames[2] = { nullptr, nullptr };
 
+};
+
+struct MysteryShipType
+{
+	float speed;
+	int health;
+	int score;
+	Tga::SpriteSharedData* spriteData = nullptr;
 };
 
 // Central Registry for all types
@@ -51,6 +63,7 @@ struct GameTypes
 	ShieldType shield;
 	ExplosionType explosion;
 	EnemyType enemyTypes[3];
+	MysteryShipType mystery;
 };
 
 class GameTypesInitializer

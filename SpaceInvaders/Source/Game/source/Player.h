@@ -14,6 +14,8 @@ public:
 	void Init(Tga::Engine& anEngine);
 	void Update(float aDeltaTime);
 	void Render(Tga::SpriteDrawer& aSpriteDrawer);
+	void OnCollision(GameObject* other) override;
+	void BuildRenderData(RenderWorld& out) const override;
 
 	void SetInput(InputHandler* aInput);
 
@@ -22,6 +24,7 @@ public:
 	const Tga::Vector2f& GetScreenResolution() const;
 
 	void ResetPosition();
+	void SetMoveSpeed(float aSpeed) { myMoveSpeed = aSpeed; }
 
 private:
 

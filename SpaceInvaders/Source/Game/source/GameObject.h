@@ -1,10 +1,12 @@
 #pragma once
-#include <Vector2.hpp>
+#include "RenderTypes.h"
+#include <Vector2.hpp> 
 
 class GameObject
 {
 public:
 	virtual ~GameObject() = default;
+	
 	virtual void Update(float aDeltaTime) = 0;
 	virtual void OnCollision(GameObject* other) = 0;
 	virtual void BuildRenderData(RenderWorld& out) const = 0;

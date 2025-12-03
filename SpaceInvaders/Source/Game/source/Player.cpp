@@ -4,6 +4,7 @@
 #include <tge/texture/TextureManager.h>
 #include <tge/drawers/SpriteDrawer.h>
 #include <InputHandler.h>
+#include "RenderTypes.h"
 
 Player::Player()
 	: myMoveSpeed(600.0f)
@@ -29,6 +30,7 @@ void Player::Init(Tga::Engine& anEngine)
 	mySpriteInstance.myColor = Tga::Color(1, 1, 1, 1);
 
 	ResetPosition();
+	GameObject::SetPosition({ myPosition.x, myPosition.y });
 }
 
 void Player::SetInput(InputHandler* aInput)
@@ -41,6 +43,7 @@ void Player::Update(float aDeltaTime)
 	Move(aDeltaTime);
 	ClampToScreen();
 	mySpriteInstance.myPosition = myPosition;
+	GameObject::SetPosition({ myPosition.x, myPosition.y });
 }
 
 const Tga::Vector2f& Player::GetPosition() const
@@ -60,8 +63,9 @@ const Tga::Vector2f& Player::GetScreenResolution() const
 
 void Player::ResetPosition()
 {
-	const float bottomMargin = 10.0f;
+	const float bottomMargin = 800.0f;
 	myPosition = { myScreenResolution.x * 0.5f, myScreenResolution.y - (mySpriteInstance.mySize.y * 0.5f) - bottomMargin};
+	GameObject::SetPosition({ myPosition.x, myPosition.y });
 }
 
 void Player::Render(Tga::SpriteDrawer& aSpriteDrawer)
@@ -74,35 +78,35 @@ void Player::Move(float aDeltaTime)
 	if (!myInput)
 		return;
 
-	float targetAcceleration = 0.0f;
-
+	// Snappy movement: immediate velocity set, no acceleration/glide
 	if (myInput->IsKeyDown(VK_LEFT))
 	{
-		targetAcceleration = -myAcceleration;
+		myVelocityX = -myMoveSpeed;
 	}
 	else if (myInput->IsKeyDown(VK_RIGHT))
 	{
-		targetAcceleration = myAcceleration;
+		myVelocityX = myMoveSpeed;
 	}
 	else
 	{
-		if (myVelocityX > 0.0f) targetAcceleration = -myAcceleration;
-		else if (myVelocityX < 0.0f) targetAcceleration = myAcceleration;
-	}
-
-	myVelocityX += targetAcceleration * aDeltaTime;
-
-	const float maxSpeed = myMoveSpeed;
-	if (myVelocityX > maxSpeed)  
-	{
-		myVelocityX = maxSpeed;
-	}
-	if (myVelocityX < -maxSpeed) 
-	{
-		myVelocityX = -maxSpeed;
+		myVelocityX = 0.0f;
 	}
 
 	myPosition.x += myVelocityX * aDeltaTime;
+}
+
+void Player::OnCollision(GameObject*)
+{
+	// Life handling is managed by GameWorld; player stays active here.
+}
+
+void Player::BuildRenderData(RenderWorld& out) const
+{
+	RenderSprite sprite{};
+    sprite.shared = const_cast<Tga::SpriteSharedData*>(&mySharedData);
+	sprite.instance = mySpriteInstance;
+	sprite.instance.myPosition = { myPosition.x, myPosition.y };
+	out.sprites.push_back(sprite);
 }
 
 
