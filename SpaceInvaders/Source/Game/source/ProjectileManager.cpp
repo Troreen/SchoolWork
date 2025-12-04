@@ -67,3 +67,10 @@ bool ProjectileManager::CanPlayerShoot() const
 {
 	return myActivePlayerShots < 3 && myReloadTimer <= 0.0f;
 }
+
+void ProjectileManager::Reset()
+{
+	myProjectiles.clear();
+	myActivePlayerShots = 0;
+	myReloadTimer = 0.0f;
+}

@@ -4,58 +4,60 @@
 #include <Windef.h>
 #include <bitset>
 
-
-class InputHandler
+namespace CommonUtilities
 {
-public:
-	InputHandler();
-	~InputHandler();
+	class InputHandler
+	{
+	public:
+		InputHandler();
+		~InputHandler();
 
-	bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
-	bool UpdateMouseInput(UINT aMessage, WPARAM wParam, LPARAM lParam);
+		bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
+		bool UpdateMouseInput(UINT aMessage, WPARAM wParam, LPARAM lParam);
 
-	void UpdateInput();
+		void UpdateInput();
 
-	bool IsKeyDown(const int aKeyCode) const;
-	bool IsKeyPressed(const int aKeyCode) const;
-	bool IsKeyReleased(const int aKeyCode) const;
+		bool IsKeyDown(const int aKeyCode) const;
+		bool IsKeyPressed(const int aKeyCode) const;
+		bool IsKeyReleased(const int aKeyCode) const;
 
-	POINT GetMousePos() const; 
-	POINT GetMouseDelta() const;
-	POINT GetMousePosScreen() const; 
-	int GetWheelDeltaX() const;
-	int GetWheelDeltaY() const;
+		POINT GetMousePos() const;
+		POINT GetMouseDelta() const;
+		POINT GetMousePosScreen() const;
+		int GetWheelDeltaX() const;
+		int GetWheelDeltaY() const;
 
-	bool IsMouseButtonDown(int buttonVk) const { return IsKeyDown(buttonVk); }
-	bool IsMouseButtonPressed(int buttonVk) const { return IsKeyPressed(buttonVk); }
-	bool IsMouseButtonReleased(int buttonVk) const { return IsKeyReleased(buttonVk); }
+		bool IsMouseButtonDown(int buttonVk) const;
+		bool IsMouseButtonPressed(int buttonVk) const;
+		bool IsMouseButtonReleased(int buttonVk) const;
 
-	void SetWindowHandle(HWND hWnd) { myHwnd = hWnd; }
-	HWND GetWindowHandle() const { return myHwnd; }
+		void SetWindowHandle(HWND hWnd);
+		HWND GetWindowHandle() const;
 
-	void SetAutoMouseCapture(bool enabled) { myAutoMouseCapture = enabled; }
-	bool GetAutoMouseCapture() const { return myAutoMouseCapture; }
-	bool IsMouseCaptured() const { return myMouseCaptured; }
+		void SetAutoMouseCapture(bool enabled);
+		bool GetAutoMouseCapture() const; 
+		bool IsMouseCaptured() const;	
 
-private:
-	std::bitset<256> myCurrentState;
-	std::bitset<256> myPreviousState;
-	std::bitset<256> myTentativeState;
+	private:
+		std::bitset<256> myCurrentState;
+		std::bitset<256> myPreviousState;
+		std::bitset<256> myTentativeState;
 
-	POINT myCurrentMousePos;
-	POINT myPreviousMousePos;
-	POINT myTentativeMousePos;
+		POINT myCurrentMousePos;
+		POINT myPreviousMousePos;
+		POINT myTentativeMousePos;
 
-	int myWheelX = 0;
-	int myWheelY = 0;
-	int myTentativeWheelX = 0;
-	int myTentativeWheelY = 0;
+		int myWheelX;
+		int myWheelY;
+		int myTentativeWheelX;
+		int myTentativeWheelY;
 
-	HWND myHwnd = nullptr;
-	bool myAutoMouseCapture = true;
-	bool myMouseCaptured = false;
+		HWND myHwnd;
+		bool myAutoMouseCapture;
+		bool myMouseCaptured;
 
-	bool AnyMouseButtonDownTentative() const;
-	void TryBeginMouseCapture();
-	void TryEndMouseCaptureIfNoButtons();
-};
+		bool AnyMouseButtonDownTentative() const;
+		void TryBeginMouseCapture();
+		void TryEndMouseCaptureIfNoButtons();
+	};
+} // namespace CommonUtilities

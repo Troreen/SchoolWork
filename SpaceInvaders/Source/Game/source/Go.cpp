@@ -9,7 +9,9 @@
 #include <Windows.h>
 #include <InputHandler.h>
 
-static InputHandler* gInputHandler = nullptr;
+namespace CommonUtilities { class InputHandler; }
+
+static CommonUtilities::InputHandler* gInputHandler = nullptr;
 
 LRESULT WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -52,7 +54,7 @@ void Go()
         GameWorld gameWorld;
         gameWorld.Init();
 
-        InputHandler inputHandler; 
+        CommonUtilities::InputHandler inputHandler; 
         gInputHandler = &inputHandler;
         gameWorld.SetInputHandler(gInputHandler);
 
@@ -62,7 +64,9 @@ void Go()
         {
             gInputHandler->UpdateInput();
 
-            gameWorld.Update(engine.GetDeltaTime());
+            gameWorld.GetTimer().Update();
+            float deltaTime = gameWorld.GetTimer().GetDeltaTime();
+            gameWorld.Update(deltaTime);
             gameWorld.Render();
             engine.EndFrame();
         }

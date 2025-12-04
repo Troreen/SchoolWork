@@ -13,7 +13,7 @@ namespace
 		cfg.playerProjectileSpeed = 900.0f;
 		cfg.enemyProjectileSpeed = 600.0f;
 		cfg.enemyBaseSpeed = 500.0f;
-		cfg.defaultHighScore = 20000;
+		cfg.defaultHighScore = 0;
 		return cfg;
 	}
 

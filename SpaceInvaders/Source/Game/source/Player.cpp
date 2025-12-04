@@ -33,7 +33,7 @@ void Player::Init(Tga::Engine& anEngine)
 	GameObject::SetPosition({ myPosition.x, myPosition.y });
 }
 
-void Player::SetInput(InputHandler* aInput)
+void Player::SetInput(CommonUtilities::InputHandler* aInput)
 {
 	myInput = aInput;
 }
@@ -78,7 +78,6 @@ void Player::Move(float aDeltaTime)
 	if (!myInput)
 		return;
 
-	// Snappy movement: immediate velocity set, no acceleration/glide
 	if (myInput->IsKeyDown(VK_LEFT))
 	{
 		myVelocityX = -myMoveSpeed;

@@ -14,7 +14,7 @@ GameObjectFactory::GameObjectFactory(const GameTypes& someTypes)
 std::unique_ptr<Player> GameObjectFactory::CreatePlayer()
 {
 	auto player = std::make_unique<Player>();
-	// Player manages its own position; caller should place via Player API.
+
 	return player;
 }
 

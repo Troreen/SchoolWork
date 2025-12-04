@@ -42,7 +42,7 @@ struct ShieldType
 struct ExplosionType
 {
 	float duration;
-	Tga::SpriteSharedData* frames[2] = { nullptr, nullptr };
+	Tga::SpriteSharedData* frames[3] = { nullptr, nullptr, nullptr };
 
 };
 

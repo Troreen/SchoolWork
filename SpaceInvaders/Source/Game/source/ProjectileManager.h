@@ -18,6 +18,8 @@ public:
 	const std::vector<std::unique_ptr<Projectile>>& GetProjectiles() const;
 
 	bool CanPlayerShoot() const;
+
+	void Reset(); // Add Reset method
 private:
 	std::vector<std::unique_ptr<Projectile>> myProjectiles;
 	int myActivePlayerShots = 0;

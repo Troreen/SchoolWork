@@ -13,7 +13,6 @@ Enemy::Enemy(const EnemyType& aType, CommonUtilities::Vector2<float> aStartPos)
 
 void Enemy::Update(float)
 {
-	// Movement is handled by the EnemyFormation.
 }
 
 void Enemy::OnCollision(GameObject*)

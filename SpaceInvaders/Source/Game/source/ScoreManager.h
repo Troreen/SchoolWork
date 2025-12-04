@@ -15,5 +15,5 @@ public:
 
 private:
 	int myScore = 0;
-	int myHighScore = 20000;
+	int myHighScore = 0;
 };

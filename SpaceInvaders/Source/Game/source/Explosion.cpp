@@ -22,11 +22,22 @@ void Explosion::Update(float aDeltaTime)
 
 	myTimeLeft -= aDeltaTime;
 
-	// Simple 2-frame animation: switch to frame 2 halfway through
-	float half = (myType ? myType->duration * 0.5f : 0.0f);
-	if (myTimeLeft <= half)
+	// 3-frame animation: frame 0 for first third, 1 for second third, 2 for final third
+	if (myType && myType->duration > 0.0f)
 	{
-		myCurrentFrame = 1;
+		float oneThird = myType->duration / 3.0f;
+		if (myTimeLeft <= oneThird * 2.0f && myTimeLeft > oneThird)
+		{
+			myCurrentFrame = 1;
+		}
+		else if (myTimeLeft <= oneThird)
+		{
+			myCurrentFrame = 2;
+		}
+		else
+		{
+			myCurrentFrame = 0;
+		}
 	}
 
 	if (myTimeLeft <= 0.0f)
@@ -47,7 +58,12 @@ void Explosion::BuildRenderData(RenderWorld& out) const
 		return;
 	}
 
-	Tga::SpriteSharedData* frame = myType->frames[myCurrentFrame];
+	// Clamp frame index to valid range
+	int frameIndex = myCurrentFrame;
+	if (frameIndex < 0) frameIndex = 0;
+	if (frameIndex > 2) frameIndex = 2;
+
+	Tga::SpriteSharedData* frame = myType->frames[frameIndex];
 	if (!frame)
 	{
 		return;

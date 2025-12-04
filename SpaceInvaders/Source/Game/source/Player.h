@@ -3,7 +3,7 @@
 #include <tge/sprite/sprite.h>
 #include "GameObject.h"
 
-class InputHandler;
+namespace CommonUtilities { class InputHandler; }
 
 class Player : public GameObject 
 {
@@ -17,7 +17,7 @@ public:
 	void OnCollision(GameObject* other) override;
 	void BuildRenderData(RenderWorld& out) const override;
 
-	void SetInput(InputHandler* aInput);
+	void SetInput(CommonUtilities::InputHandler* aInput);
 
 	const Tga::Vector2f& GetPosition() const;
 	const Tga::Vector2f& GetSize() const;
@@ -41,7 +41,7 @@ private:
 	float myVelocityX;
 	float myAcceleration;
 
-	InputHandler* myInput;
+	CommonUtilities::InputHandler* myInput;
 	
 
 };

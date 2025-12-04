@@ -194,6 +194,7 @@
     <ClCompile Include="..\Source\Game\source\Player.cpp" />
     <ClCompile Include="..\Source\Game\source\Projectile.cpp" />
     <ClCompile Include="..\Source\Game\source\ProjectileManager.cpp" />
+    <ClCompile Include="..\Source\Game\source\ScoreManager.cpp" />
     <ClCompile Include="..\Source\Game\source\ShieldBlock.cpp" />
     <ClCompile Include="..\Source\Game\source\ShieldManager.cpp" />
   </ItemGroup>

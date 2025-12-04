@@ -9,12 +9,14 @@
 #include "ConfigLoader.h"
 #include "Explosion.h"
 #include "GameObjectFactory.h"
+#include "ScoreManager.h"
 #include <Timer.h>
 #include <InputHandler.h>
 #include <memory>
 #include <vector>
 
 namespace Tga { class Text; }
+namespace CommonUtilities { class InputHandler; }
 class MysteryShip;
 
 enum class EGameState
@@ -22,8 +24,10 @@ enum class EGameState
 	Title,
 	Playing,
 	GameOver,
+	LevelCleared,
 	HighScoreEntry,
-	Exiting
+	Exiting,
+	Paused 
 };
 
 class GameWorld
@@ -36,7 +40,7 @@ public:
 	void Update(float aTimeDelta);
 	void Render();
 
-	void SetInputHandler(InputHandler* anInput);
+	void SetInputHandler(CommonUtilities::InputHandler* anInput);
 
 	Player& GetPlayer();
 	const Player& GetPlayer() const;
@@ -55,8 +59,9 @@ public:
 	void SetState(EGameState aState);
 	int GetLives() const;
 
-	// New: expose mystery ship for collision system
 	MysteryShip* GetMysteryShip() { return myMysteryShip.get(); }
+
+	CommonUtilities::Timer& GetTimer() { return myTimer; } 
 
 private:
 	Player myPlayer;
@@ -66,6 +71,7 @@ private:
 	ProjectileManager myProjectileManager;
 	ShieldManager myShieldManager;
 	HighScoreManager myHighScoreManager;
+	ScoreManager myScoreManager;
 	std::vector<std::unique_ptr<Explosion>> myExplosions;
 	std::unique_ptr<MysteryShip> myMysteryShip;
 	float myMysterySpawnTimer = 0.0f;
@@ -73,9 +79,6 @@ private:
 	float myMysterySpawnIntervalMax = 24.0f;
 	GameConfig myConfig{};
 
-	int myPlayerScore = 0;
-	int myHighScore = 20000;
-	bool myIsGameOver = false;
 	int myEnemiesKilled = 0;
 	int myLives = 3;
 	float myEnemyFireTimer = 0.0f;
@@ -90,11 +93,13 @@ private:
 	std::unique_ptr<Tga::Text> myStatsText;
 
 	CommonUtilities::Timer myTimer;
-	InputHandler* myInput = nullptr;
+	CommonUtilities::InputHandler* myInput = nullptr;
 
 	EGameState myState = EGameState::Title;
 	bool myIsPaused = false;
 	int myCurrentLevel = 1;
+
+	std::vector<EnemyType> myLeveledTypes; 
 
 	void UpdateScoreText();
 	void CheckGameOver();
@@ -103,4 +108,6 @@ private:
 	void RenderHUD();
 	void RenderTitleScreen();
 	void RenderGameOverScreen();
+	void RenderLevelClearedScreen();
+	void RenderPauseScreen(); 
 };

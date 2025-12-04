@@ -35,6 +35,8 @@ void GameTypesInitializer::Init(GameTypes& types, Tga::Engine& engine, const Gam
     explosionFrame1.myTexture = texMgr.GetTexture(("Sprites/explosion1.dds"));
     static Tga::SpriteSharedData explosionFrame2{};
     explosionFrame2.myTexture = texMgr.GetTexture(("Sprites/explosion2.dds"));
+    static Tga::SpriteSharedData explosionFrame3{};
+    explosionFrame3.myTexture = texMgr.GetTexture(("Sprites/explosion3.dds"));
 
     types.player.moveSpeed = cfg.playerMoveSpeed;
     types.player.startLives = cfg.playerLives;
@@ -69,9 +71,9 @@ void GameTypesInitializer::Init(GameTypes& types, Tga::Engine& engine, const Gam
     types.enemyTypes[2].baseFireRate = 1.9f;
     types.enemyTypes[2].spriteData = &enemyShared[2];
 
-    types.mystery.speed = cfg.enemyBaseSpeed * 4.5f;
+    types.mystery.speed = cfg.enemyBaseSpeed * 0.8f;
     types.mystery.health = 2;
-    types.mystery.score = 1000;
+    types.mystery.score = 2000;
     types.mystery.spriteData = &mysteryShared;
 
     types.shield.maxHits = 4;
@@ -83,4 +85,5 @@ void GameTypesInitializer::Init(GameTypes& types, Tga::Engine& engine, const Gam
     types.explosion.duration = 0.4f;
     types.explosion.frames[0] = &explosionFrame1;
     types.explosion.frames[1] = &explosionFrame2;
+    types.explosion.frames[2] = &explosionFrame3;
 }
