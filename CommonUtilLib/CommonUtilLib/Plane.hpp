@@ -29,4 +29,6 @@ namespace CommonUtilities
 		// Returns the normal of the plane.
 		const Vector3<T>& GetNormal() const;
 	};
+
+	
 }

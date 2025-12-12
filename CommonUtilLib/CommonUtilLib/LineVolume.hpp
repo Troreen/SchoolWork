@@ -40,12 +40,19 @@ namespace CommonUtilities
 	template <typename T>
 	inline void LineVolume<T>::AddLine(const Line<T>& aLine)
 	{
-
+		myLines.push_back(aLine);
 	}
 
 	template <typename T>
 	inline bool LineVolume<T>::IsInside(const Vector2<T>& aPosition) const
 	{
-
+		for (const auto& line : myLines)
+		{
+			if (!line.IsInside(aPosition))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }
