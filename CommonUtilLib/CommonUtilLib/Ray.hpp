@@ -26,6 +26,11 @@ namespace CommonUtilities
         // Returns the origin of the ray.
         const Vector3<T>& GetOrigin() const;
 
+        // Returns whether a point is in front of the line: it is in front of when the point
+        // is on the side of the point in the direction’s direction or is perpendicular to it.
+        // Uninitialized rays should always return false
+        bool IsInFront(const Vector3<T>& aPosition) const;
+
     private:
         Vector3<T> myOrigin;
         Vector3<T> myDirection;
@@ -70,4 +75,18 @@ namespace CommonUtilities
     {
         return myOrigin;
     }
-} 
+
+    template <typename T>
+    inline bool Ray<T>::IsInFront(const Vector3<T>& aPosition) const
+    {
+        if (myDirection.LengthSqr() == static_cast<T>(0))
+        {
+            return false;
+        }
+    
+        Vector3<T> toPoint = aPosition - myOrigin;
+        T dotProduct = myDirection.Dot(toPoint);
+        return dotProduct >= static_cast<T>(0);
+    }
+
+} // namespace CommonUtilities

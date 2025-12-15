@@ -23,6 +23,11 @@ namespace CommonUtilities
         // Returns the max point of the AABB.
         const Vector3<T>& GetMax() const;
 
+        // Returns whether a point is inside the AABB: it is inside when the point is on any
+        // of the AABB's sides or inside of the AABB.
+        // Uninitiallized should always return false
+        bool IsInside(const Vector3<T>& aPosition) const;
+
     private:
         Vector3<T> myMin;
         Vector3<T> myMax;
@@ -30,8 +35,8 @@ namespace CommonUtilities
 
     template <typename T>
     inline AABB3D<T>::AABB3D()
-        : myMin()
-        , myMax()
+        : myMin(Vector3<T>::Zero)
+        , myMax(Vector3<T>::Zero)
     {
     }
 
@@ -59,5 +64,13 @@ namespace CommonUtilities
     inline const Vector3<T>& AABB3D<T>::GetMax() const
     {
         return myMax;
+    }
+
+    template <typename T>
+    inline bool AABB3D<T>::IsInside(const Vector3<T>& aPosition) const
+    {
+        return (aPosition.x >= myMin.x && aPosition.x <= myMax.x) &&
+               (aPosition.y >= myMin.y && aPosition.y <= myMax.y) &&
+               (aPosition.z >= myMin.z && aPosition.z <= myMax.z);
     }
 } // namespace CommonUtilities

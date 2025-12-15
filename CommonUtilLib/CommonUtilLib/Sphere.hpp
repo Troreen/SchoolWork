@@ -23,6 +23,11 @@ namespace CommonUtilities
         // Returns the radius of the sphere.
         T GetRadius() const;
         
+        // Returns whether a point is inside the sphere: it is inside when the point is on the
+        // sphere surface or inside of the sphere.
+        // Uninitiallized should always return false
+        bool IsInside(const Vector3<T>& aPosition) const;
+
     private:
         Vector3<T> myCenter;
         T myRadius;
@@ -59,5 +64,22 @@ namespace CommonUtilities
     inline T Sphere<T>::GetRadius() const
     {
         return myRadius;
+    }
+
+    template <typename T>
+    inline bool Sphere<T>::IsInside(const Vector3<T>& aPosition) const
+    {
+        if (myRadius <= static_cast<T>(0))
+        {
+            return false;
+        }
+
+        Vector3<T> diff = aPosition - myCenter;
+
+        T distanceSquared = diff.LengthSqr();
+        T radiusSquared = myRadius * myRadius;
+        
+        return distanceSquared <= radiusSquared;
+        
     }
 }

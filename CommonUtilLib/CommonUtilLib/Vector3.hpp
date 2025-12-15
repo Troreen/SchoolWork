@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <cmath>
+#include <ostream>
 
 namespace Tga
 {
@@ -19,6 +20,13 @@ namespace CommonUtilities
 		T x; //Note: this variable is explicitly public.
 		T y; //Note: this variable is explicitly public.
 		T z; //Note: this variable is explicitly public.
+
+		// Common constants
+		static const Vector3<T> Zero;
+		static const Vector3<T> One;
+		static const Vector3<T> UnitX;
+		static const Vector3<T> UnitY;
+		static const Vector3<T> UnitZ;
 
 		//Creates a null-vector
 		Vector3();
@@ -67,6 +75,24 @@ namespace CommonUtilities
 		//Returns the cross product of this and aVector. Only for Vector3
 		Vector3<T> Cross(const Vector3<T>& aVector) const;
 
+		//Returns the distance between this vector and aOther
+		T Distance(const Vector3<T>& aOther) const;
+
+		//Returns the squared distance between this vector and aOther
+		T DistanceSqr(const Vector3<T>& aOther) const;
+
+		//Returns a linear interpolation between this vector and aOther at position aT (0 to 1)
+		Vector3<T> Lerp(const Vector3<T>& aOther, T aT) const;
+
+		//Returns the reflection of this vector around aNormal
+		Vector3<T> Reflect(const Vector3<T>& aNormal) const;
+
+		//Returns true if this vector is equal to aOther
+		bool operator==(const Vector3<T>& aOther) const;
+
+		//Returns true if this vector is not equal to aOther
+		bool operator!=(const Vector3<T>& aOther) const;
+
 	};
 
 	//Returns the vector sum of aVector0 and aVector1
@@ -109,15 +135,33 @@ namespace CommonUtilities
 	template <typename T>
 	void operator/=(Vector3<T>& aVector, const T& aScalar);
 
+	template <typename T>
+	std::ostream& operator<<(std::ostream& aOut, const Vector3<T>& aVector);
+
 	//=====================================
 	//  Implementations below this line
 	//=====================================
 
+	template<typename T>
+	const Vector3<T> Vector3<T>::Zero = Vector3<T>(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
+
+	template<typename T>
+	const Vector3<T> Vector3<T>::One = Vector3<T>(static_cast<T>(1), static_cast<T>(1), static_cast<T>(1));
+
+	template<typename T>
+	const Vector3<T> Vector3<T>::UnitX = Vector3<T>(static_cast<T>(1), static_cast<T>(0), static_cast<T>(0));
+
+	template<typename T>
+	const Vector3<T> Vector3<T>::UnitY = Vector3<T>(static_cast<T>(0), static_cast<T>(1), static_cast<T>(0));
+
+	template<typename T>
+	const Vector3<T> Vector3<T>::UnitZ = Vector3<T>(static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
+
 	template <typename T>
 	inline Vector3<T>::Vector3()
-		: x(static_cast<T>(0))
-		, y(static_cast<T>(0))
-		, z(static_cast<T>(0))
+		: x(Vector3<T>::Zero.x)
+		, y(Vector3<T>::Zero.y)
+		, z(Vector3<T>::Zero.z)
 	{
 	}
 
@@ -160,7 +204,7 @@ namespace CommonUtilities
 		T len = Length();
 		if (len == zero)
 		{
-			return Vector3<T>(zero, zero, zero);
+			return Vector3<T>::Zero;
 		}
 
 		const T inv = static_cast<T>(1) / len;
@@ -174,6 +218,9 @@ namespace CommonUtilities
 		T len = Length();
 		if (len == zero)
 		{
+			x = Vector3<T>::Zero.x;
+			y = Vector3<T>::Zero.y;
+			z = Vector3<T>::Zero.z;
 			return;
 		}
 		const T inv = static_cast<T>(1) / len;
@@ -185,14 +232,60 @@ namespace CommonUtilities
 	template<typename T>
 	inline T Vector3<T>::Dot(const Vector3<T>& aVector) const
 	{
-		return this->x * aVector.x + this->y * aVector.y + this->z * aVector.z;
+		return 	  this->x * aVector.x 
+				+ this->y * aVector.y 
+				+ this->z * aVector.z;
 	}
 
 	template<typename T>
 	inline Vector3<T> Vector3<T>::Cross(const Vector3<T>& aVector) const
 	{
 		// Cross Product a × b = ( ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx )
-		return Vector3<T>(this->y * aVector.z - this->z * aVector.y, this->z * aVector.x - this->x * aVector.z, this->x * aVector.y - this->y * aVector.x);
+		return Vector3<T>(
+			this->y * aVector.z - this->z * aVector.y, 
+			this->z * aVector.x - this->x * aVector.z, 
+			this->x * aVector.y - this->y * aVector.x);
+	}
+
+	template<typename T>
+	inline T Vector3<T>::Distance(const Vector3<T>& anOther) const
+	{
+		return (*this - anOther).Length();
+	}
+
+	template<typename T>
+	inline T Vector3<T>::DistanceSqr(const Vector3<T>& anOther) const
+	{
+		return (*this - anOther).LengthSqr();
+	}
+
+	template<typename T>
+	inline Vector3<T> Vector3<T>::Lerp(const Vector3<T>& anOther, T aT) const
+	{
+		return Vector3<T>(
+			x + (anOther.x - x) * aT, 
+			y + (anOther.y - y) * aT, 
+			z + (anOther.z - z) * aT);
+	}
+
+	template<typename T>
+	inline Vector3<T> Vector3<T>::Reflect(const Vector3<T>& aNormal) const
+	{
+		return *this - aNormal * (static_cast<T>(2) * this->Dot(aNormal));
+	}
+
+	template<typename T>
+	inline bool Vector3<T>::operator==(const Vector3<T>& anOther) const
+	{
+		return 	x == anOther.x && 
+				y == anOther.y && 
+				z == anOther.z;
+	}
+
+	template<typename T>
+	inline bool Vector3<T>::operator!=(const Vector3<T>& anOther) const
+	{
+		return !(*this == anOther);
 	}
 
 	
@@ -210,41 +303,59 @@ namespace CommonUtilities
 	Vector3<T> operator+(const Vector3<T>& aVector0, const Vector3<T>& aVector1)
 	{
 		// Addition a + b = (ax + bx, ay + by, az + bz)
-		return Vector3<T>(aVector0.x + aVector1.x, aVector0.y + aVector1.y, aVector0.z + aVector1.z);
+		return Vector3<T>(
+			aVector0.x + aVector1.x, 
+			aVector0.y + aVector1.y, 
+			aVector0.z + aVector1.z);
 	}
 
 	template<typename T>
 	Vector3<T> operator-(const Vector3<T>& aVector0, const Vector3<T>& aVector1)
 	{
 		// Subtraction a − b = (ax − bx, ay − by, az − bz)
-		return Vector3<T>(aVector0.x - aVector1.x, aVector0.y - aVector1.y, aVector0.z - aVector1.z);
+		return Vector3<T>(
+			aVector0.x - aVector1.x, 
+			aVector0.y - aVector1.y, 
+			aVector0.z - aVector1.z);
 	}
 
 	template<typename T>
 	Vector3<T> operator*(const Vector3<T>& aVector0, const Vector3<T>& aVector1)
 	{
 		// Component-wise Multiplication a * b = (ax * bx, ay * by, az * bz) 
-		return Vector3<T>(aVector0.x * aVector1.x, aVector0.y * aVector1.y, aVector0.z * aVector1.z);
+		return Vector3<T>(
+			aVector0.x * aVector1.x, 
+			aVector0.y * aVector1.y, 
+			aVector0.z * aVector1.z);
 	}
 
 	template<typename T>
 	Vector3<T> operator*(const Vector3<T>& aVector, const T& aScalar)
 	{
 		// Scalar Multiplication s * a = (s * ax, s * ay, s * az) a * s is the same.
-		return Vector3<T>(aScalar * aVector.x, aScalar * aVector.y, aScalar * aVector.z);
+		return Vector3<T>(
+			aScalar * aVector.x, 
+			aScalar * aVector.y, 
+			aScalar * aVector.z);
 	}
 
 	template<typename T>
 	Vector3<T> operator*(const T& aScalar, const Vector3<T>& aVector)
 	{
-		return Vector3<T>(aScalar * aVector.x, aScalar * aVector.y, aScalar * aVector.z);
+		return Vector3<T>(
+			aScalar * aVector.x, 
+			aScalar * aVector.y, 
+			aScalar * aVector.z);
 	}
 
 	template<typename T>
 	Vector3<T> operator/(const Vector3<T>& aVector, const T& aScalar)
 	{
 		// Scalar Division a / s = (ax / s, ay / s, az / s)  (Assuming s isnt 0.)
-		return Vector3<T>(aVector.x / aScalar, aVector.y / aScalar, aVector.z / aScalar);
+		return Vector3<T>(
+			aVector.x / aScalar, 
+			aVector.y / aScalar, 
+			aVector.z / aScalar);
 	}
 
 	template<typename T>
@@ -277,6 +388,13 @@ namespace CommonUtilities
 		aVector.x /= aScalar;
 		aVector.y /= aScalar;
 		aVector.z /= aScalar;
+	}
+
+	template <typename T>
+	inline std::ostream& operator<<(std::ostream& aOut, const Vector3<T>& aVector)
+	{
+		aOut << "(" << aVector.x << ", " << aVector.y << ", " << aVector.z << ")";
+		return aOut;
 	}
 
 }
