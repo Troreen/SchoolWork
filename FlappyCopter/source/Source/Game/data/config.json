@@ -1,0 +1,61 @@
+{
+  "player": {
+    "move_speed": 1200.0,
+    "gravity": 2000.0,
+    "jump_velocity": 450.0
+  },
+  "gameplay": {
+    "scroll_speed_scale": 1.0
+  },
+  "text_elements": [
+    {
+      "state": "pause_screen",
+      "text": "Paused",
+      "x": 150,
+      "y": 250
+    },
+    {
+      "state": "score",
+      "text": "Distance: ",
+      "x": 500,
+      "y": 50
+    },
+    {
+      "state": "score_suffix",
+      "text": "m"
+    },
+    {
+      "state": "game_over",
+      "text": "You lose, you bad. L",
+      "x": 500,
+      "y": 500
+    },
+    {
+      "state": "game_over",
+      "text": "Press Enter to restart",
+      "x": 500,
+      "y": 300
+    }
+  ],
+  "title_screen": {
+    "texts": [
+      {
+        "text": "FlappyCopter",
+        "x": 640,
+        "y": 200
+      },
+      {
+        "text": "Press Enter to Start",
+        "x": 640,
+        "y": 280
+      }
+    ],
+    "images": [
+      {
+        "path": "Sprites/MetalBlock.png",
+        "x": 640,
+        "y": 420
+      }
+    ]
+  }
+}
