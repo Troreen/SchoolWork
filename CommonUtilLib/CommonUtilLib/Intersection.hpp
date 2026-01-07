@@ -20,7 +20,7 @@ namespace CommonUtilities
     // outIntersectionPoint is unchanged.
     template <typename T>
     bool IntersectionPlaneRay(const Plane<T>& aPlane, const Ray<T>& aRay, Vector3<T>& outIntersectionPoint);
-    
+
     // If no collision, aOutIntersectionPoint remains unchanged.
     // If The sphere overlaps the AABB true is returned, if not, false is returned.
     // The point on the AABB closest to the sphere centre is saved in
@@ -31,23 +31,23 @@ namespace CommonUtilities
 
     template <typename T>
     bool IntersectionSphereAABB(const Sphere<T>& aSphere, const AABB3D<T>& aAABB3D, Vector3<T>& outIntersectionPoint);
-        
+
     // If the ray intersects the AABB, true is returned, if not, false is returned.
     // A ray in one of the AABB's sides is counted as intersecting it.
     template <typename T>
     bool IntersectionAABBRay(const AABB3D<T>& aAABB, const Ray<T>& aRay);
-    
+
     template <typename T>
     bool IntersectionAABBRay(const AABB3D<T>& aAABB, const Ray<T>& aRay, Vector3<T>& outIntersectionPoint);
-    
+
     // If the ray intersects the sphere, true is returned, if not, false is returned.
     // A ray intersecting the surface of the sphere is considered as intersecting it.
     template <typename T>
     bool IntersectionSphereRay(const Sphere<T>& aSphere, const Ray<T>& aRay);
-    
+
     template <typename T>
     bool IntersectionSphereRay(const Sphere<T>& aSphere, const Ray<T>& aRay, Vector3<T>& outIntersectionPoint);
-    
+
     // If the plane intersects the sphere, true is returned, otherwise false.
     // When intersecting (including touching), the closest point on the plane to the sphere center
     // is written to outIntersectionPoint.
@@ -56,29 +56,29 @@ namespace CommonUtilities
 
     template <typename T>
     bool IntersectionPlaneSphere(const Plane<T>& aPlane, const Sphere<T>& aSphere, Vector3<T>& outIntersectionPoint);
-    
+
     // If the plane intersects the AABB, true is returned, otherwise false.
     // When intersecting (including touching), the projection of the AABB center onto the plane
     // is written to outIntersectionPoint.
     template <typename T>
     bool IntersectionPlaneAABB(const Plane<T>& aPlane, const AABB3D<T>& aAABB);
-    
+
     template <typename T>
     bool IntersectionPlaneAABB(const Plane<T>& aPlane, const AABB3D<T>& aAABB, Vector3<T>& outIntersectionPoint);
     // Returns true if two spheres overlap or touch.
     template <typename T>
     bool IntersectionSphereSphere(const Sphere<T>& aLeft, const Sphere<T>& aRight);
-    
+
     template <typename T>
     bool IntersectionSphereSphere(const Sphere<T>& aLeft, const Sphere<T>& aRight, Vector3<T>& outIntersectionPoint);
-    
+
     // Returns true if two AABBs overlap or touch.
     template <typename T>
     bool IntersectionAABBAABB(const AABB3D<T>& aLeft, const AABB3D<T>& aRight);
-    
+
     template <typename T>
     bool IntersectionAABBAABB(const AABB3D<T>& aLeft, const AABB3D<T>& aRight, Vector3<T>& outIntersectionPoint);
-    
+
     //=====================================
     //  Implementations below this line
     //=====================================
@@ -92,7 +92,7 @@ namespace CommonUtilities
         const Vector3<T>& n = aPlane.GetNormal();
 
         const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
 
         if (n.LengthSqr() <= eps * eps)
         {
@@ -104,21 +104,21 @@ namespace CommonUtilities
         {
             return std::abs(sd) <= eps;
         }
-        
+
         const T denom = n.Dot(D);
 
         if (std::abs(denom) <= eps)
         {
             return std::abs(sd) <= eps;
         }
-        
+
         const T t = -sd / denom;
 
         if (t < -eps)
         {
             return false;
         }
-        
+
         return true;
     }
 
@@ -130,8 +130,7 @@ namespace CommonUtilities
         const Vector3<T>& D = aRay.GetDirection();
         const Vector3<T>& n = aPlane.GetNormal();
 
-        const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
 
         if (n.LengthSqr() <= eps * eps)
             return false;
@@ -139,12 +138,12 @@ namespace CommonUtilities
         const T sd = aPlane.GetDistanceToPoint(O);
 
         if (D.LengthSqr() <= eps * eps)
-            return std::abs(sd) <= eps; 
+            return std::abs(sd) <= eps;
 
         const T denom = n.Dot(D);
 
         if (std::abs(denom) <= eps)
-            return std::abs(sd) <= eps; 
+            return std::abs(sd) <= eps;
 
         const T t = -sd / denom;
 
@@ -184,7 +183,7 @@ namespace CommonUtilities
 
         return distSq <= radiusSq;
     }
-    
+
     template <typename T>
     bool IntersectionSphereAABB(const Sphere<T>& aSphere, const AABB3D<T>& aAABB3D, Vector3<T>& outIntersectionPoint)
     {
@@ -231,25 +230,24 @@ namespace CommonUtilities
         const Vector3<T>& o = aRay.GetOrigin();
         const Vector3<T>& d = aRay.GetDirection();
 
-        const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
 
         T tEnter = std::numeric_limits<T>::lowest();
         T tExit = std::numeric_limits<T>::max();
 
         auto processAxis = [&](T origin, T dir, T minVal, T maxVal) -> bool
-        {
-            if (std::abs(dir) <= eps)
             {
-                return (origin >= minVal && origin <= maxVal);
-            }
-            T t0 = (minVal - origin) / dir;
-            T t1 = (maxVal - origin) / dir;
-            if (t0 > t1) { std::swap(t0, t1); }
-            if (t0 > tEnter) tEnter = t0;
-            if (t1 < tExit)  tExit = t1;
-            return tExit >= tEnter;
-        };
+                if (std::abs(dir) <= eps)
+                {
+                    return (origin >= minVal && origin <= maxVal);
+                }
+                T t0 = (minVal - origin) / dir;
+                T t1 = (maxVal - origin) / dir;
+                if (t0 > t1) { std::swap(t0, t1); }
+                if (t0 > tEnter) tEnter = t0;
+                if (t1 < tExit)  tExit = t1;
+                return tExit >= tEnter;
+            };
 
         if (!processAxis(o.x, d.x, min.x, max.x)) return false;
         if (!processAxis(o.y, d.y, min.y, max.y)) return false;
@@ -273,24 +271,24 @@ namespace CommonUtilities
         const Vector3<T>& d = aRay.GetDirection();
 
         const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
 
         T tEnter = std::numeric_limits<T>::lowest();
         T tExit = std::numeric_limits<T>::max();
 
         auto processAxis = [&](T origin, T dir, T minVal, T maxVal) -> bool
-        {
-            if (std::abs(dir) <= eps)
             {
-                return (origin >= minVal && origin <= maxVal);
-            }
-            T t0 = (minVal - origin) / dir;
-            T t1 = (maxVal - origin) / dir;
-            if (t0 > t1) { std::swap(t0, t1); }
-            if (t0 > tEnter) tEnter = t0;
-            if (t1 < tExit)  tExit = t1;
-            return tExit >= tEnter;
-        };
+                if (std::abs(dir) <= eps)
+                {
+                    return (origin >= minVal && origin <= maxVal);
+                }
+                T t0 = (minVal - origin) / dir;
+                T t1 = (maxVal - origin) / dir;
+                if (t0 > t1) { std::swap(t0, t1); }
+                if (t0 > tEnter) tEnter = t0;
+                if (t1 < tExit)  tExit = t1;
+                return tExit >= tEnter;
+            };
 
         if (!processAxis(o.x, d.x, min.x, max.x)) return false;
         if (!processAxis(o.y, d.y, min.y, max.y)) return false;
@@ -311,7 +309,7 @@ namespace CommonUtilities
     {
         static_assert(std::is_floating_point<T>::value, "Intersection requires floating-point T");
         const Vector3<T>& n = aPlane.GetNormal();
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         if (n.LengthSqr() <= eps * eps)
         {
             return false;
@@ -329,7 +327,7 @@ namespace CommonUtilities
         static_assert(std::is_floating_point<T>::value, "Intersection requires floating-point T");
         const Vector3<T>& n = aPlane.GetNormal();
         const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         if (n.LengthSqr() <= eps * eps)
         {
             return false;
@@ -351,7 +349,7 @@ namespace CommonUtilities
     {
         static_assert(std::is_floating_point<T>::value, "Intersection requires floating-point T");
         const Vector3<T>& n = aPlane.GetNormal();
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         if (n.LengthSqr() <= eps * eps)
         {
             return false;
@@ -375,7 +373,7 @@ namespace CommonUtilities
         static_assert(std::is_floating_point<T>::value, "Intersection requires floating-point T");
         const Vector3<T>& n = aPlane.GetNormal();
         const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         if (n.LengthSqr() <= eps * eps)
         {
             return false;
@@ -408,7 +406,7 @@ namespace CommonUtilities
         const Vector3<T>& dir = aRay.GetDirection();
 
         const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         if (dir.LengthSqr() <= eps * eps)
         {
             return false;
@@ -446,7 +444,7 @@ namespace CommonUtilities
         const Vector3<T>& dir = aRay.GetDirection();
 
         const T zero = static_cast<T>(0);
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         if (dir.LengthSqr() <= eps * eps)
         {
             return false;
@@ -503,7 +501,7 @@ namespace CommonUtilities
         {
             return false;
         }
-        const T eps  = static_cast<T>(1e-6);
+        const T eps = static_cast<T>(1e-6);
         const T dist = static_cast<T>(std::sqrt(distSq));
         if (dist <= eps)
         {
@@ -537,7 +535,7 @@ namespace CommonUtilities
 
         return overlapX && overlapY && overlapZ;
     }
-    
+
     template <typename T>
     bool IntersectionAABBAABB(const AABB3D<T>& aLeft, const AABB3D<T>& aRight, Vector3<T>& outIntersectionPoint)
     {

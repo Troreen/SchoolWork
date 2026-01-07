@@ -55,31 +55,31 @@ namespace CommonUtilities
 
 	template <typename T>
 	Vector4<T> operator+(const Vector4<T>& aVector0, const Vector4<T>& aVector1);
-	
-	template <typename T> 
+
+	template <typename T>
 	Vector4<T> operator-(const Vector4<T>& aVector0, const Vector4<T>& aVector1);
-	
-	template <typename T> 
+
+	template <typename T>
 	Vector4<T> operator*(const Vector4<T>& aVector0, const Vector4<T>& aVector1);
-	
+
 	template <typename T>
 	Vector4<T> operator*(const Vector4<T>& aVector, const T& aScalar);
-	
-	template <typename T> 
+
+	template <typename T>
 	Vector4<T> operator*(const T& aScalar, const Vector4<T>& aVector);
-	
-	template <typename T> 
+
+	template <typename T>
 	Vector4<T> operator/(const Vector4<T>& aVector, const T& aScalar);
-	
+
 	template <typename T>
 	void operator+=(Vector4<T>& aVector0, const Vector4<T>& aVector1);
-	
-	template <typename T> 
+
+	template <typename T>
 	void operator-=(Vector4<T>& aVector0, const Vector4<T>& aVector1);
-	
-	template <typename T> 
+
+	template <typename T>
 	void operator*=(Vector4<T>& aVector, const T& aScalar);
-	
+
 	template <typename T>
 	void operator/=(Vector4<T>& aVector, const T& aScalar);
 
@@ -107,46 +107,47 @@ namespace CommonUtilities
 
 	template<typename T>
 	const Vector4<T> Vector4<T>::UnitW = Vector4<T>(static_cast<T>(0), static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
+
 	template<typename T>
-	inline Vector4<T>::Vector4() 
-		: x(Vector4<T>::Zero.x), 
-		y(Vector4<T>::Zero.y), 
-		z(Vector4<T>::Zero.z), 
-		w(Vector4<T>::Zero.w) 
+	inline Vector4<T>::Vector4()
+		: x(Vector4<T>::Zero.x),
+		y(Vector4<T>::Zero.y),
+		z(Vector4<T>::Zero.z),
+		w(Vector4<T>::Zero.w)
 	{
 	}
 
 	template<typename T>
-	inline Vector4<T>::Vector4(const T& aX, const T& aY, const T& aZ, const T& aW) 
-		: x(aX), 
-		y(aY), 
-		z(aZ), 
-		w(aW) 
+	inline Vector4<T>::Vector4(const T& aX, const T& aY, const T& aZ, const T& aW)
+		: x(aX),
+		y(aY),
+		z(aZ),
+		w(aW)
 	{
 	}
 
 	template<typename T>
-	inline Tga::Vector4<T> Vector4<T>::ToTga() const 
-	{ 
-		return Tga::Vector4<T>(x, y, z, w); 
+	inline Tga::Vector4<T> Vector4<T>::ToTga() const
+	{
+		return Tga::Vector4<T>(x, y, z, w);
 	}
 
 	template<typename T>
-	inline Vector4<T> Vector4<T>::operator-() const 
-	{ 
-		return Vector4<T>(-x, -y, -z, -w); 
+	inline Vector4<T> Vector4<T>::operator-() const
+	{
+		return Vector4<T>(-x, -y, -z, -w);
 	}
 
 	template<typename T>
-	inline T Vector4<T>::LengthSqr() const 
-	{ 
-		return x * x + y * y + z * z + w * w; 
+	inline T Vector4<T>::LengthSqr() const
+	{
+		return x * x + y * y + z * z + w * w;
 	}
 
 	template<typename T>
-	inline T Vector4<T>::Length() const 
-	{ 
-		return static_cast<T>(std::sqrt(LengthSqr())); 
+	inline T Vector4<T>::Length() const
+	{
+		return static_cast<T>(std::sqrt(LengthSqr()));
 	}
 
 	template<typename T>
@@ -167,22 +168,22 @@ namespace CommonUtilities
 	{
 		const T zero = static_cast<T>(0);
 		T len = Length();
-		if (len == zero) 
-		{ 
-			x = Vector4<T>::Zero.x; 
-			y = Vector4<T>::Zero.y; 
-			z = Vector4<T>::Zero.z; 
-			w = Vector4<T>::Zero.w; 	
-			return; 
+		if (len == zero)
+		{
+			x = Vector4<T>::Zero.x;
+			y = Vector4<T>::Zero.y;
+			z = Vector4<T>::Zero.z;
+			w = Vector4<T>::Zero.w;
+			return;
 		}
 		const T inv = static_cast<T>(1) / len;
 		x *= inv; y *= inv; z *= inv; w *= inv;
 	}
 
 	template<typename T>
-	inline T Vector4<T>::Dot(const Vector4<T>& aVector) const 
-	{ 
-		return x * aVector.x + y * aVector.y + z * aVector.z + w * aVector.w; 
+	inline T Vector4<T>::Dot(const Vector4<T>& aVector) const
+	{
+		return x * aVector.x + y * aVector.y + z * aVector.z + w * aVector.w;
 	}
 
 	template<typename T>
@@ -201,139 +202,21 @@ namespace CommonUtilities
 	inline Vector4<T> Vector4<T>::Lerp(const Vector4<T>& anOther, T aT) const
 	{
 		return Vector4<T>(
-			x + (anOther.x - x) * aT, 
-			y + (anOther.y - y) * aT, 
-			z + (anOther.z - z) * aT, 
+			x + (anOther.x - x) * aT,
+			y + (anOther.y - y) * aT,
+			z + (anOther.z - z) * aT,
 			w + (anOther.w - w) * aT);
-	}
-
-	template<typename T>
-	inline Vector4<T> operator+(const Vector4<T>& aVector0, const Vector4<T>& aVector1)
-	{ 
-		return Vector4<T>(
-			aVector0.x + aVector1.x, 
-			aVector0.y + aVector1.y,
-			aVector0.z + aVector1.z, 
-			aVector0.w + aVector1.w); 
-	}
-
-	template<typename T>
-	inline Vector4<T> operator-(const Vector4<T>& aVector0, const Vector4<T>& aVector1)
-	{ 
-		return Vector4<T>(
-			aVector0.x - aVector1.x, 
-			aVector0.y - aVector1.y, 
-			aVector0.z - aVector1.z, 
-			aVector0.w - aVector1.w); 
-	}
-
-	template<typename T>
-	inline Vector4<T> operator*(const Vector4<T>& aVector0, const Vector4<T>& aVector1)
-	{ 
-		return Vector4<T>(
-			aVector0.x * aVector1.x, 
-			aVector0.y * aVector1.y, 
-			aVector0.z * aVector1.z, 
-			aVector0.w * aVector1.w); 
-	}
-
-	template<typename T>
-	inline Vector4<T> operator*(const Vector4<T>& aVector, const T& aScalar)
-	{ 
-		return Vector4<T>(
-			aVector.x * aScalar, 
-			aVector.y * aScalar, 
-			aVector.z * aScalar, 
-			aVector.w * aScalar); 
-	}
-
-	template<typename T>
-	inline Vector4<T> operator*(const T& aScalar, const Vector4<T>& aVector)
-	{ 
-		return Vector4<T>(
-			aVector.x * aScalar, 
-			aVector.y * aScalar, 
-			aVector.z * aScalar, 
-			aVector.w * aScalar); 
-	}
-
-	template<typename T>
-	inline Vector4<T> operator/(const Vector4<T>& aVector, const T& aScalar)
-	{ 
-		return Vector4<T>(
-			aVector.x / aScalar, 
-			aVector.y / aScalar, 
-			aVector.z / aScalar, 
-			aVector.w / aScalar); 
-	}
-
-	template<typename T>
-	inline void operator+=(Vector4<T>& aVector0, const Vector4<T>& aVector1)
-	{ 
-		aVector0.x += aVector1.x; 
-		aVector0.y += aVector1.y; 
-		aVector0.z += aVector1.z; 
-		aVector0.w += aVector1.w; 
-	}
-
-	template<typename T>
-	inline void operator-=(Vector4<T>& aVector0, const Vector4<T>& aVector1)
-	{ 
-		aVector0.x -= aVector1.x; 
-		aVector0.y -= aVector1.y; 
-		aVector0.z -= aVector1.z; 
-		aVector0.w -= aVector1.w; 
-	}
-
-	template<typename T>
-	inline void operator*=(Vector4<T>& aVector, const T& aScalar)
-	{ 
-		aVector.x *= aScalar; 
-		aVector.y *= aScalar; 
-		aVector.z *= aScalar; 
-		aVector.w *= aScalar; 
-	}
-
-	template<typename T>
-	inline void operator/=(Vector4<T>& aVector, const T& aScalar)
-	{ 
-		aVector.x /= aScalar; 
-		aVector.y /= aScalar; 
-		aVector.z /= aScalar; 
-		aVector.w /= aScalar; 
 	}
 
 	template<typename T>
 	template<class TargetType>
 	inline Vector4<TargetType> Vector4<T>::ToType() const
-	{ 
+	{
 		return Vector4<TargetType>(
-			static_cast<TargetType>(x), 
-			static_cast<TargetType>(y), 
-			static_cast<TargetType>(z), 
-			static_cast<TargetType>(w)); 
-	}
-
-	template<typename T>
-	inline T Vector4<T>::Distance(const Vector4<T>& anOther) const
-	{
-		return (*this - anOther).Length();
-	}
-
-	template<typename T>
-	inline T Vector4<T>::DistanceSqr(const Vector4<T>& anOther) const
-	{
-		return (*this - anOther).LengthSqr();
-	}
-
-	template<typename T>
-	inline Vector4<T> Vector4<T>::Lerp(const Vector4<T>& anOther, T aT) const
-	{
-		return Vector4<T>(
-			x + (anOther.x - x) * aT, 
-			y + (anOther.y - y) * aT, 
-			z + (anOther.z - z) * aT, 
-			w + (anOther.w - w) * aT);
+			static_cast<TargetType>(x),
+			static_cast<TargetType>(y),
+			static_cast<TargetType>(z),
+			static_cast<TargetType>(w));
 	}
 
 	template<typename T>
@@ -343,12 +226,108 @@ namespace CommonUtilities
 	}
 
 	template<typename T>
+	inline Vector4<T> operator+(const Vector4<T>& aVector0, const Vector4<T>& aVector1)
+	{
+		return Vector4<T>(
+			aVector0.x + aVector1.x,
+			aVector0.y + aVector1.y,
+			aVector0.z + aVector1.z,
+			aVector0.w + aVector1.w);
+	}
+
+	template<typename T>
+	inline Vector4<T> operator-(const Vector4<T>& aVector0, const Vector4<T>& aVector1)
+	{
+		return Vector4<T>(
+			aVector0.x - aVector1.x,
+			aVector0.y - aVector1.y,
+			aVector0.z - aVector1.z,
+			aVector0.w - aVector1.w);
+	}
+
+	template<typename T>
+	inline Vector4<T> operator*(const Vector4<T>& aVector0, const Vector4<T>& aVector1)
+	{
+		return Vector4<T>(
+			aVector0.x * aVector1.x,
+			aVector0.y * aVector1.y,
+			aVector0.z * aVector1.z,
+			aVector0.w * aVector1.w);
+	}
+
+	template<typename T>
+	inline Vector4<T> operator*(const Vector4<T>& aVector, const T& aScalar)
+	{
+		return Vector4<T>(
+			aVector.x * aScalar,
+			aVector.y * aScalar,
+			aVector.z * aScalar,
+			aVector.w * aScalar);
+	}
+
+	template<typename T>
+	inline Vector4<T> operator*(const T& aScalar, const Vector4<T>& aVector)
+	{
+		return Vector4<T>(
+			aVector.x * aScalar,
+			aVector.y * aScalar,
+			aVector.z * aScalar,
+			aVector.w * aScalar);
+	}
+
+	template<typename T>
+	inline Vector4<T> operator/(const Vector4<T>& aVector, const T& aScalar)
+	{
+		return Vector4<T>(
+			aVector.x / aScalar,
+			aVector.y / aScalar,
+			aVector.z / aScalar,
+			aVector.w / aScalar);
+	}
+
+	template<typename T>
+	inline void operator+=(Vector4<T>& aVector0, const Vector4<T>& aVector1)
+	{
+		aVector0.x += aVector1.x;
+		aVector0.y += aVector1.y;
+		aVector0.z += aVector1.z;
+		aVector0.w += aVector1.w;
+	}
+
+	template<typename T>
+	inline void operator-=(Vector4<T>& aVector0, const Vector4<T>& aVector1)
+	{
+		aVector0.x -= aVector1.x;
+		aVector0.y -= aVector1.y;
+		aVector0.z -= aVector1.z;
+		aVector0.w -= aVector1.w;
+	}
+
+	template<typename T>
+	inline void operator*=(Vector4<T>& aVector, const T& aScalar)
+	{
+		aVector.x *= aScalar;
+		aVector.y *= aScalar;
+		aVector.z *= aScalar;
+		aVector.w *= aScalar;
+	}
+
+	template<typename T>
+	inline void operator/=(Vector4<T>& aVector, const T& aScalar)
+	{
+		aVector.x /= aScalar;
+		aVector.y /= aScalar;
+		aVector.z /= aScalar;
+		aVector.w /= aScalar;
+	}
+
+	template<typename T>
 	inline bool Vector4<T>::operator==(const Vector4<T>& anOther) const
 	{
-		return 	x == anOther.x && 
-				y == anOther.y && 
-				z == anOther.z && 
-				w == anOther.w;
+		return 	x == anOther.x &&
+			y == anOther.y &&
+			z == anOther.z &&
+			w == anOther.w;
 	}
 
 	template<typename T>

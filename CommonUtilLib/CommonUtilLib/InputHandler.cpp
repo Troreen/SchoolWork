@@ -22,7 +22,7 @@ namespace CommonUtilities
 	{
 	}
 
-	bool InputHandler::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
+	bool InputHandler::UpdateEvents(UINT message, WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		switch (message)
 		{
