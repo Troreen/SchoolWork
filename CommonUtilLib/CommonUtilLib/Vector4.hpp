@@ -11,6 +11,11 @@ namespace Tga
 namespace CommonUtilities
 {
 	template <typename T>
+	class Vector2;
+	template <typename T>
+	class Vector3;
+
+	template <typename T>
 	class Vector4
 	{
 	public:
@@ -48,6 +53,10 @@ namespace CommonUtilities
 		T DistanceSqr(const Vector4<T>& anOther) const;
 		Vector4<T> Lerp(const Vector4<T>& anOther, T aT) const;
 		Vector4<T> Reflect(const Vector4<T>& aNormal) const;
+
+		// Dimension changing helpers
+		Vector2<T> ToVector2() const;
+		Vector3<T> ToVector3() const;
 
 		bool operator==(const Vector4<T>& anOther) const;
 		bool operator!=(const Vector4<T>& anOther) const;
@@ -223,6 +232,18 @@ namespace CommonUtilities
 	inline Vector4<T> Vector4<T>::Reflect(const Vector4<T>& aNormal) const
 	{
 		return *this - aNormal * (static_cast<T>(2) * this->Dot(aNormal));
+	}
+
+	template<typename T>
+	inline Vector2<T> Vector4<T>::ToVector2() const
+	{
+		return Vector2<T>(x, y);
+	}
+
+	template<typename T>
+	inline Vector3<T> Vector4<T>::ToVector3() const
+	{
+		return Vector3<T>(x, y, z);
 	}
 
 	template<typename T>

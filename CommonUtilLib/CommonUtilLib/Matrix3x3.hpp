@@ -1,6 +1,11 @@
 #pragma once 
 
 #include <cmath>
+#include <initializer_list>
+#include <ostream>
+#include <stdexcept>
+
+#include "Vector3.hpp"
 
 namespace CommonUtilities
 {
@@ -12,38 +17,50 @@ namespace CommonUtilities
 	{
 	public:
 		// Creates the identity matrix.
-		Matrix3x3<T>();
+		Matrix3x3();
+
+		// Fill constructor (row-major): { m00,m01,m02, m10,m11,m12, m20,m21,m22 }
+		Matrix3x3(std::initializer_list<T> aElements);
+
+		// Nested list constructor (row-major): { {m00,m01,m02}, {m10,m11,m12}, {m20,m21,m22} }
+		Matrix3x3(std::initializer_list<std::initializer_list<T>> aRows);
 
 		// Copy Constructor.
-		Matrix3x3<T>(const Matrix3x3<T>& aMatrix) = default;
+		Matrix3x3(const Matrix3x3& aMatrix) = default;
 		
 		//Assignment operator (compiler generated)
-		Matrix3x3<T>& operator=(const Matrix3x3<T>& aMatrix) = default;
+		Matrix3x3& operator=(const Matrix3x3& aMatrix) = default;
 		
 		// Copies the top left 3x3 part of the Matrix4x4.
-		Matrix3x3<T>(const Matrix4x4<T>& aMatrix);
+		Matrix3x3(const Matrix4x4<T>& aMatrix);
 		
 		// () operator for accessing element (row, column) for read/write or read, respectively. 
 		T& operator()(const int aRow, const int aColumn);
-		
 		const T& operator()(const int aRow, const int aColumn) const;
+
+		// Index access (row): allows m[row][col]
+		T* operator[](const int aRow);
+		const T* operator[](const int aRow) const;
+
+		Vector3<T> GetRow(const int aRow) const;
+		Vector3<T> GetColumn(const int aColumn) const;
 		
 		// Creates a transposed copy of the matrix.
-		Matrix3x3<T> GetTranspose() const;
+		Matrix3x3 GetTranspose() const;
 		
 		// Static functions for creating rotation matrices.
-		static Matrix3x3<T> CreateRotationAroundX(const T aAngleInRadians);
-		static Matrix3x3<T> CreateRotationAroundY(const T aAngleInRadians);
-		static Matrix3x3<T> CreateRotationAroundZ(const T aAngleInRadians);
+		static Matrix3x3 CreateRotationAroundX(const T aAngleInRadians);
+		static Matrix3x3 CreateRotationAroundY(const T aAngleInRadians);
+		static Matrix3x3 CreateRotationAroundZ(const T aAngleInRadians);
 
 		// Compound assignment operators
-		Matrix3x3<T>& operator+=(const Matrix3x3<T>& aMatrix);
-		Matrix3x3<T>& operator-=(const Matrix3x3<T>& aMatrix);
-		Matrix3x3<T>& operator*=(const Matrix3x3<T>& aMatrix);
-		Matrix3x3<T>& operator*=(const T& aScalar);
+		Matrix3x3& operator+=(const Matrix3x3& aMatrix);
+		Matrix3x3& operator-=(const Matrix3x3& aMatrix);
+		Matrix3x3& operator*=(const Matrix3x3& aMatrix);
+		Matrix3x3& operator*=(const T& aScalar);
 
-		bool operator==(const Matrix3x3<T>& aOther) const;
-		bool operator!=(const Matrix3x3<T>& aOther) const { return !(*this == aOther); }
+		bool operator==(const Matrix3x3& aOther) const;
+		bool operator!=(const Matrix3x3& aOther) const { return !(*this == aOther); }
 
 	private:
 		T myMatrix[3][3];
@@ -64,6 +81,13 @@ namespace CommonUtilities
 	
 	template <typename T>
 	Matrix3x3<T> operator*(const Matrix3x3<T>& aMatrix, const T& aScalar);
+
+	// Vector * Matrix (row-vector convention): v' = v * M
+	template <typename T>
+	Vector3<T> operator*(const Vector3<T>& aVector, const Matrix3x3<T>& aMatrix);
+
+	template <typename T>
+	std::ostream& operator<<(std::ostream& aStream, const Matrix3x3<T>& aMatrix);
 
 	// --- Implementation ---
 
@@ -92,6 +116,49 @@ namespace CommonUtilities
 	}
 
 	template <typename T>
+	inline Matrix3x3<T>::Matrix3x3(std::initializer_list<T> aElements)
+	{
+		if (aElements.size() != 9)
+		{
+			throw std::invalid_argument("Matrix3x3 requires exactly 9 elements");
+		}
+
+		auto it = aElements.begin();
+		for (int r = 0; r < 3; ++r)
+		{
+			for (int c = 0; c < 3; ++c)
+			{
+				myMatrix[r][c] = *it++;
+			}
+		}
+	}
+
+	template <typename T>
+	inline Matrix3x3<T>::Matrix3x3(std::initializer_list<std::initializer_list<T>> aRows)
+	{
+		if (aRows.size() != 3)
+		{
+			throw std::invalid_argument("Matrix3x3 requires exactly 3 rows");
+		}
+
+		int r = 0;
+		for (const auto& row : aRows)
+		{
+			if (row.size() != 3)
+			{
+				throw std::invalid_argument("Matrix3x3 requires exactly 3 columns per row");
+			}
+
+			int c = 0;
+			for (const auto& value : row)
+			{
+				myMatrix[r][c++] = value;
+			}
+			++r;
+		}
+	}
+
+	template <typename T>
 	inline T& Matrix3x3<T>::operator()(const int aRow, const int aColumn)
 	{
 		return myMatrix[aRow][aColumn];
@@ -103,6 +170,30 @@ namespace CommonUtilities
 		return myMatrix[aRow][aColumn];
 	}
 	
+	template <typename T>
+	inline T* Matrix3x3<T>::operator[](const int aRow)
+	{
+		return myMatrix[aRow];
+	}
+
+	template <typename T>
+	inline const T* Matrix3x3<T>::operator[](const int aRow) const
+	{
+		return myMatrix[aRow];
+	}
+
+	template <typename T>
+	inline Vector3<T> Matrix3x3<T>::GetRow(const int aRow) const
+	{
+		return Vector3<T>(myMatrix[aRow][0], myMatrix[aRow][1], myMatrix[aRow][2]);
+	}
+
+	template <typename T>
+	inline Vector3<T> Matrix3x3<T>::GetColumn(const int aColumn) const
+	{
+		return Vector3<T>(myMatrix[0][aColumn], myMatrix[1][aColumn], myMatrix[2][aColumn]);
+	}
+
 	template <typename T>
 	inline Matrix3x3<T> Matrix3x3<T>::GetTranspose() const
 	{
@@ -232,7 +323,6 @@ namespace CommonUtilities
 		return true;
 	}
 
-	// Free function implementations
 	template <typename T>
 	inline Matrix3x3<T> operator+(const Matrix3x3<T>& aMatrix0, const Matrix3x3<T>& aMatrix1)
 	{
@@ -282,6 +372,38 @@ namespace CommonUtilities
 		Matrix3x3<T> result = aMatrix;
 		result *= aScalar;
 		return result;
+	}
+
+	template <typename T>
+	inline Vector3<T> operator*(const Vector3<T>& aVector, const Matrix3x3<T>& aMatrix)
+	{
+		return Vector3<T>(
+			aVector.x * aMatrix(0, 0) + aVector.y * aMatrix(1, 0) + aVector.z * aMatrix(2, 0),
+			aVector.x * aMatrix(0, 1) + aVector.y * aMatrix(1, 1) + aVector.z * aMatrix(2, 1),
+			aVector.x * aMatrix(0, 2) + aVector.y * aMatrix(1, 2) + aVector.z * aMatrix(2, 2));
+	}
+
+	template <typename T>
+	inline std::ostream& operator<<(std::ostream& aStream, const Matrix3x3<T>& aMatrix)
+	{
+		for (int r = 0; r < 3; ++r)
+		{
+			aStream << "[";
+			for (int c = 0; c < 3; ++c)
+			{
+				aStream << aMatrix(r, c);
+				if (c < 2)
+				{
+					aStream << ", ";
+				}
+			}
+			aStream << "]";
+			if (r < 2)
+			{
+				aStream << "\n";
+			}
+		}
+		return aStream;
 	}
 
 }

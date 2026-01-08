@@ -14,6 +14,11 @@ namespace Tga
 namespace CommonUtilities
 {
 	template <typename T>
+	class Vector2;
+	template <typename T>
+	class Vector4;
+
+	template <typename T>
 	class Vector3
 	{
 	public:
@@ -93,6 +98,9 @@ namespace CommonUtilities
 		//Returns true if this vector is not equal to aOther
 		bool operator!=(const Vector3<T>& aOther) const;
 
+		// Dimension changing helpers
+		Vector2<T> ToVector2() const;
+		Vector4<T> ToVector4(const T& aW = static_cast<T>(0)) const;
 	};
 
 	//Returns the vector sum of aVector0 and aVector1
@@ -396,5 +404,7 @@ namespace CommonUtilities
 		aOut << "(" << aVector.x << ", " << aVector.y << ", " << aVector.z << ")";
 		return aOut;
 	}
+
+	// (dimension-changing helper implementations are located earlier in this file)
 
 }

@@ -11,6 +11,11 @@ namespace Tga
 namespace CommonUtilities
 {
 	template <typename T>
+	class Vector3;
+	template <typename T>
+	class Vector4;
+
+	template <typename T>
 	class Vector2
 	{
 	public:
@@ -32,6 +37,10 @@ namespace CommonUtilities
 		template<class TargetType>
 		Vector2<TargetType> ToType() const;
 		Tga::Vector2<T> ToTga() const;
+
+		// Dimension changing helpers
+		Vector3<T> ToVector3(const T& aZ = static_cast<T>(0)) const;
+		Vector4<T> ToVector4(const T& aZ = static_cast<T>(0), const T& aW = static_cast<T>(0)) const;
 
 		Vector2<T> operator-() const;
 		T LengthSqr() const;
@@ -295,5 +304,17 @@ namespace CommonUtilities
 	{
 		aOut << "(" << aVector.x << ", " << aVector.y << ")";
 		return aOut;
+	}
+
+	template<typename T>
+	inline Vector3<T> Vector2<T>::ToVector3(const T& aZ) const
+	{
+		return Vector3<T>(x, y, aZ);
+	}
+
+	template<typename T>
+	inline Vector4<T> Vector2<T>::ToVector4(const T& aZ, const T& aW) const
+	{
+		return Vector4<T>(x, y, aZ, aW);
 	}
 }

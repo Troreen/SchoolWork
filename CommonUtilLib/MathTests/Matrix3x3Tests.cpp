@@ -1,18 +1,20 @@
 #include "pch.h"
 #include "CppUnitTest.h"
+#include <cmath>
 #include "../CommonUtilLib/Matrix.hpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using CommonUtilities::Matrix3x3;
 using CommonUtilities::Matrix4x4;
-namespace MathTests
+using CommonUtilities::Vector3;
+
+namespace MatrixTests
 {
 	namespace CommonUtilLibTests
 	{
 		TEST_CLASS(Matrix3x3Tests)
 		{
 		public:
-
 			TEST_METHOD(Constructor_Default_IsIdentity)
 			{
 				Matrix3x3<float> m;
@@ -27,11 +29,69 @@ namespace MathTests
 				}
 			}
 
+			TEST_METHOD(Constructor_FillInitializerList_RowMajor)
+			{
+				Matrix3x3<float> m{ 1,2,3, 4,5,6, 7,8,9 };
+
+				Assert::AreEqual(1.0f, m(0, 0), 1e-6f);
+				Assert::AreEqual(2.0f, m(0, 1), 1e-6f);
+				Assert::AreEqual(3.0f, m(0, 2), 1e-6f);
+				Assert::AreEqual(4.0f, m(1, 0), 1e-6f);
+				Assert::AreEqual(5.0f, m(1, 1), 1e-6f);
+				Assert::AreEqual(6.0f, m(1, 2), 1e-6f);
+				Assert::AreEqual(7.0f, m(2, 0), 1e-6f);
+				Assert::AreEqual(8.0f, m(2, 1), 1e-6f);
+				Assert::AreEqual(9.0f, m(2, 2), 1e-6f);
+			}
+
+			TEST_METHOD(Constructor_NestedInitializerList_RowMajor)
+			{
+				Matrix3x3<float> m{ {1,2,3}, {4,5,6}, {7,8,9} };
+
+				Assert::AreEqual(1.0f, m(0, 0), 1e-6f);
+				Assert::AreEqual(2.0f, m(0, 1), 1e-6f);
+				Assert::AreEqual(3.0f, m(0, 2), 1e-6f);
+				Assert::AreEqual(4.0f, m(1, 0), 1e-6f);
+				Assert::AreEqual(5.0f, m(1, 1), 1e-6f);
+				Assert::AreEqual(6.0f, m(1, 2), 1e-6f);
+				Assert::AreEqual(7.0f, m(2, 0), 1e-6f);
+				Assert::AreEqual(8.0f, m(2, 1), 1e-6f);
+				Assert::AreEqual(9.0f, m(2, 2), 1e-6f);
+			}
+
+			TEST_METHOD(Constructor_Copy_CopiesAllElements)
+			{
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> b(a);
+
+				for (int r = 0; r < 3; ++r)
+				{
+					for (int c = 0; c < 3; ++c)
+					{
+						Assert::AreEqual(a(r, c), b(r, c), 1e-6f);
+					}
+				}
+			}
+
+			TEST_METHOD(OperatorAssign_CopiesAllElements)
+			{
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> b;
+				b = a;
+
+				for (int r = 0; r < 3; ++r)
+				{
+					for (int c = 0; c < 3; ++c)
+					{
+						Assert::AreEqual(a(r, c), b(r, c), 1e-6f);
+					}
+				}
+			}
+
 			TEST_METHOD(Constructor_FromMatrix4x4_CopiesTopLeft3x3)
 			{
 				Matrix4x4<float> m4;
 
-				// Fill m4 with distinct values for first 3x3 region
 				float value = 1.0f;
 				for (int r = 0; r < 4; ++r)
 				{
@@ -53,39 +113,54 @@ namespace MathTests
 				}
 			}
 
-			TEST_METHOD(OperatorIndex_ReadWrite_Works)
+			TEST_METHOD(OperatorCall_ReadWrite_Works)
 			{
 				Matrix3x3<float> m;
 
-				// Write using non-const operator()
 				m(0, 1) = 3.5f;
 				m(2, 2) = -7.25f;
 
-				// Read using const operator()
 				const Matrix3x3<float>& cm = m;
 
 				Assert::AreEqual(3.5f, cm(0, 1), 1e-6f);
 				Assert::AreEqual(-7.25f, cm(2, 2), 1e-6f);
+			}
 
-				// Ensure other elements of identity stayed correct
-				Assert::AreEqual(1.0f, cm(0, 0), 1e-6f);
-				Assert::AreEqual(0.0f, cm(1, 0), 1e-6f);
+			TEST_METHOD(OperatorIndex_RowAccess_ReadWrite_Works)
+			{
+				Matrix3x3<float> m;
+
+				m[1][2] = 42.0f;
+				m[2][0] = -5.0f;
+
+				const Matrix3x3<float>& cm = m;
+				Assert::AreEqual(42.0f, cm[1][2], 1e-6f);
+				Assert::AreEqual(-5.0f, cm[2][0], 1e-6f);
+			}
+
+			TEST_METHOD(GetRow_ReturnsCorrectRow)
+			{
+				Matrix3x3<float> m{ 1,2,3, 4,5,6, 7,8,9 };
+
+				Vector3<float> r1 = m.GetRow(1);
+				Assert::AreEqual(4.0f, r1.x, 1e-6f);
+				Assert::AreEqual(5.0f, r1.y, 1e-6f);
+				Assert::AreEqual(6.0f, r1.z, 1e-6f);
+			}
+
+			TEST_METHOD(GetColumn_ReturnsCorrectColumn)
+			{
+				Matrix3x3<float> m{ 1,2,3, 4,5,6, 7,8,9 };
+
+				Vector3<float> c2 = m.GetColumn(2);
+				Assert::AreEqual(3.0f, c2.x, 1e-6f);
+				Assert::AreEqual(6.0f, c2.y, 1e-6f);
+				Assert::AreEqual(9.0f, c2.z, 1e-6f);
 			}
 
 			TEST_METHOD(GetTranspose_ReturnsTransposedMatrix)
 			{
-				Matrix3x3<float> m;
-
-				// Fill with non-symmetric values
-				float value = 1.0f;
-				for (int r = 0; r < 3; ++r)
-				{
-					for (int c = 0; c < 3; ++c)
-					{
-						m(r, c) = value;
-						value += 1.0f;
-					}
-				}
+				Matrix3x3<float> m{ 1,2,3, 4,5,6, 7,8,9 };
 
 				Matrix3x3<float> t = m.GetTranspose();
 
@@ -100,21 +175,16 @@ namespace MathTests
 
 			TEST_METHOD(CreateRotationAroundX_CreatesCorrectMatrix)
 			{
-				const float angle = 3.1415926535f / 4.0f; // 45 degrees
+				const float angle = 3.1415926535f / 4.0f;
 				const float c = std::cos(angle);
 				const float s = std::sin(angle);
 
 				Matrix3x3<float> r = Matrix3x3<float>::CreateRotationAroundX(angle);
 
-				// Row 0 should remain (1,0,0)
 				Assert::AreEqual(1.0f, r(0, 0), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 1), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 2), 1e-5f);
 
-				// Standard right-handed rotation around X:
-				// [ 1   0    0 ]
-				// [ 0  cos  sin]
-				// [ 0 -sin cos ]
 				Assert::AreEqual(c, r(1, 1), 1e-5f);
 				Assert::AreEqual(s, r(1, 2), 1e-5f);
 				Assert::AreEqual(-s, r(2, 1), 1e-5f);
@@ -123,16 +193,12 @@ namespace MathTests
 
 			TEST_METHOD(CreateRotationAroundY_CreatesCorrectMatrix)
 			{
-				const float angle = 3.1415926535f / 3.0f; // 60 degrees
+				const float angle = 3.1415926535f / 3.0f;
 				const float c = std::cos(angle);
 				const float s = std::sin(angle);
 
 				Matrix3x3<float> r = Matrix3x3<float>::CreateRotationAroundY(angle);
 
-				// Standard right-handed rotation around Y:
-				// [ cos  0 -sin ]
-				// [  0   1   0  ]
-				// [ sin  0  cos ]
 				Assert::AreEqual(c, r(0, 0), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 1), 1e-5f);
 				Assert::AreEqual(-s, r(0, 2), 1e-5f);
@@ -148,16 +214,12 @@ namespace MathTests
 
 			TEST_METHOD(CreateRotationAroundZ_CreatesCorrectMatrix)
 			{
-				const float angle = -3.1415926535f / 6.0f; // -30 degrees
+				const float angle = -3.1415926535f / 6.0f;
 				const float c = std::cos(angle);
 				const float s = std::sin(angle);
 
 				Matrix3x3<float> r = Matrix3x3<float>::CreateRotationAroundZ(angle);
 
-				// Standard right-handed rotation around Z:
-				// [ cos  sin  0 ]
-				// [-sin  cos  0 ]
-				// [  0    0  1 ]
 				Assert::AreEqual(c, r(0, 0), 1e-5f);
 				Assert::AreEqual(s, r(0, 1), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 2), 1e-5f);
@@ -170,12 +232,75 @@ namespace MathTests
 				Assert::AreEqual(0.0f, r(2, 1), 1e-5f);
 				Assert::AreEqual(1.0f, r(2, 2), 1e-5f);
 			}
+
+			TEST_METHOD(OperatorPlusEquals_AddsElementWise)
+			{
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> b{ 9,8,7, 6,5,4, 3,2,1 };
+				a += b;
+
+				Assert::AreEqual(10.0f, a(0, 0), 1e-6f);
+				Assert::AreEqual(10.0f, a(1, 1), 1e-6f);
+				Assert::AreEqual(10.0f, a(2, 2), 1e-6f);
+			}
+
+			TEST_METHOD(OperatorMinusEquals_SubtractsElementWise)
+			{
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> b{ 1,1,1, 1,1,1, 1,1,1 };
+				a -= b;
+
+				Assert::AreEqual(0.0f, a(0, 0), 1e-6f);
+				Assert::AreEqual(1.0f, a(0, 1), 1e-6f);
+				Assert::AreEqual(8.0f, a(2, 2), 1e-6f);
+			}
+
+			TEST_METHOD(OperatorTimesEquals_MatrixMultiplies)
+			{
+				// A * I == A
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> i;
+				a *= i;
+
+				Assert::AreEqual(1.0f, a(0, 0), 1e-6f);
+				Assert::AreEqual(2.0f, a(0, 1), 1e-6f);
+				Assert::AreEqual(3.0f, a(0, 2), 1e-6f);
+				Assert::AreEqual(4.0f, a(1, 0), 1e-6f);
+				Assert::AreEqual(5.0f, a(1, 1), 1e-6f);
+				Assert::AreEqual(6.0f, a(1, 2), 1e-6f);
+				Assert::AreEqual(7.0f, a(2, 0), 1e-6f);
+				Assert::AreEqual(8.0f, a(2, 1), 1e-6f);
+				Assert::AreEqual(9.0f, a(2, 2), 1e-6f);
+			}
+
+			TEST_METHOD(OperatorTimesEquals_ScalarMultiplies)
+			{
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				a *= 2.0f;
+
+				Assert::AreEqual(2.0f, a(0, 0), 1e-6f);
+				Assert::AreEqual(10.0f, a(1, 1), 1e-6f);
+				Assert::AreEqual(18.0f, a(2, 2), 1e-6f);
+			}
+
+			TEST_METHOD(OperatorEquals_And_NotEquals)
+			{
+				Matrix3x3<float> a{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> b{ 1,2,3, 4,5,6, 7,8,9 };
+				Matrix3x3<float> c{ 1,2,3, 4,5,6, 7,8,0 };
+
+				Assert::IsTrue(a == b);
+				Assert::IsFalse(a != b);
+
+				Assert::IsFalse(a == c);
+				Assert::IsTrue(a != c);
+			}
 		};
 
+		// Matrix4x4 tests kept as-is
 		TEST_CLASS(Matrix4x4Tests)
 		{
 		public:
-
 			TEST_METHOD(Constructor_Default_IsIdentity)
 			{
 				Matrix4x4<float> m;
@@ -265,17 +390,12 @@ namespace MathTests
 
 			TEST_METHOD(CreateRotationAroundX_CreatesCorrectMatrix)
 			{
-				const float angle = 3.1415926535f / 4.0f; // 45 degrees
+				const float angle = 3.1415926535f / 4.0f;
 				const float c = std::cos(angle);
 				const float s = std::sin(angle);
 
 				Matrix4x4<float> r = Matrix4x4<float>::CreateRotationAroundX(angle);
 
-				// Standard 4x4 right-handed rotation around X (homogeneous):
-				// [ 1   0    0   0 ]
-				// [ 0  cos  sin  0 ]
-				// [ 0 -sin  cos  0 ]
-				// [ 0   0    0   1 ]
 				Assert::AreEqual(1.0f, r(0, 0), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 1), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 2), 1e-5f);
@@ -299,17 +419,12 @@ namespace MathTests
 
 			TEST_METHOD(CreateRotationAroundY_CreatesCorrectMatrix)
 			{
-				const float angle = 3.1415926535f / 3.0f; // 60 degrees
+				const float angle = 3.1415926535f / 3.0f;
 				const float c = std::cos(angle);
 				const float s = std::sin(angle);
 
 				Matrix4x4<float> r = Matrix4x4<float>::CreateRotationAroundY(angle);
 
-				// Standard 4x4 right-handed rotation around Y (homogeneous):
-				// [ cos  0 -sin  0 ]
-				// [  0   1   0   0 ]
-				// [ sin  0  cos  0 ]
-				// [  0   0   0   1 ]
 				Assert::AreEqual(c, r(0, 0), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 1), 1e-5f);
 				Assert::AreEqual(-s, r(0, 2), 1e-5f);
@@ -333,17 +448,12 @@ namespace MathTests
 
 			TEST_METHOD(CreateRotationAroundZ_CreatesCorrectMatrix)
 			{
-				const float angle = -3.1415926535f / 6.0f; // -30 degrees
+				const float angle = -3.1415926535f / 6.0f;
 				const float c = std::cos(angle);
 				const float s = std::sin(angle);
 
 				Matrix4x4<float> r = Matrix4x4<float>::CreateRotationAroundZ(angle);
 
-				// Standard 4x4 right-handed rotation around Z (homogeneous):
-				// [ cos  sin  0  0 ]
-				// [-sin  cos  0  0 ]
-				// [  0    0  1  0 ]
-				// [  0    0  0  1 ]
 				Assert::AreEqual(c, r(0, 0), 1e-5f);
 				Assert::AreEqual(s, r(0, 1), 1e-5f);
 				Assert::AreEqual(0.0f, r(0, 2), 1e-5f);
