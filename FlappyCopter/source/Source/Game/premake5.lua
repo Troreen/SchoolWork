@@ -16,33 +16,46 @@ project "Game"
 
 	links {"External", "Engine"}
 
-	includedirs { dirs.external, dirs.engine }
+	includedirs { 
+		dirs.external, 
+		dirs.engine,
+		"../../CommonUtilities/include"
+	}
 
 	files {
 		"source/**.h",
 		"source/**.cpp",
 	}
 
-	libdirs { dirs.lib, dirs.dependencies }
-
+	libdirs { 
+		dirs.lib, 
+		dirs.dependencies,
+		"../../CommonUtilities/lib"
+	}
+	
 	verify_or_create_settings("Game")
-	 
+	
 	filter "configurations:Debug"
 		defines {"_DEBUG"}
 		runtime "Debug"
 		symbols "on"
 		files {"tools/**"}
 		includedirs {"tools/"}
+		links { "CommonUtilLib-d" }
+		
 	filter "configurations:Release"
 		defines "_RELEASE"
 		runtime "Release"
 		optimize "on"
 		files {"tools/**"}
 		includedirs {"tools/"}
+		links { "CommonUtilLib" }
+		
 	filter "configurations:Retail"
 		defines "_RETAIL"
 		runtime "Release"
 		optimize "on"
+		links { "CommonUtilLib" }
 
 	filter "system:windows"
 --		kind "StaticLib"
