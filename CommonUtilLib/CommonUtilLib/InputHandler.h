@@ -22,6 +22,10 @@ namespace CommonUtilities
 		bool IsKeyPressed(const int aKeyCode) const;
 		bool IsKeyReleased(const int aKeyCode) const;
 
+		bool IsKeyDown(Keys key) const;
+		bool IsKeyPressed(Keys key) const;
+		bool IsKeyReleased(Keys key) const;
+
 		POINT GetMousePos() const;
 		POINT GetMouseDelta() const;
 		POINT GetMousePosScreen() const;
@@ -31,6 +35,10 @@ namespace CommonUtilities
 		bool IsMouseButtonDown(int buttonVk) const;
 		bool IsMouseButtonPressed(int buttonVk) const;
 		bool IsMouseButtonReleased(int buttonVk) const;
+
+		bool IsMouseButtonDown(Keys key) const;
+		bool IsMouseButtonPressed(Keys key) const;
+		bool IsMouseButtonReleased(Keys key) const;
 
 		void SetWindowHandle(HWND hWnd);
 		HWND GetWindowHandle() const;

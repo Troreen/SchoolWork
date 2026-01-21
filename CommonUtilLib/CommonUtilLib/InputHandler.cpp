@@ -85,6 +85,21 @@ namespace CommonUtilities
 		return !myCurrentState.test(vk) && myPreviousState.test(vk);
 	}
 
+	bool InputHandler::IsKeyDown(Keys key) const
+	{
+		return IsKeyDown(static_cast<int>(key));
+	}
+
+	bool InputHandler::IsKeyPressed(Keys key) const
+	{
+		return IsKeyPressed(static_cast<int>(key));
+	}
+
+	bool InputHandler::IsKeyReleased(Keys key) const
+	{
+		return IsKeyReleased(static_cast<int>(key));
+	}
+
 	POINT InputHandler::GetMousePos() const
 	{
 		return myCurrentMousePos;
@@ -133,6 +148,21 @@ namespace CommonUtilities
 	bool InputHandler::IsMouseButtonReleased(int buttonVk) const
 	{
 		return IsKeyReleased(buttonVk);
+	}
+
+	bool InputHandler::IsMouseButtonDown(Keys key) const
+	{
+		return IsMouseButtonDown(static_cast<int>(key));
+	}
+
+	bool InputHandler::IsMouseButtonPressed(Keys key) const
+	{
+		return IsMouseButtonPressed(static_cast<int>(key));
+	}
+
+	bool InputHandler::IsMouseButtonReleased(Keys key) const
+	{
+		return IsMouseButtonReleased(static_cast<int>(key));
 	}
 
 	void InputHandler::SetWindowHandle(HWND hWnd)

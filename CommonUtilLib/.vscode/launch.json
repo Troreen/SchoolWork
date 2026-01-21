@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build & Run Tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${env:ProgramFiles}/Microsoft Visual Studio/2022/Community/Common7/IDE/Extensions/TestPlatform/vstest.console.exe",
+            "args": [
+                "${workspaceFolder}/x64/Debug/MathTests.dll"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build Solution (Debug x64)"
+        }
+    ]
+}

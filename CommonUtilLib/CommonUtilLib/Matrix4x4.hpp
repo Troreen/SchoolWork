@@ -48,6 +48,9 @@ namespace CommonUtilities
 		// Creates a transposed copy of the matrix.
 		Matrix4x4 GetTranspose() const;
 
+		// Assumes the matrix is made up of nothing but rotations and translations.
+		Matrix4x4<T> GetFastInverse() const;
+
 		// Static functions for creating rotation matrices.
 		static Matrix4x4 CreateRotationAroundX(const T aAngleInRadians);
 		static Matrix4x4 CreateRotationAroundY(const T aAngleInRadians);
@@ -214,6 +217,37 @@ namespace CommonUtilities
 		return transposedMatrix;
 	}
 
+	template <typename T>
+	inline Matrix4x4<T> Matrix4x4<T>::GetFastInverse() const
+	{
+		// Assumes row-vector convention: v' = v * M
+		// For rigid transforms: M = [ R  0 ]
+		//                     [ t  1 ]
+		// Inverse is:          [ R^T 0 ]
+		//                     [ -t R^T 1 ]
+		Matrix4x4<T> inverseMatrix;
+
+		// Transpose the rotation part (top-left 3x3)
+		for (int row = 0; row < 3; ++row)
+		{
+			for (int col = 0; col < 3; ++col)
+			{
+				inverseMatrix(row, col) = (*this)(col, row);
+			}
+		}
+
+		// Compute inverse translation row: -t * R^T
+		const T tx = (*this)(3, 0);
+		const T ty = (*this)(3, 1);
+		const T tz = (*this)(3, 2);
+		inverseMatrix(3, 0) = -(tx * inverseMatrix(0, 0) + ty * inverseMatrix(1, 0) + tz * inverseMatrix(2, 0));
+		inverseMatrix(3, 1) = -(tx * inverseMatrix(0, 1) + ty * inverseMatrix(1, 1) + tz * inverseMatrix(2, 1));
+		inverseMatrix(3, 2) = -(tx * inverseMatrix(0, 2) + ty * inverseMatrix(1, 2) + tz * inverseMatrix(2, 2));
+
+		// Last column/row are already set correctly by identity constructor.
+		return inverseMatrix;
+	}
+	
 	template <typename T>
 	inline Matrix4x4<T> Matrix4x4<T>::CreateRotationAroundX(const T aAngleInRadians)
 	{

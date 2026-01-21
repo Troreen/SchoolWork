@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <stdexcept>
 
 #include "../CommonUtilLib/Matrix.hpp"
 
@@ -15,7 +16,7 @@ namespace MatrixTests
 {
 	namespace
 	{
-		static void AssertMatrix4x4Equal(const Matrix4x4<float>& a, const Matrix4x4<float>& b, float eps = 1e-6f)
+		static void AssertMatrix4x4Equal(const Matrix4x4<float>& a, const Matrix4x4<float>& b, float eps = eps)
 		{
 			for (int r = 0; r < 4; ++r)
 			{
@@ -30,6 +31,8 @@ namespace MatrixTests
 	TEST_CLASS(Matrix4x4Tests)
 	{
 	public:
+		float eps = 1e-5f;
+		
 		TEST_METHOD(Constructor_Default_IsIdentity)
 		{
 			Matrix4x4<float> m;
@@ -38,7 +41,7 @@ namespace MatrixTests
 				for (int c = 0; c < 4; ++c)
 				{
 					const float expected = (r == c) ? 1.0f : 0.0f;
-					Assert::AreEqual(expected, m(r, c), 1e-6f);
+					Assert::AreEqual(expected, m(r, c), eps);
 				}
 			}
 		}
@@ -48,20 +51,19 @@ namespace MatrixTests
 			Matrix3x3<float> m3{ 1,2,3, 4,5,6, 7,8,9 };
 			Matrix4x4<float> m4(m3);
 
-			for (int r = 0; r < 3; ++r)	// top-left copy
+			for (int r = 0; r < 3; ++r)
 			{
 				for (int c = 0; c < 3; ++c)
 				{
-					Assert::AreEqual(m3(r, c), m4(r, c), 1e-6f);
+					Assert::AreEqual(m3(r, c), m4(r, c), eps);
 				}
 			}
 
-			// last row/col should be (0,0,0,1)
 			for (int i = 0; i < 4; ++i)
 			{
 				const float expected = (i == 3) ? 1.0f : 0.0f;
-				Assert::AreEqual(expected, m4(i, 3), 1e-6f);
-				Assert::AreEqual(expected, m4(3, i), 1e-6f);
+				Assert::AreEqual(expected, m4(i, 3), eps);
+				Assert::AreEqual(expected, m4(3, i), eps);
 			}
 		}
 
@@ -69,24 +71,51 @@ namespace MatrixTests
 		{
 			Matrix4x4<float> m{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
 
-			Assert::AreEqual(1.0f, m(0, 0), 1e-6f);
-			Assert::AreEqual(4.0f, m(0, 3), 1e-6f);
-			Assert::AreEqual(6.0f, m(1, 1), 1e-6f);
-			Assert::AreEqual(12.0f, m(2, 3), 1e-6f);
-			Assert::AreEqual(13.0f, m(3, 0), 1e-6f);
-			Assert::AreEqual(16.0f, m(3, 3), 1e-6f);
+			Assert::AreEqual(1.0f, m(0, 0), eps);
+			Assert::AreEqual(4.0f, m(0, 3), eps);
+			Assert::AreEqual(6.0f, m(1, 1), eps);
+			Assert::AreEqual(12.0f, m(2, 3), eps);
+			Assert::AreEqual(13.0f, m(3, 0), eps);
+			Assert::AreEqual(16.0f, m(3, 3), eps);
+		}
+
+		TEST_METHOD(Constructor_FillInitializerList_WrongCount_Throws)
+		{
+			Assert::ExpectException<std::invalid_argument>([]()
+			{
+				Matrix4x4<float> m{ 1,2,3 };
+				(void)m;
+			});
 		}
 
 		TEST_METHOD(Constructor_NestedInitializerList_RowMajor)
 		{
 			Matrix4x4<float> m{ {1,2,3,4}, {5,6,7,8}, {9,10,11,12}, {13,14,15,16} };
 
-			Assert::AreEqual(1.0f, m(0, 0), 1e-6f);
-			Assert::AreEqual(4.0f, m(0, 3), 1e-6f);
-			Assert::AreEqual(6.0f, m(1, 1), 1e-6f);
-			Assert::AreEqual(12.0f, m(2, 3), 1e-6f);
-			Assert::AreEqual(13.0f, m(3, 0), 1e-6f);
-			Assert::AreEqual(16.0f, m(3, 3), 1e-6f);
+			Assert::AreEqual(1.0f, m(0, 0), eps);
+			Assert::AreEqual(4.0f, m(0, 3), eps);
+			Assert::AreEqual(6.0f, m(1, 1), eps);
+			Assert::AreEqual(12.0f, m(2, 3), eps);
+			Assert::AreEqual(13.0f, m(3, 0), eps);
+			Assert::AreEqual(16.0f, m(3, 3), eps);
+		}
+
+		TEST_METHOD(Constructor_NestedInitializerList_WrongRowCount_Throws)
+		{
+			Assert::ExpectException<std::invalid_argument>([]()
+			{
+				Matrix4x4<float> m{ {1,2,3,4}, {5,6,7,8}, {9,10,11,12} };
+				(void)m;
+			});
+		}
+
+		TEST_METHOD(Constructor_NestedInitializerList_WrongColumnCount_Throws)
+		{
+			Assert::ExpectException<std::invalid_argument>([]()
+			{
+				Matrix4x4<float> m{ {1,2,3,4}, {5,6,7}, {9,10,11,12}, {13,14,15,16} };
+				(void)m;
+			});
 		}
 
 		TEST_METHOD(Constructor_Copy_CopiesAllElements)
@@ -111,8 +140,8 @@ namespace MatrixTests
 			m(3, 2) = -4.75f;
 
 			const Matrix4x4<float>& cm = m;
-			Assert::AreEqual(2.5f, cm(0, 1), 1e-6f);
-			Assert::AreEqual(-4.75f, cm(3, 2), 1e-6f);
+			Assert::AreEqual(2.5f, cm(0, 1), eps);
+			Assert::AreEqual(-4.75f, cm(3, 2), eps);
 		}
 
 		TEST_METHOD(OperatorIndex_RowAccess_ReadWrite_Works)
@@ -122,8 +151,78 @@ namespace MatrixTests
 			m[0][3] = -2.0f;
 
 			const Matrix4x4<float>& cm = m;
-			Assert::AreEqual(9.25f, cm[2][1], 1e-6f);
-			Assert::AreEqual(-2.0f, cm[0][3], 1e-6f);
+			Assert::AreEqual(9.25f, cm[2][1], eps);
+			Assert::AreEqual(-2.0f, cm[0][3], eps);
+		}
+
+		TEST_METHOD(FreeOperatorPlus_And_Minus_Work)
+		{
+			Matrix4x4<float> a{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
+			Matrix4x4<float> b{ 16,15,14,13,  12,11,10,9,  8,7,6,5,  4,3,2,1 };
+
+			Matrix4x4<float> sum = a + b;
+			Matrix4x4<float> diff = a - b;
+
+			Assert::AreEqual(17.0f, sum(0, 0), eps);
+			Assert::AreEqual(17.0f, sum(1, 1), eps);
+			Assert::AreEqual(17.0f, sum(2, 2), eps);
+			Assert::AreEqual(17.0f, sum(3, 3), eps);
+
+			Assert::AreEqual(-15.0f, diff(0, 0), eps);
+			Assert::AreEqual(-5.0f, diff(1, 1), eps);
+			Assert::AreEqual(5.0f, diff(2, 2), eps);
+			Assert::AreEqual(15.0f, diff(3, 3), eps);
+		}
+
+		TEST_METHOD(FreeOperatorMultiply_MatrixMultiplies)
+		{
+			Matrix4x4<float> a{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
+			Matrix4x4<float> i;
+			Matrix4x4<float> result = a * i;
+			AssertMatrix4x4Equal(a, result);
+		}
+
+		TEST_METHOD(FreeOperatorScalarMultiply_Works)
+		{
+			Matrix4x4<float> a{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
+			Matrix4x4<float> left = 2.0f * a;
+			Matrix4x4<float> right = a * 2.0f;
+			AssertMatrix4x4Equal(left, right);
+			Assert::AreEqual(2.0f, left(0, 0), eps);
+			Assert::AreEqual(32.0f, left(3, 3), eps);
+		}
+
+		TEST_METHOD(FreeOperatorVectorTimesMatrix_AppliesTranslation_RowVectorConvention)
+		{
+			Matrix4x4<float> m;
+			m(3, 0) = 5.0f;
+			m(3, 1) = -2.0f;
+			m(3, 2) = 1.0f;
+
+			Vector4<float> v(1.0f, 2.0f, 3.0f, 1.0f);
+			Vector4<float> result = v * m;
+
+			Assert::AreEqual(6.0f, result.x, eps);
+			Assert::AreEqual(0.0f, result.y, eps);
+			Assert::AreEqual(4.0f, result.z, eps);
+			Assert::AreEqual(1.0f, result.w, eps);
+		}
+
+		TEST_METHOD(GetFastInverse_RigidTransform_Inverts)
+		{
+			const float angle = 3.1415926535f / 4.0f;
+			Matrix4x4<float> m = Matrix4x4<float>::CreateRotationAroundZ(angle);
+			m(3, 0) = 3.0f;
+			m(3, 1) = -4.0f;
+			m(3, 2) = 2.0f;
+
+			Matrix4x4<float> inv = m.GetFastInverse();
+			Matrix4x4<float> shouldBeIdentity1 = m * inv;
+			Matrix4x4<float> shouldBeIdentity2 = inv * m;
+
+			Matrix4x4<float> identity;
+			AssertMatrix4x4Equal(identity, shouldBeIdentity1, eps);
+			AssertMatrix4x4Equal(identity, shouldBeIdentity2, eps);
 		}
 
 		TEST_METHOD(GetRow_ReturnsCorrectRow)
@@ -131,10 +230,10 @@ namespace MatrixTests
 			Matrix4x4<float> m{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
 			Vector4<float> r2 = m.GetRow(2);
 
-			Assert::AreEqual(9.0f, r2.x, 1e-6f);
-			Assert::AreEqual(10.0f, r2.y, 1e-6f);
-			Assert::AreEqual(11.0f, r2.z, 1e-6f);
-			Assert::AreEqual(12.0f, r2.w, 1e-6f);
+			Assert::AreEqual(9.0f, r2.x, eps);
+			Assert::AreEqual(10.0f, r2.y, eps);
+			Assert::AreEqual(11.0f, r2.z, eps);
+			Assert::AreEqual(12.0f, r2.w, eps);
 		}
 
 		TEST_METHOD(GetColumn_ReturnsCorrectColumn)
@@ -142,10 +241,10 @@ namespace MatrixTests
 			Matrix4x4<float> m{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
 			Vector4<float> c1 = m.GetColumn(1);
 
-			Assert::AreEqual(2.0f, c1.x, 1e-6f);
-			Assert::AreEqual(6.0f, c1.y, 1e-6f);
-			Assert::AreEqual(10.0f, c1.z, 1e-6f);
-			Assert::AreEqual(14.0f, c1.w, 1e-6f);
+			Assert::AreEqual(2.0f, c1.x, eps);
+			Assert::AreEqual(6.0f, c1.y, eps);
+			Assert::AreEqual(10.0f, c1.z, eps);
+			Assert::AreEqual(14.0f, c1.w, eps);
 		}
 
 		TEST_METHOD(GetTranspose_ReturnsTransposedMatrix)
@@ -157,7 +256,7 @@ namespace MatrixTests
 			{
 				for (int c = 0; c < 4; ++c)
 				{
-					Assert::AreEqual(m(r, c), t(c, r), 1e-6f);
+					Assert::AreEqual(m(r, c), t(c, r), eps);
 				}
 			}
 		}
@@ -169,25 +268,25 @@ namespace MatrixTests
 			const float s = std::sin(angle);
 			Matrix4x4<float> r = Matrix4x4<float>::CreateRotationAroundX(angle);
 
-			Assert::AreEqual(1.0f, r(0, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 3), 1e-5f);
+			Assert::AreEqual(1.0f, r(0, 0), eps);
+			Assert::AreEqual(0.0f, r(0, 1), eps);
+			Assert::AreEqual(0.0f, r(0, 2), eps);
+			Assert::AreEqual(0.0f, r(0, 3), eps);
 
-			Assert::AreEqual(0.0f, r(1, 0), 1e-5f);
-			Assert::AreEqual(c, r(1, 1), 1e-5f);
-			Assert::AreEqual(s, r(1, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(1, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(1, 0), eps);
+			Assert::AreEqual(c, r(1, 1), eps);
+			Assert::AreEqual(s, r(1, 2), eps);
+			Assert::AreEqual(0.0f, r(1, 3), eps);
 
-			Assert::AreEqual(0.0f, r(2, 0), 1e-5f);
-			Assert::AreEqual(-s, r(2, 1), 1e-5f);
-			Assert::AreEqual(c, r(2, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(2, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(2, 0), eps);
+			Assert::AreEqual(-s, r(2, 1), eps);
+			Assert::AreEqual(c, r(2, 2), eps);
+			Assert::AreEqual(0.0f, r(2, 3), eps);
 
-			Assert::AreEqual(0.0f, r(3, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(3, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(3, 2), 1e-5f);
-			Assert::AreEqual(1.0f, r(3, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(3, 0), eps);
+			Assert::AreEqual(0.0f, r(3, 1), eps);
+			Assert::AreEqual(0.0f, r(3, 2), eps);
+			Assert::AreEqual(1.0f, r(3, 3), eps);
 		}
 
 		TEST_METHOD(CreateRotationAroundY_CreatesCorrectMatrix)
@@ -197,25 +296,25 @@ namespace MatrixTests
 			const float s = std::sin(angle);
 			Matrix4x4<float> r = Matrix4x4<float>::CreateRotationAroundY(angle);
 
-			Assert::AreEqual(c, r(0, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 1), 1e-5f);
-			Assert::AreEqual(-s, r(0, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 3), 1e-5f);
+			Assert::AreEqual(c, r(0, 0), eps);
+			Assert::AreEqual(0.0f, r(0, 1), eps);
+			Assert::AreEqual(-s, r(0, 2), eps);
+			Assert::AreEqual(0.0f, r(0, 3), eps);
 
-			Assert::AreEqual(0.0f, r(1, 0), 1e-5f);
-			Assert::AreEqual(1.0f, r(1, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(1, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(1, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(1, 0), eps);
+			Assert::AreEqual(1.0f, r(1, 1), eps);
+			Assert::AreEqual(0.0f, r(1, 2), eps);
+			Assert::AreEqual(0.0f, r(1, 3), eps);
 
-			Assert::AreEqual(s, r(2, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(2, 1), 1e-5f);
-			Assert::AreEqual(c, r(2, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(2, 3), 1e-5f);
+			Assert::AreEqual(s, r(2, 0), eps);
+			Assert::AreEqual(0.0f, r(2, 1), eps);
+			Assert::AreEqual(c, r(2, 2), eps);
+			Assert::AreEqual(0.0f, r(2, 3), eps);
 
-			Assert::AreEqual(0.0f, r(3, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(3, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(3, 2), 1e-5f);
-			Assert::AreEqual(1.0f, r(3, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(3, 0), eps);
+			Assert::AreEqual(0.0f, r(3, 1), eps);
+			Assert::AreEqual(0.0f, r(3, 2), eps);
+			Assert::AreEqual(1.0f, r(3, 3), eps);
 		}
 
 		TEST_METHOD(CreateRotationAroundZ_CreatesCorrectMatrix)
@@ -225,25 +324,25 @@ namespace MatrixTests
 			const float s = std::sin(angle);
 			Matrix4x4<float> r = Matrix4x4<float>::CreateRotationAroundZ(angle);
 
-			Assert::AreEqual(c, r(0, 0), 1e-5f);
-			Assert::AreEqual(s, r(0, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(0, 3), 1e-5f);
+			Assert::AreEqual(c, r(0, 0), eps);
+			Assert::AreEqual(s, r(0, 1), eps);
+			Assert::AreEqual(0.0f, r(0, 2), eps);
+			Assert::AreEqual(0.0f, r(0, 3), eps);
 
-			Assert::AreEqual(-s, r(1, 0), 1e-5f);
-			Assert::AreEqual(c, r(1, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(1, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(1, 3), 1e-5f);
+			Assert::AreEqual(-s, r(1, 0), eps);
+			Assert::AreEqual(c, r(1, 1), eps);
+			Assert::AreEqual(0.0f, r(1, 2), eps);
+			Assert::AreEqual(0.0f, r(1, 3), eps);
 
-			Assert::AreEqual(0.0f, r(2, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(2, 1), 1e-5f);
-			Assert::AreEqual(1.0f, r(2, 2), 1e-5f);
-			Assert::AreEqual(0.0f, r(2, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(2, 0), eps);
+			Assert::AreEqual(0.0f, r(2, 1), eps);
+			Assert::AreEqual(1.0f, r(2, 2), eps);
+			Assert::AreEqual(0.0f, r(2, 3), eps);
 
-			Assert::AreEqual(0.0f, r(3, 0), 1e-5f);
-			Assert::AreEqual(0.0f, r(3, 1), 1e-5f);
-			Assert::AreEqual(0.0f, r(3, 2), 1e-5f);
-			Assert::AreEqual(1.0f, r(3, 3), 1e-5f);
+			Assert::AreEqual(0.0f, r(3, 0), eps);
+			Assert::AreEqual(0.0f, r(3, 1), eps);
+			Assert::AreEqual(0.0f, r(3, 2), eps);
+			Assert::AreEqual(1.0f, r(3, 3), eps);
 		}
 
 		TEST_METHOD(OperatorPlusEquals_AddsElementWise)
@@ -252,10 +351,10 @@ namespace MatrixTests
 			Matrix4x4<float> b{ 16,15,14,13,  12,11,10,9,  8,7,6,5,  4,3,2,1 };
 			a += b;
 
-			Assert::AreEqual(17.0f, a(0, 0), 1e-6f);
-			Assert::AreEqual(17.0f, a(1, 1), 1e-6f);
-			Assert::AreEqual(17.0f, a(2, 2), 1e-6f);
-			Assert::AreEqual(17.0f, a(3, 3), 1e-6f);
+			Assert::AreEqual(17.0f, a(0, 0), eps);
+			Assert::AreEqual(17.0f, a(1, 1), eps);
+			Assert::AreEqual(17.0f, a(2, 2), eps);
+			Assert::AreEqual(17.0f, a(3, 3), eps);
 		}
 
 		TEST_METHOD(OperatorMinusEquals_SubtractsElementWise)
@@ -264,9 +363,9 @@ namespace MatrixTests
 			Matrix4x4<float> b{ 1,1,1,1,  1,1,1,1,  1,1,1,1,  1,1,1,1 };
 			a -= b;
 
-			Assert::AreEqual(0.0f, a(0, 0), 1e-6f);
-			Assert::AreEqual(1.0f, a(0, 1), 1e-6f);
-			Assert::AreEqual(15.0f, a(3, 3), 1e-6f);
+			Assert::AreEqual(0.0f, a(0, 0), eps);
+			Assert::AreEqual(1.0f, a(0, 1), eps);
+			Assert::AreEqual(15.0f, a(3, 3), eps);
 		}
 
 		TEST_METHOD(OperatorTimesEquals_MatrixMultiplies)
@@ -284,10 +383,10 @@ namespace MatrixTests
 			Matrix4x4<float> a{ 1,2,3,4,  5,6,7,8,  9,10,11,12,  13,14,15,16 };
 			a *= 2.0f;
 
-			Assert::AreEqual(2.0f, a(0, 0), 1e-6f);
-			Assert::AreEqual(12.0f, a(1, 1), 1e-6f);
-			Assert::AreEqual(22.0f, a(2, 2), 1e-6f);
-			Assert::AreEqual(32.0f, a(3, 3), 1e-6f);
+			Assert::AreEqual(2.0f, a(0, 0), eps);
+			Assert::AreEqual(12.0f, a(1, 1), eps);
+			Assert::AreEqual(22.0f, a(2, 2), eps);
+			Assert::AreEqual(32.0f, a(3, 3), eps);
 		}
 
 		TEST_METHOD(OperatorEquals_And_NotEquals)
