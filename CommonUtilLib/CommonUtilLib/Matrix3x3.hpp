@@ -110,7 +110,7 @@ namespace CommonUtilities
 		{
 			for (int col = 0; col < 3; ++col)
 			{
-				myMatrix[row][col] = aMatrix(row, col);
+				myMatrix[row][col] = aMatrix(row + 1, col + 1);
 			}
 		}
 	}
@@ -161,13 +161,23 @@ namespace CommonUtilities
 	template <typename T>
 	inline T& Matrix3x3<T>::operator()(const int aRow, const int aColumn)
 	{
-		return myMatrix[aRow][aColumn];
+		if (aRow < 1 || aRow > 3 || aColumn < 1 || aColumn > 3)
+		{
+			throw std::out_of_range("Matrix3x3 index out of range");
+		}
+
+		return myMatrix[aRow - 1][aColumn - 1];
 	}
 
 	template <typename T>
 	inline const T& Matrix3x3<T>::operator()(const int aRow, const int aColumn) const
 	{
-		return myMatrix[aRow][aColumn];
+		if (aRow < 1 || aRow > 3 || aColumn < 1 || aColumn > 3)
+		{
+			throw std::out_of_range("Matrix3x3 index out of range");
+		}
+
+		return myMatrix[aRow - 1][aColumn - 1];
 	}
 	
 	template <typename T>
@@ -202,7 +212,7 @@ namespace CommonUtilities
 		{
 			for (int col = 0; col < 3; ++col)
 			{
-				transposedMatrix(col, row) = myMatrix[row][col];
+				transposedMatrix.myMatrix[col][row] = myMatrix[row][col];
 			}
 		}
 		return transposedMatrix;
@@ -214,10 +224,10 @@ namespace CommonUtilities
 		Matrix3x3<T> rotationMatrix;
 		T cosAngle = static_cast<T>(std::cos(aAngleInRadians));
 		T sinAngle = static_cast<T>(std::sin(aAngleInRadians));
-		rotationMatrix(1, 1) = cosAngle;
-		rotationMatrix(1, 2) = sinAngle;
-		rotationMatrix(2, 1) = -sinAngle;
 		rotationMatrix(2, 2) = cosAngle;
+		rotationMatrix(2, 3) = sinAngle;
+		rotationMatrix(3, 2) = -sinAngle;
+		rotationMatrix(3, 3) = cosAngle;
 		return rotationMatrix;
 	}
 
@@ -227,10 +237,10 @@ namespace CommonUtilities
 		Matrix3x3<T> rotationMatrix;
 		T cosAngle = static_cast<T>(std::cos(aAngleInRadians));
 		T sinAngle = static_cast<T>(std::sin(aAngleInRadians));
-		rotationMatrix(0, 0) = cosAngle;
-		rotationMatrix(0, 2) = -sinAngle;
-		rotationMatrix(2, 0) = sinAngle;
-		rotationMatrix(2, 2) = cosAngle;
+		rotationMatrix(1, 1) = cosAngle;
+		rotationMatrix(1, 3) = -sinAngle;
+		rotationMatrix(3, 1) = sinAngle;
+		rotationMatrix(3, 3) = cosAngle;
 		return rotationMatrix;
 	}
 
@@ -240,10 +250,10 @@ namespace CommonUtilities
 		Matrix3x3<T> rotationMatrix;
 		T cosAngle = static_cast<T>(std::cos(aAngleInRadians));
 		T sinAngle = static_cast<T>(std::sin(aAngleInRadians));
-		rotationMatrix(0, 0) = cosAngle;
-		rotationMatrix(0, 1) = sinAngle;
-		rotationMatrix(1, 0) = -sinAngle;
 		rotationMatrix(1, 1) = cosAngle;
+		rotationMatrix(1, 2) = sinAngle;
+		rotationMatrix(2, 1) = -sinAngle;
+		rotationMatrix(2, 2) = cosAngle;
 		return rotationMatrix;
 	}
 
@@ -343,12 +353,12 @@ namespace CommonUtilities
 	inline Matrix3x3<T> operator*(const Matrix3x3<T>& aMatrix0, const Matrix3x3<T>& aMatrix1)
 	{
 		Matrix3x3<T> result;
-		for (int r = 0; r < 3; ++r)
+		for (int r = 1; r <= 3; ++r)
 		{
-			for (int c = 0; c < 3; ++c)
+			for (int c = 1; c <= 3; ++c)
 			{
 				T sum = static_cast<T>(0);
-				for (int k = 0; k < 3; ++k)
+				for (int k = 1; k <= 3; ++k)
 				{
 					sum += aMatrix0(r, k) * aMatrix1(k, c);
 				}
@@ -378,9 +388,9 @@ namespace CommonUtilities
 	inline Vector3<T> operator*(const Vector3<T>& aVector, const Matrix3x3<T>& aMatrix)
 	{
 		return Vector3<T>(
-			aVector.x * aMatrix(0, 0) + aVector.y * aMatrix(1, 0) + aVector.z * aMatrix(2, 0),
-			aVector.x * aMatrix(0, 1) + aVector.y * aMatrix(1, 1) + aVector.z * aMatrix(2, 1),
-			aVector.x * aMatrix(0, 2) + aVector.y * aMatrix(1, 2) + aVector.z * aMatrix(2, 2));
+			aVector.x * aMatrix(1, 1) + aVector.y * aMatrix(2, 1) + aVector.z * aMatrix(3, 1),
+			aVector.x * aMatrix(1, 2) + aVector.y * aMatrix(2, 2) + aVector.z * aMatrix(3, 2),
+			aVector.x * aMatrix(1, 3) + aVector.y * aMatrix(2, 3) + aVector.z * aMatrix(3, 3));
 	}
 
 	template <typename T>
@@ -391,7 +401,7 @@ namespace CommonUtilities
 			aStream << "[";
 			for (int c = 0; c < 3; ++c)
 			{
-				aStream << aMatrix(r, c);
+				aStream << aMatrix[r][c];
 				if (c < 2)
 				{
 					aStream << ", ";

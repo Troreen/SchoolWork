@@ -1,3 +1,5 @@
+#pragma once
+
 enum class Keys : int
 {
 	MOUSELBUTTON = 0x01,
