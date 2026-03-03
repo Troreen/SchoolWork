@@ -1,21 +1,10 @@
 {
     "version": "2.0.0",
-    "windows": {
-        "options": {
-            "shell": {
-                "executable": "cmd.exe",
-                "args": [
-                    "/C",
-                    "\"%ProgramFiles%\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\" && "
-                ]
-            }
-        }
-    },
     "tasks": [
         {
             "label": "Build Solution (Debug x64)",
             "type": "shell",
-            "command": "msbuild",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "args": [
                 "${workspaceFolder}/CommonUtilLib.sln",
                 "/p:Configuration=Debug",
@@ -32,7 +21,7 @@
         {
             "label": "Build Solution (Release x64)",
             "type": "shell",
-            "command": "msbuild",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "args": [
                 "${workspaceFolder}/CommonUtilLib.sln",
                 "/p:Configuration=Release",
@@ -46,7 +35,7 @@
         {
             "label": "Run Tests",
             "type": "shell",
-            "command": "vstest.console.exe",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
             "args": [
                 "${workspaceFolder}/x64/Debug/MathTests.dll"
             ],
@@ -56,9 +45,17 @@
             "detail": "Build and run unit tests"
         },
         {
+            "label": "Run Sudoku Demo",
+            "type": "process",
+            "command": "${workspaceFolder}\\SudokuDemo.exe",
+            "args": [],
+            "problemMatcher": [],
+            "detail": "Run Sudoku demo and print solved board"
+        },
+        {
             "label": "Clean Solution",
             "type": "shell",
-            "command": "msbuild",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "args": [
                 "${workspaceFolder}/CommonUtilLib.sln",
                 "/t:Clean",

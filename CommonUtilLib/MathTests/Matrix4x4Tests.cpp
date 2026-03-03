@@ -16,7 +16,7 @@ namespace MatrixTests
 {
 	namespace
 	{
-		static void AssertMatrix4x4Equal(const Matrix4x4<float>& a, const Matrix4x4<float>& b, float eps = eps)
+		static void AssertMatrix4x4Equal(const Matrix4x4<float>& a, const Matrix4x4<float>& b, float eps = 1e-5f)
 		{
 			for (int r = 0; r < 4; ++r)
 			{
