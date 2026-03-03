@@ -46,7 +46,7 @@ namespace CommonUtilities
 		Vector4<T> GetColumn(const int aColumn) const;
 		
 		// Creates a transposed copy of the matrix.
-		Matrix4x4 GetTranspose() const;
+		Matrix4x4<T> GetTranspose() const;
 
 		// Assumes the matrix is made up of nothing but rotations and translations.
 		Matrix4x4<T> GetFastInverse() const;
@@ -113,7 +113,7 @@ namespace CommonUtilities
 		{
 			for (int col = 0; col < 3; ++col)
 			{
-				myMatrix[row][col] = aMatrix(row, col);
+				myMatrix[row][col] = aMatrix(row + 1, col + 1);
 			}
 		}
 
@@ -170,13 +170,23 @@ namespace CommonUtilities
 	template <typename T>
 	inline T& Matrix4x4<T>::operator()(const int aRow, const int aColumn)
 	{
-		return myMatrix[aRow][aColumn];
+		if (aRow < 1 || aRow > 4 || aColumn < 1 || aColumn > 4)
+		{
+			throw std::out_of_range("Matrix4x4 index out of range");
+		}
+
+		return myMatrix[aRow - 1][aColumn - 1];
 	}
 
 	template <typename T>
 	inline const T& Matrix4x4<T>::operator()(const int aRow, const int aColumn) const
 	{
-		return myMatrix[aRow][aColumn];
+		if (aRow < 1 || aRow > 4 || aColumn < 1 || aColumn > 4)
+		{
+			throw std::out_of_range("Matrix4x4 index out of range");
+		}
+
+		return myMatrix[aRow - 1][aColumn - 1];
 	}
 
 	template <typename T>
@@ -211,7 +221,7 @@ namespace CommonUtilities
 		{
 			for (int col = 0; col < 4; ++col)
 			{
-				transposedMatrix(col, row) = myMatrix[row][col];
+				transposedMatrix.myMatrix[col][row] = myMatrix[row][col];
 			}
 		}
 		return transposedMatrix;
@@ -220,44 +230,43 @@ namespace CommonUtilities
 	template <typename T>
 	inline Matrix4x4<T> Matrix4x4<T>::GetFastInverse() const
 	{
-		// Assumes row-vector convention: v' = v * M
-		// For rigid transforms: M = [ R  0 ]
-		//                     [ t  1 ]
-		// Inverse is:          [ R^T 0 ]
-		//                     [ -t R^T 1 ]
 		Matrix4x4<T> inverseMatrix;
 
-		// Transpose the rotation part (top-left 3x3)
-		for (int row = 0; row < 3; ++row)
+		// Transpose the rotation part (upper-left 3x3)
+		for (int r = 0; r < 3; ++r)
 		{
-			for (int col = 0; col < 3; ++col)
+			for (int c = 0; c < 3; ++c)
 			{
-				inverseMatrix(row, col) = (*this)(col, row);
+				inverseMatrix(r + 1, c + 1) = myMatrix[c][r];
 			}
 		}
 
-		// Compute inverse translation row: -t * R^T
-		const T tx = (*this)(3, 0);
-		const T ty = (*this)(3, 1);
-		const T tz = (*this)(3, 2);
-		inverseMatrix(3, 0) = -(tx * inverseMatrix(0, 0) + ty * inverseMatrix(1, 0) + tz * inverseMatrix(2, 0));
-		inverseMatrix(3, 1) = -(tx * inverseMatrix(0, 1) + ty * inverseMatrix(1, 1) + tz * inverseMatrix(2, 1));
-		inverseMatrix(3, 2) = -(tx * inverseMatrix(0, 2) + ty * inverseMatrix(1, 2) + tz * inverseMatrix(2, 2));
+		// Invert translation for row-vector convention (translation is stored in row 4, columns 1..3).
+		Vector4<T> translation(-myMatrix[3][0], -myMatrix[3][1], -myMatrix[3][2], static_cast<T>(1));
+		Vector4<T> invertedTranslation = translation * inverseMatrix;
 
-		// Last column/row are already set correctly by identity constructor.
+		inverseMatrix(4, 1) = invertedTranslation.x;
+		inverseMatrix(4, 2) = invertedTranslation.y;
+		inverseMatrix(4, 3) = invertedTranslation.z;
+		inverseMatrix(1, 4) = static_cast<T>(0);
+		inverseMatrix(2, 4) = static_cast<T>(0);
+		inverseMatrix(3, 4) = static_cast<T>(0);
+		inverseMatrix(4, 4) = static_cast<T>(1);
+
 		return inverseMatrix;
 	}
-	
+
+
 	template <typename T>
 	inline Matrix4x4<T> Matrix4x4<T>::CreateRotationAroundX(const T aAngleInRadians)
 	{
 		Matrix4x4<T> rotationMatrix;
 		const T cosAngle = static_cast<T>(std::cos(aAngleInRadians));
 		const T sinAngle = static_cast<T>(std::sin(aAngleInRadians));
-		rotationMatrix(1, 1) = cosAngle;
-		rotationMatrix(1, 2) = sinAngle;
-		rotationMatrix(2, 1) = -sinAngle;
 		rotationMatrix(2, 2) = cosAngle;
+		rotationMatrix(2, 3) = sinAngle;
+		rotationMatrix(3, 2) = -sinAngle;
+		rotationMatrix(3, 3) = cosAngle;
 		return rotationMatrix;
 	}
 
@@ -267,10 +276,10 @@ namespace CommonUtilities
 		Matrix4x4<T> rotationMatrix;
 		const T cosAngle = static_cast<T>(std::cos(aAngleInRadians));
 		const T sinAngle = static_cast<T>(std::sin(aAngleInRadians));
-		rotationMatrix(0, 0) = cosAngle;
-		rotationMatrix(0, 2) = -sinAngle;
-		rotationMatrix(2, 0) = sinAngle;
-		rotationMatrix(2, 2) = cosAngle;
+		rotationMatrix(1, 1) = cosAngle;
+		rotationMatrix(1, 3) = -sinAngle;
+		rotationMatrix(3, 1) = sinAngle;
+		rotationMatrix(3, 3) = cosAngle;
 		return rotationMatrix;
 	}
 
@@ -280,10 +289,10 @@ namespace CommonUtilities
 		Matrix4x4<T> rotationMatrix;
 		const T cosAngle = static_cast<T>(std::cos(aAngleInRadians));
 		const T sinAngle = static_cast<T>(std::sin(aAngleInRadians));
-		rotationMatrix(0, 0) = cosAngle;
-		rotationMatrix(0, 1) = sinAngle;
-		rotationMatrix(1, 0) = -sinAngle;
 		rotationMatrix(1, 1) = cosAngle;
+		rotationMatrix(1, 2) = sinAngle;
+		rotationMatrix(2, 1) = -sinAngle;
+		rotationMatrix(2, 2) = cosAngle;
 		return rotationMatrix;
 	}
 
@@ -384,12 +393,12 @@ namespace CommonUtilities
 	inline Matrix4x4<T> operator*(const Matrix4x4<T>& aMatrix0, const Matrix4x4<T>& aMatrix1)
 	{
 		Matrix4x4<T> result;
-		for (int r = 0; r < 4; ++r)
+		for (int r = 1; r <= 4; ++r)
 		{
-			for (int c = 0; c < 4; ++c)
+			for (int c = 1; c <= 4; ++c)
 			{
 				T sum = static_cast<T>(0);
-				for (int k = 0; k < 4; ++k)
+				for (int k = 1; k <= 4; ++k)
 				{
 					sum += aMatrix0(r, k) * aMatrix1(k, c);
 				}
@@ -419,10 +428,10 @@ namespace CommonUtilities
 	inline Vector4<T> operator*(const Vector4<T>& aVector, const Matrix4x4<T>& aMatrix)
 	{
 		return Vector4<T>(
-			aVector.x * aMatrix(0, 0) + aVector.y * aMatrix(1, 0) + aVector.z * aMatrix(2, 0) + aVector.w * aMatrix(3, 0),
-			aVector.x * aMatrix(0, 1) + aVector.y * aMatrix(1, 1) + aVector.z * aMatrix(2, 1) + aVector.w * aMatrix(3, 1),
-			aVector.x * aMatrix(0, 2) + aVector.y * aMatrix(1, 2) + aVector.z * aMatrix(2, 2) + aVector.w * aMatrix(3, 2),
-			aVector.x * aMatrix(0, 3) + aVector.y * aMatrix(1, 3) + aVector.z * aMatrix(2, 3) + aVector.w * aMatrix(3, 3));
+			aVector.x * aMatrix(1, 1) + aVector.y * aMatrix(2, 1) + aVector.z * aMatrix(3, 1) + aVector.w * aMatrix(4, 1),
+			aVector.x * aMatrix(1, 2) + aVector.y * aMatrix(2, 2) + aVector.z * aMatrix(3, 2) + aVector.w * aMatrix(4, 2),
+			aVector.x * aMatrix(1, 3) + aVector.y * aMatrix(2, 3) + aVector.z * aMatrix(3, 3) + aVector.w * aMatrix(4, 3),
+			aVector.x * aMatrix(1, 4) + aVector.y * aMatrix(2, 4) + aVector.z * aMatrix(3, 4) + aVector.w * aMatrix(4, 4));
 	}
 
 	template <typename T>
@@ -433,7 +442,7 @@ namespace CommonUtilities
 			aStream << "[";
 			for (int c = 0; c < 4; ++c)
 			{
-				aStream << aMatrix(r, c);
+				aStream << aMatrix[r][c];
 				if (c < 3)
 				{
 					aStream << ", ";
