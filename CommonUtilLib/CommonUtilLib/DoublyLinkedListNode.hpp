@@ -27,7 +27,7 @@ namespace CommonUtilities
         // deleted from outside. The list class is a friend, so that it can create or delete nodes.
         friend class DoublyLinkedList<T>;
 
-        explicit DoublyLinkedListNode(const T& aValue);
+        DoublyLinkedListNode(const T& aValue);
         ~DoublyLinkedListNode() = default;
 
         T myValue;

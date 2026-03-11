@@ -75,5 +75,35 @@ namespace MathTests
                 Assert::AreEqual(original[index], board[index], L"Board should remain unchanged for unsolveable input.");
             }
         }
+
+        TEST_METHOD(SolveSudoku_DoesNotModifyGivenCells)
+        {
+            CommonUtilities::SudokuSolver solver;
+
+            std::array<int, 81> board = {
+                5, 3, 0, 0, 7, 0, 0, 0, 0,
+                6, 0, 0, 1, 9, 5, 0, 0, 0,
+                0, 9, 8, 0, 0, 0, 0, 6, 0,
+                8, 0, 0, 0, 6, 0, 0, 0, 3,
+                4, 0, 0, 8, 0, 3, 0, 0, 1,
+                7, 0, 0, 0, 2, 0, 0, 0, 6,
+                0, 6, 0, 0, 0, 0, 2, 8, 0,
+                0, 0, 0, 4, 1, 9, 0, 0, 5,
+                0, 0, 0, 0, 8, 0, 0, 7, 9
+            };
+
+            const std::array<int, 81> original = board;
+
+            const bool solved = solver.SolveSudoku(board);
+            Assert::IsTrue(solved, L"Expected Sudoku board to be solvable.");
+
+            for (size_t index = 0; index < board.size(); ++index)
+            {
+                if (original[index] != 0)
+                {
+                    Assert::AreEqual(original[index], board[index], L"A given cell was modified by the solver.");
+                }
+            }
+        }
     };
 }
