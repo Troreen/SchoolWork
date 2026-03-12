@@ -10,7 +10,7 @@ namespace CommonUtilities
     {
     public:
         // return true if a solution is found, false otherwise. The solved board will be stored in aBoard.
-        static bool SolveSudoku(std::array<int, 81>& aBoard);
+        bool SolveSudoku(std::array<int, 81>& aBoard);
 
     private:
         struct CellPosition

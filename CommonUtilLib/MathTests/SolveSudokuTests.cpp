@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "../CommonUtilLib/SudokuSolver.hpp"
+#include "../CommonUtilLib/SolveSudoku.hpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
