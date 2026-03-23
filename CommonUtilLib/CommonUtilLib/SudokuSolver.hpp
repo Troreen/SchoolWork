@@ -6,83 +6,29 @@
 
 namespace CommonUtilities
 {
-    class SudokuSolver
+    struct CellPosition
     {
-    public:
-        // return true if a solution is found, false otherwise. The solved board will be stored in aBoard.
-        static bool SolveSudoku(std::array<int, 81>& aBoard);
-
-    private:
-        struct CellPosition
+        int row;
+        int col;
+    
+        bool operator==(const CellPosition& aOther) const
         {
-            int row;
-            int col;
-
-            bool operator==(const CellPosition& aOther) const
-            {
-                return row == aOther.row && col == aOther.col;
-            }
-        };
-
-        static int GetIndex(const int aRow, const int aCol);
-
-        static bool IsValueInRange(const int aValue);
-
-        static bool IsValidPlacement(const std::array<int, 81>& aBoard, const int aRow, const int aCol, const int aValue);
-
-        static bool IsBoardStateValid(const std::array<int, 81>& aBoard);
-
-        static void BuildEmptyCellList(const std::array<int, 81>& aBoard, DoublyLinkedList<CellPosition>& aOutEmptyCells);
-
-        static bool SolveFromNode(
-            std::array<int, 81>& aBoard,
-            const std::array<bool, 81>& aFixedCells,
-            DoublyLinkedListNode<CellPosition>* aCurrentNode);
+            return row == aOther.row && col == aOther.col;
+        }
     };
 
-    bool SudokuSolver::SolveSudoku(std::array<int, 81>& aBoard)
-    {
-        const std::array<int, 81> originalBoard = aBoard;
-
-        if (!IsBoardStateValid(aBoard))
-        {
-            return false;
-        }
-
-        std::array<bool, 81> fixedCells = {};
-        for (size_t index = 0; index < aBoard.size(); ++index)
-        {
-            fixedCells[index] = aBoard[index] != 0;
-        }
-
-        DoublyLinkedList<CellPosition> emptyCells;
-        BuildEmptyCellList(aBoard, emptyCells);
-        if (emptyCells.GetSize() == 0)
-        {
-            return true;
-        }
-
-        const bool solved = SolveFromNode(aBoard, fixedCells, emptyCells.GetFirst());
-        if (!solved)
-        {
-            aBoard = originalBoard;
-        }
-
-        return solved;
-    }
-
-
-    int SudokuSolver::GetIndex(const int aRow, const int aCol)
+    
+    int GetIndex(const int aRow, const int aCol)
     {
         return aRow * 9 + aCol;
     }
-
-    bool SudokuSolver::IsValueInRange(const int aValue)
+    
+    bool IsValueInRange(const int aValue)
     {
         return aValue >= 0 && aValue <= 9;
     }
-
-    bool SudokuSolver::IsValidPlacement(const std::array<int, 81>& aBoard, const int aRow, const int aCol, const int aValue)
+    
+    bool IsValidPlacement(const std::array<int, 81>& aBoard, const int aRow, const int aCol, const int aValue)
     {
         for (int col = 0; col < 9; ++col)
         {
@@ -91,7 +37,7 @@ namespace CommonUtilities
                 return false;
             }
         }
-
+        
         for (int row = 0; row < 9; ++row)
         {
             if (row != aRow && aBoard[GetIndex(row, aCol)] == aValue)
@@ -99,7 +45,7 @@ namespace CommonUtilities
                 return false;
             }
         }
-
+        
         const int boxStartRow = (aRow / 3) * 3;
         const int boxStartCol = (aCol / 3) * 3;
         for (int row = boxStartRow; row < boxStartRow + 3; ++row)
@@ -112,11 +58,11 @@ namespace CommonUtilities
                 }
             }
         }
-
+        
         return true;
     }
-
-    bool SudokuSolver::IsBoardStateValid(const std::array<int, 81>& aBoard)
+    
+    bool IsBoardStateValid(const std::array<int, 81>& aBoard)
     {
         for (int row = 0; row < 9; ++row)
         {
@@ -127,18 +73,18 @@ namespace CommonUtilities
                 {
                     return false;
                 }
-
+                
                 if (value != 0 && !IsValidPlacement(aBoard, row, col, value))
                 {
                     return false;
                 }
             }
         }
-
+        
         return true;
     }
-
-    void SudokuSolver::BuildEmptyCellList(const std::array<int, 81>& aBoard, DoublyLinkedList<CellPosition>& aOutEmptyCells)
+    
+    void BuildEmptyCellList(const std::array<int, 81>& aBoard, DoublyLinkedList<CellPosition>& aOutEmptyCells)
     {
         for (int row = 0; row < 9; ++row)
         {
@@ -151,17 +97,14 @@ namespace CommonUtilities
             }
         }
     }
-
-    bool SudokuSolver::SolveFromNode(
-        std::array<int, 81>& aBoard,
-        const std::array<bool, 81>& aFixedCells,
-        DoublyLinkedListNode<CellPosition>* aCurrentNode)
+    
+    bool SolveFromNode(std::array<int, 81>& aBoard, const std::array<bool, 81>& aFixedCells, DoublyLinkedListNode<CellPosition>* aCurrentNode)
     {
         if (aCurrentNode == nullptr)
         {
             return true;
         }
-
+        
         const CellPosition& position = aCurrentNode->GetValue();
         const int index = GetIndex(position.row, position.col);
         if (aFixedCells[index])
@@ -183,7 +126,39 @@ namespace CommonUtilities
                 aBoard[index] = 0;
             }
         }
-
+        
         return false;
     }
+    // return true if a solution is found, false otherwise. The solved board will be stored in aBoard.
+    bool SolveSudoku(std::array<int, 81>& aBoard)
+    {
+        const std::array<int, 81> originalBoard = aBoard;
+        
+        if (!IsBoardStateValid(aBoard))
+        {
+            return false;
+        }
+        
+        std::array<bool, 81> fixedCells = {};
+        for (size_t index = 0; index < aBoard.size(); ++index)
+        {
+            fixedCells[index] = aBoard[index] != 0;
+        }
+        
+        DoublyLinkedList<CellPosition> emptyCells;
+        BuildEmptyCellList(aBoard, emptyCells);
+        if (emptyCells.GetSize() == 0)
+        {
+            return true;
+        }
+        
+        const bool solved = SolveFromNode(aBoard, fixedCells, emptyCells.GetFirst());
+        if (!solved)
+        {
+            aBoard = originalBoard;
+        }
+    
+        return solved;
+    }
+    
 }
