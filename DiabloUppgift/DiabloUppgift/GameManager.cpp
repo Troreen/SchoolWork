@@ -5,12 +5,17 @@
 #include "Enemy.h"
 #include "EnemyFactory.h"
 #include "EnemyTypes.h"
-#include "InteractionController.h"
 #include "InventoryTypes.h"
 #include "ItemFactory.h"
 #include "Chest.h"
 #include "ChestFactory.h"
 #include "ChestTypes.h"
+#include "EndState.h"
+#include "GameContext.h"
+#include "GameplayState.h"
+#include "MainMenuState.h"
+#include "StateId.h"
+#include "StateStack.h"
 
 #include <memory>
 #include <iostream>
@@ -129,15 +134,30 @@ void GameManager::Run()
         doorViews.push_back(door.get());
     }
 
-    InteractionController interaction(myPlayer, myRooms, myCurrentRoom, doorViews);
-    bool isRunning = true;
+    GameContext context{ myPlayer, myRooms, myCurrentRoom, doorViews, true, "" };
+    StateStack stateStack;
 
-    while (isRunning)
+    stateStack.RegisterState(StateId::MainMenu, [&context]()
     {
-        isRunning = interaction.HandleTurn();
-    }
+        return std::make_unique<MainMenuState>(context);
+    });
 
-    std::cout << "\nThanks for playing!\n";
+    stateStack.RegisterState(StateId::Gameplay, [&context]()
+    {
+        return std::make_unique<GameplayState>(context);
+    });
+
+    stateStack.RegisterState(StateId::End, [&context]()
+    {
+        return std::make_unique<EndState>(context);
+    });
+
+    stateStack.PushState(StateId::MainMenu);
+
+    while (context.isRunning && !stateStack.Empty())
+    {
+        stateStack.Update();
+    }
 }
 
 
