@@ -45,6 +45,45 @@
             "detail": "Build and run unit tests"
         },
         {
+            "label": "Run Matrix Tests",
+            "type": "shell",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
+            "args": [
+                "${workspaceFolder}/x64/Debug/MathTests.dll",
+                "/TestCaseFilter:FullyQualifiedName~Matrix3x3Tests|FullyQualifiedName~Matrix4x4Tests"
+            ],
+            "group": "test",
+            "problemMatcher": [],
+            "dependsOn": "Build Solution (Debug x64)",
+            "detail": "Build and run matrix-only tests"
+        },
+        {
+            "label": "Run StackQueue Tests",
+            "type": "shell",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
+            "args": [
+                "${workspaceFolder}/x64/Debug/MathTests.dll",
+                "/TestCaseFilter:FullyQualifiedName~StackQueueTests"
+            ],
+            "group": "test",
+            "problemMatcher": [],
+            "dependsOn": "Build Solution (Debug x64)",
+            "detail": "Build and run stack/queue-only tests"
+        },
+        {
+            "label": "Run Sudoku Tests",
+            "type": "shell",
+            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
+            "args": [
+                "${workspaceFolder}/x64/Debug/MathTests.dll",
+                "/TestCaseFilter:FullyQualifiedName~SudokuSolverTests"
+            ],
+            "group": "test",
+            "problemMatcher": [],
+            "dependsOn": "Build Solution (Debug x64)",
+            "detail": "Build and run sudoku-only tests"
+        },
+        {
             "label": "Run Sudoku Demo",
             "type": "process",
             "command": "${workspaceFolder}\\SudokuDemo.exe",
