@@ -1,8 +1,7 @@
 #include "IGameState.h"
 
-IGameState::IGameState(GameContext& aContext, const std::string& aDebugName)
+IGameState::IGameState(GameContext& aContext)
     : myContext(aContext)
-    , myDebugName(aDebugName)
     , myStateTimer()
 {
 }
@@ -21,9 +20,4 @@ void IGameState::OnExit()
 double IGameState::GetElapsedSeconds() const
 {
     return myStateTimer.GetElapsedSeconds();
-}
-
-const std::string& IGameState::GetDebugName() const
-{
-    return myDebugName;
 }

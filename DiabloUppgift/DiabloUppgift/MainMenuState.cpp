@@ -31,7 +31,7 @@ namespace
 }
 
 MainMenuState::MainMenuState(GameContext& aContext)
-    : IGameState(aContext, "MainMenuState")
+    : IGameState(aContext)
 {
 }
 
@@ -39,7 +39,7 @@ void MainMenuState::Update(StateStack& aStateStack)
 {
     ConsoleView::ClearScreen();
 
-    std::cout << "=== Diablo Uppgift ===\n";
+    std::cout << "=== Diablo Ripoff Game ===\n";
     std::cout << "Main menu timer: " << std::fixed << std::setprecision(1) << GetElapsedSeconds() << " s\n\n";
     std::cout << "1 - Start game\n";
     std::cout << "0 - Exit\n\n";

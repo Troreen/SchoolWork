@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IGameState.h"
-#include "InteractionController.h"
 
 class GameplayState : public IGameState
 {
@@ -11,5 +10,27 @@ public:
     void Update(StateStack& aStateStack) override;
 
 private:
-    InteractionController myInteraction;
+    enum class Command
+    {
+        Quit,
+        Move,
+        Inspect,
+        Inventory,
+        Drop,
+        Stats,
+        Pickup,
+        OpenChest,
+        Invalid
+    };
+
+    Command GetCommandInSafeRoom() const;
+    bool ExecuteCommand(Command aCommand, StateStack& aStateStack);
+
+    bool HandleMove();
+    void InspectRoom() const;
+    void DropItems();
+    void PickUpItems();
+    void OpenChest();
+
+    int ReadInt(const std::string& aPrompt) const;
 };

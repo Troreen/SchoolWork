@@ -7,7 +7,7 @@
 #include "StateStack.h"
 
 EndState::EndState(GameContext& aContext)
-    : IGameState(aContext, "EndState")
+    : IGameState(aContext)
 {
 }
 

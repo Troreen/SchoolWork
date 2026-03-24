@@ -67,7 +67,6 @@ bool CombatComponent::SelectEnemy(size_t anIndex)
 
 bool CombatComponent::PerformPlayerAction(Action anAction)
 {
-    std::system("cls"); 
     if (myResult != Result::ResultOngoing || myEnemies.empty() || myCurrentEnemyIndex >= myEnemies.size())
     {
         return false;

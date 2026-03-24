@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CombatState.cpp" />
     <ClCompile Include="ChestFactory.cpp" />
     <ClCompile Include="ChestTypes.cpp" />
     <ClCompile Include="CombatComponent.cpp" />
@@ -139,7 +140,7 @@
     <ClCompile Include="GameplayState.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="IGameState.cpp" />
-    <ClCompile Include="InteractionController.cpp" />
+    <ClCompile Include="InventoryMenuState.cpp" />
     <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="InventoryTypes.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="StateTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CombatState.h" />
     <ClInclude Include="ChestFactory.h" />
     <ClInclude Include="ChestTypes.h" />
     <ClInclude Include="CombatComponent.h" />
@@ -165,7 +167,7 @@
     <ClInclude Include="GameplayState.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="IGameState.h" />
-    <ClInclude Include="InteractionController.h" />
+    <ClInclude Include="InventoryMenuState.h" />
     <ClInclude Include="ItemFactory.h" />
     <ClInclude Include="InventoryTypes.h" />
     <ClInclude Include="MainMenuState.h" />

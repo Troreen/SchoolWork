@@ -2,10 +2,12 @@
 
 #include "Door.h"
 #include "Direction.h"
+#include "CombatState.h"
 #include "Enemy.h"
 #include "EnemyFactory.h"
 #include "EnemyTypes.h"
 #include "InventoryTypes.h"
+#include "InventoryMenuState.h"
 #include "ItemFactory.h"
 #include "Chest.h"
 #include "ChestFactory.h"
@@ -127,14 +129,7 @@ GameManager::~GameManager() = default;
 
 void GameManager::Run()
 {
-    std::vector<Door*> doorViews;
-    doorViews.reserve(myDoors.size());
-    for (const auto& door : myDoors)
-    {
-        doorViews.push_back(door.get());
-    }
-
-    GameContext context{ myPlayer, myRooms, myCurrentRoom, doorViews, true, "" };
+    GameContext context{ myPlayer, myRooms, myCurrentRoom, true, "" };
     StateStack stateStack;
 
     stateStack.RegisterState(StateId::MainMenu, [&context]()
@@ -147,6 +142,16 @@ void GameManager::Run()
         return std::make_unique<GameplayState>(context);
     });
 
+    stateStack.RegisterState(StateId::Combat, [&context]()
+    {
+        return std::make_unique<CombatState>(context);
+    });
+
+    stateStack.RegisterState(StateId::InventoryMenu, [&context]()
+    {
+        return std::make_unique<InventoryMenuState>(context);
+    });
+
     stateStack.RegisterState(StateId::End, [&context]()
     {
         return std::make_unique<EndState>(context);
@@ -154,9 +159,14 @@ void GameManager::Run()
 
     stateStack.PushState(StateId::MainMenu);
 
-    while (context.isRunning && !stateStack.Empty())
+    while (context.isRunning)
     {
         stateStack.Update();
+
+        if (stateStack.Empty())
+        {
+            break;
+        }
     }
 }
 
