@@ -4,13 +4,8 @@
         {
             "label": "Build Solution (Debug x64)",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
-            "args": [
-                "${workspaceFolder}/CommonUtilLib.sln",
-                "/p:Configuration=Debug",
-                "/p:Platform=x64",
-                "/m"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $msbuild = $null; if (Test-Path $vswhere) { $msbuild = (& $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe | Select-Object -First 1) }; if (-not $msbuild) { $msbuild = (Get-Command MSBuild.exe -ErrorAction SilentlyContinue).Source }; if (-not $msbuild) { throw 'MSBuild.exe not found. Install Visual Studio Build Tools.' }; & $msbuild '${workspaceFolder}/CommonUtilLib.sln' '/p:Configuration=Debug' '/p:Platform=x64' '/m'",
+            "args": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -21,13 +16,8 @@
         {
             "label": "Build Solution (Release x64)",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
-            "args": [
-                "${workspaceFolder}/CommonUtilLib.sln",
-                "/p:Configuration=Release",
-                "/p:Platform=x64",
-                "/m"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $msbuild = $null; if (Test-Path $vswhere) { $msbuild = (& $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe | Select-Object -First 1) }; if (-not $msbuild) { $msbuild = (Get-Command MSBuild.exe -ErrorAction SilentlyContinue).Source }; if (-not $msbuild) { throw 'MSBuild.exe not found. Install Visual Studio Build Tools.' }; & $msbuild '${workspaceFolder}/CommonUtilLib.sln' '/p:Configuration=Release' '/p:Platform=x64' '/m'",
+            "args": [],
             "group": "build",
             "problemMatcher": "$msCompile",
             "detail": "Build the entire solution in Release x64"
@@ -35,10 +25,8 @@
         {
             "label": "Run Tests",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
-            "args": [
-                "${workspaceFolder}/x64/Debug/MathTests.dll"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $vstest = $null; if (Test-Path $vswhere) { $vstest = (& $vswhere -latest -products * -find Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe | Select-Object -First 1) }; if (-not $vstest) { $vstest = (Get-Command vstest.console.exe -ErrorAction SilentlyContinue).Source }; if (-not $vstest) { throw 'vstest.console.exe not found. Install Visual Studio test platform.' }; & $vstest '${workspaceFolder}/x64/Debug/MathTests.dll'",
+            "args": [],
             "group": "test",
             "problemMatcher": [],
             "dependsOn": "Build Solution (Debug x64)",
@@ -47,11 +35,8 @@
         {
             "label": "Run Matrix Tests",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
-            "args": [
-                "${workspaceFolder}/x64/Debug/MathTests.dll",
-                "/TestCaseFilter:FullyQualifiedName~Matrix3x3Tests|FullyQualifiedName~Matrix4x4Tests"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $vstest = $null; if (Test-Path $vswhere) { $vstest = (& $vswhere -latest -products * -find Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe | Select-Object -First 1) }; if (-not $vstest) { $vstest = (Get-Command vstest.console.exe -ErrorAction SilentlyContinue).Source }; if (-not $vstest) { throw 'vstest.console.exe not found. Install Visual Studio test platform.' }; & $vstest '${workspaceFolder}/x64/Debug/MathTests.dll' '/TestCaseFilter:FullyQualifiedName~Matrix3x3Tests|FullyQualifiedName~Matrix4x4Tests'",
+            "args": [],
             "group": "test",
             "problemMatcher": [],
             "dependsOn": "Build Solution (Debug x64)",
@@ -60,11 +45,8 @@
         {
             "label": "Run StackQueue Tests",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
-            "args": [
-                "${workspaceFolder}/x64/Debug/MathTests.dll",
-                "/TestCaseFilter:FullyQualifiedName~StackQueueTests"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $vstest = $null; if (Test-Path $vswhere) { $vstest = (& $vswhere -latest -products * -find Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe | Select-Object -First 1) }; if (-not $vstest) { $vstest = (Get-Command vstest.console.exe -ErrorAction SilentlyContinue).Source }; if (-not $vstest) { throw 'vstest.console.exe not found. Install Visual Studio test platform.' }; & $vstest '${workspaceFolder}/x64/Debug/MathTests.dll' '/TestCaseFilter:FullyQualifiedName~StackQueueTests'",
+            "args": [],
             "group": "test",
             "problemMatcher": [],
             "dependsOn": "Build Solution (Debug x64)",
@@ -73,11 +55,8 @@
         {
             "label": "Run Sudoku Tests",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe",
-            "args": [
-                "${workspaceFolder}/x64/Debug/MathTests.dll",
-                "/TestCaseFilter:FullyQualifiedName~SudokuSolverTests"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $vstest = $null; if (Test-Path $vswhere) { $vstest = (& $vswhere -latest -products * -find Common7\\IDE\\Extensions\\TestPlatform\\vstest.console.exe | Select-Object -First 1) }; if (-not $vstest) { $vstest = (Get-Command vstest.console.exe -ErrorAction SilentlyContinue).Source }; if (-not $vstest) { throw 'vstest.console.exe not found. Install Visual Studio test platform.' }; & $vstest '${workspaceFolder}/x64/Debug/MathTests.dll' '/TestCaseFilter:FullyQualifiedName~SudokuSolverTests'",
+            "args": [],
             "group": "test",
             "problemMatcher": [],
             "dependsOn": "Build Solution (Debug x64)",
@@ -94,13 +73,8 @@
         {
             "label": "Clean Solution",
             "type": "shell",
-            "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
-            "args": [
-                "${workspaceFolder}/CommonUtilLib.sln",
-                "/t:Clean",
-                "/p:Configuration=Debug",
-                "/p:Platform=x64"
-            ],
+            "command": "$pf86 = [Environment]::GetFolderPath('ProgramFilesX86'); $vswhere = Join-Path $pf86 'Microsoft Visual Studio\\Installer\\vswhere.exe'; $msbuild = $null; if (Test-Path $vswhere) { $msbuild = (& $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe | Select-Object -First 1) }; if (-not $msbuild) { $msbuild = (Get-Command MSBuild.exe -ErrorAction SilentlyContinue).Source }; if (-not $msbuild) { throw 'MSBuild.exe not found. Install Visual Studio Build Tools.' }; & $msbuild '${workspaceFolder}/CommonUtilLib.sln' '/t:Clean' '/p:Configuration=Debug' '/p:Platform=x64'",
+            "args": [],
             "problemMatcher": "$msCompile"
         }
     ]
